@@ -34,6 +34,12 @@
     },
     "mac": {
       "category": "public.app-category.games"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "releaseType": "release"
+      }
+    ]
   }
 }
