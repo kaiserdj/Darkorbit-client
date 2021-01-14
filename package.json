@@ -3,6 +3,10 @@
   "version": "1.0.1",
   "description": "Open source darkorbit client",
   "main": "index.js",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/kaiserdj/Darkorbit-client.git"
+  },
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
