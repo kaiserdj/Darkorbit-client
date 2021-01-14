@@ -1,7 +1,7 @@
 {
   "name": "darkorbit-client",
   "version": "1.0.0",
-  "description": "",
+  "description": "Open source darkorbit client",
   "main": "index.js",
   "scripts": {
     "start": "electron .",
@@ -21,6 +21,10 @@
     "appId": "com.DarkOrbitClient.Kaiserdj",
     "productName": "DarkOrbit Client",
     "extraResources": "./flash/**",
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
     "mac": {
       "category": "public.app-category.games"
     }
