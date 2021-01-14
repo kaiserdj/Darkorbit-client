@@ -36,9 +36,9 @@ let ppapi_flash_path;
 if (process.platform == 'win32') {
     ppapi_flash_path = path.join(__dirname, 'pepflashplayer.dll')
 } else if (process.platform == 'linux') {
-    ppapi_flash_path = `${__dirname}\libpepflashplayer.so`
+    ppapi_flash_path = path.join(__dirname, 'libpepflashplayer.so')
 } else if (process.platform == 'darwin') {
-    ppapi_flash_path = `${__dirname}\PepperFlashPlayer.plugin`
+    ppapi_flash_path = path.join(__dirname, 'PepperFlashPlayer.plugin')
 }
 
 app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
