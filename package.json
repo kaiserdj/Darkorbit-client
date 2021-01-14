@@ -4,14 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "author": "Kaiserdj",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^11.2.0"
+    "electron": "^11.2.0",
+    "electron-builder": "^22.9.1"
   },
   "dependencies": {
     "xml2js": "^0.4.23"
+  },
+  "build": {
+    "appId": "com.DarkOrbitClient.Kaiserdj",
+    "productName": "DarkOrbit Client",
+    "extraResources": "./flash/**",
+    "mac": {
+      "category": "public.app-category.games"
+    }
   }
 }
