@@ -7,18 +7,6 @@ async function createWindow() {
 
     let mainWindow;
 
-    let ppapi_flash_path;
-
-    if (process.platform == 'win32') {
-        ppapi_flash_path = path.join(__dirname, 'pepflashplayer.dll')
-    } else if (process.platform == 'linux') {
-        ppapi_flash_path = path.join(__dirname, 'libpepflashplayer.so')
-    } else if (process.platform == 'darwin') {
-        ppapi_flash_path = path.join(__dirname, 'PepperFlashPlayer.plugin')
-    }
-
-    app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path)
-
     mainWindow = new BrowserWindow({
         'width': 800,
         'height': 600,
@@ -42,6 +30,18 @@ async function createWindow() {
         external.loadURL(url, { userAgent: Useragent })
     });
 }
+
+let ppapi_flash_path;
+
+if (process.platform == 'win32') {
+    ppapi_flash_path = path.join(__dirname, 'pepflashplayer.dll')
+} else if (process.platform == 'linux') {
+    ppapi_flash_path = `${__dirname}\libpepflashplayer.so`
+} else if (process.platform == 'darwin') {
+    ppapi_flash_path = `${__dirname}\PepperFlashPlayer.plugin`
+}
+
+app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
 
 app.whenReady().then(createWindow)
 
