@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const userAgent = require("./useragent")
+const userAgent = require("./useragent");
 
 async function createWindow() {
     let Useragent = await userAgent.getVersion()
@@ -15,7 +15,7 @@ async function createWindow() {
             'nodeIntegration': true,
             'plugins': true
         },
-    })
+    });
 
     mainWindow.loadURL(`https://www.darkorbit.com/`, { userAgent: Useragent })
 
@@ -27,9 +27,9 @@ async function createWindow() {
                 'nodeIntegration': true,
                 'plugins': true
             }
-        })
+        });
 
-        external.loadURL(url, { userAgent: Useragent })
+        external.loadURL(url, { userAgent: Useragent });
     });
 }
 
@@ -43,20 +43,18 @@ if (process.platform == 'win32') {
     ppapi_flash_path = path.join(app.getAppPath(), '../flash/PepperFlashPlayer.plugin')
 }
 
-console.log(ppapi_flash_path)
-
 app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
 
-app.whenReady().then(createWindow)
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', function() {
     if (process.platform !== 'darwin') {
-        app.quit()
+        app.quit();
     }
-})
+});
 
 app.on('activate', function() {
     if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow()
+        createWindow();
     }
-})
+});

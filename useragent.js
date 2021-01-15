@@ -28,9 +28,9 @@ function parseXml(xml) {
 
 async function getVersion() {
     let xml = await httpGet(url);
-    let json = await parseXml(xml)
+    let json = await parseXml(xml);
 
-    return `BigPointClient/${json.Updates.PackageUpdate[0].Version[0]}`
+    return `BigPointClient/${json.Updates.PackageUpdate[0].Version[0]}`;
 }
 
 module.exports = {
