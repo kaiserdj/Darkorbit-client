@@ -16,11 +16,12 @@ autoUpdater.on('error', (error) => {
     dialog.showErrorBox('Error: ', error == null ? "unknown" : (error.stack || error).toString())
 })
 
-autoUpdater.on('update-available', async () => {
+autoUpdater.on('update-available', async (data) => {
     let check = await dialog.showMessageBoxSync({
         type: 'info',
-        title: 'Updates found',
+        title: `Updates found: ${data.version}`,
         message: 'Updates found, do you want to update now?',
+        detail: data.releaseNotes.replace(/<a.*>.*?<\/a>/ig,'').replace(/<p>/ig,'').replace(/<\/p>/ig,'').replace(/<br \/>/ig,''),
         buttons: ['Yes', 'No']
     })
 
@@ -31,13 +32,7 @@ autoUpdater.on('update-available', async () => {
             indeterminate: false,
             title: 'Update in progress',
             text: 'Preparing to download updates.',
-            detail: 'Downloading ...',
-            browserWindow: {
-                icon: `${__dirname}/assets/icon.ico`,
-                webPreferences: {
-                    nodeIntegration: true
-                }
-            }
+            detail: 'Downloading ...'
         })
 
         progressBar.on('completed', function() {
