@@ -1,7 +1,25 @@
 const { app, BrowserWindow } = require('electron');
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
 const path = require('path');
 const update = require("./update");
 const userAgent = require("./useragent");
+
+let argv = yargs(hideBin(process.argv))
+    .usage('Usage: $0 [options]')
+    .option('dosid', {
+        type: "string",
+        description: "Run client with custom dosid",
+        default: null
+    })
+    .option('dev', {
+        alias: 'd',
+        type: 'boolean',
+        description: 'Run in development mode',
+        default: false
+    })
+    .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
+    .argv;
 
 async function createWindow() {
     update.checkForUpdates()
@@ -15,11 +33,27 @@ async function createWindow() {
         'webPreferences': {
             'contextIsolation': true,
             'nodeIntegration': true,
-            'plugins': true
+            'plugins': true,
+            'devTools': argv.dev
         },
     });
 
-    mainWindow.loadURL(`https://www.darkorbit.com/`, { userAgent: Useragent })
+    if (argv.dev) {
+        mainWindow.webContents.openDevTools()
+    }
+
+    if (argv.dosid) {
+        let sid = argv.dosid.match(/[?&](dosid|sid)=([^&]+)/);
+        let baseUrl = new URL(argv.dosid).origin;
+
+        if (sid !== null && baseUrl !== null) {
+            const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+            mainWindow.webContents.session.cookies.set(cookie);
+            mainWindow.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: Useragent });
+        }
+    } else {
+        mainWindow.loadURL(`https://www.darkorbit.com/`, { userAgent: Useragent });
+    }
 
     mainWindow.webContents.on('new-window', async function(e, url) {
         e.preventDefault()
@@ -27,11 +61,16 @@ async function createWindow() {
             'webPreferences': {
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'plugins': true
+                'plugins': true,
+                'devTools': argv.dev
             }
         });
 
         external.loadURL(url, { userAgent: Useragent });
+
+        if (argv.dev) {
+            external.webContents.openDevTools()
+        }
     });
 }
 
