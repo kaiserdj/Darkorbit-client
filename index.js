@@ -1,8 +1,10 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const update = require("./update");
 const userAgent = require("./useragent");
 
 async function createWindow() {
+    update.checkForUpdates()
     let Useragent = await userAgent.getVersion()
 
     let mainWindow;
