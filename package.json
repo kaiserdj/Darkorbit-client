@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "electron .",
+    "dev": "electron . --d",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --publish always",
     "postinstall": "electron-builder install-app-deps",
