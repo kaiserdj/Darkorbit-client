@@ -2,8 +2,21 @@ const { app, BrowserWindow } = require('electron');
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const path = require('path');
+const settings = require("electron-settings");
 const update = require("./update");
 const userAgent = require("./useragent");
+
+settings.configure({
+    atomicSave: true,
+    fileName: 'settings.json',
+    prettify: true
+})
+
+if (!settings.getSync().check) {
+    settings.setSync(require("./defaultSettings.json"))
+}
+
+console.log(settings.getSync())
 
 let argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
@@ -28,8 +41,10 @@ async function createWindow() {
     let mainWindow;
 
     mainWindow = new BrowserWindow({
-        'width': 800,
-        'height': 600,
+        'width': settings.getSync().client.width,
+        'height': settings.getSync().client.height,
+        'x': settings.getSync().client.x,
+        'y': settings.getSync().client.y,
         'webPreferences': {
             'contextIsolation': true,
             'nodeIntegration': true,
@@ -55,60 +70,116 @@ async function createWindow() {
         mainWindow.loadURL(`https://www.darkorbit.com/`, { userAgent: Useragent });
     }
 
+    if (settings.getSync().client.max){
+        mainWindow.maximize();
+    }
+
+    mainWindow.on('maximize', () => {
+        let backup = settings.getSync();
+        backup.client.max = true;
+        settings.setSync(backup);
+    });
+
+    mainWindow.on("unmaximize", () => {
+        let backup = settings.getSync();
+        backup.client.max = false;
+        settings.setSync(backup);
+    });
+
+    mainWindow.on('resize', function() {
+        let backup = settings.getSync();
+        let size = mainWindow.getSize();
+        backup.client.width = size[0];
+        backup.client.height = size[1];
+
+        settings.setSync(backup);
+    });
+
+    mainWindow.on('move', function(data) {
+        let backup = settings.getSync();
+        let pos = data.sender.getBounds();
+        backup.client.x = pos.x;
+        backup.client.y = pos.y;
+
+        settings.setSync(backup);
+    });
+
     mainWindow.webContents.on('new-window', async function(e, url) {
-        let window;
-        e.preventDefault()
+        let windowType;
+        e.preventDefault();
 
         if (new URL(url).search === "?action=internalMapRevolution") {
-            window = new BrowserWindow({
-                'webPreferences': {
-                    'contextIsolation': true,
-                    'nodeIntegration': true,
-                    'plugins': true,
-                    'devTools': argv.dev
-                }
-            });
+            windowType = "game";
         } else if (new URL(url).host.split(".")[1] === "darkorbit") {
-            if (new URL(url).host.split(".")[0].search("board") !== -1) {
-                window = new BrowserWindow({
-                    'webPreferences': {
-                        'contextIsolation': true,
-                        'nodeIntegration': true,
-                        'plugins': true,
-                        'devTools': argv.dev
-                    }
-                });
+            console.log(new URL(url));
+            if (new URL(url).host.split(".")[0].search("board") !== -1 || new URL(url).search === "?action=portal.redirectToBoard") {
+                console.log("board");
+                windowType = "board";
             } else {
-                window = new BrowserWindow({
-                    'webPreferences': {
-                        'contextIsolation': true,
-                        'nodeIntegration': true,
-                        'plugins': true,
-                        'devTools': argv.dev
-                    }
-                });
+                console.log("client");
+                windowType = "client";
             }
         } else if (new URL(url).host.split(".")[1] === "bpsecure") {
-            window = new BrowserWindow({
-                'webPreferences': {
-                    'contextIsolation': true,
-                    'nodeIntegration': true,
-                    'plugins': true,
-                    'devTools': argv.dev
-                }
-            });
+            windowType = "config";
         } else {
-            require('open')(url)
-            return
+            require('open')(url);
+            return;
         }
+
+        let window = new BrowserWindow({
+            'width': settings.getSync()[windowType].width,
+            'height': settings.getSync()[windowType].height,
+            'x': settings.getSync()[windowType].x,
+            'y': settings.getSync()[windowType].y,
+            'webPreferences': {
+                'contextIsolation': true,
+                'nodeIntegration': true,
+                'plugins': true,
+                'devTools': argv.dev
+            }
+        })
 
         window.loadURL(url, { userAgent: Useragent });
 
         if (argv.dev) {
-            window.webContents.openDevTools()
+            window.webContents.openDevTools();
         }
+
+        if (settings.getSync()[windowType].max){
+            window.maximize();
+        }
+    
+        window.on('maximize', () => {
+            let backup = settings.getSync();
+            backup[windowType].max = true;
+            settings.setSync(backup);
+        });
+    
+        window.on("unmaximize", () => {
+            let backup = settings.getSync();
+            backup[windowType].max = false;
+            settings.setSync(backup);
+        });
+
+        window.on('resize', function() {
+            let backup = settings.getSync();
+            let size = window.getSize();
+            backup[windowType].width = size[0];
+            backup[windowType].height = size[1];
+
+            settings.setSync(backup);
+        })
+
+        window.on('move', function(data) {
+            let backup = settings.getSync();
+            let pos = data.sender.getBounds();
+            backup[windowType].x = pos.x;
+            backup[windowType].y = pos.y;
+    
+            settings.setSync(backup);
+        });
     });
-}
+};
 
 let ppapi_flash_path;
 

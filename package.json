@@ -1,6 +1,6 @@
 {
   "name": "darkorbit-client",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Open source darkorbit client",
   "main": "index.js",
   "repository": {
@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "electron-progressbar": "^2.0.0",
+    "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.5",
     "open": "^7.3.1",
     "xml2js": "^0.4.23",

@@ -1,0 +1,19 @@
+{
+    "check": true,
+    "client": {
+        "width": 1000,
+        "height": 723
+    },
+    "game": {
+        "width": 1016,
+        "height": 700
+    },
+    "board": {
+        "width": 1000,
+        "height": 723
+    },
+    "config": {
+        "width": 1000,
+        "height": 723
+    }
+}
