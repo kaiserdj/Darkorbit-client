@@ -56,20 +56,56 @@ async function createWindow() {
     }
 
     mainWindow.webContents.on('new-window', async function(e, url) {
+        let window;
         e.preventDefault()
-        const external = new BrowserWindow({
-            'webPreferences': {
-                'contextIsolation': true,
-                'nodeIntegration': true,
-                'plugins': true,
-                'devTools': argv.dev
-            }
-        });
 
-        external.loadURL(url, { userAgent: Useragent });
+        if (new URL(url).search === "?action=internalMapRevolution") {
+            window = new BrowserWindow({
+                'webPreferences': {
+                    'contextIsolation': true,
+                    'nodeIntegration': true,
+                    'plugins': true,
+                    'devTools': argv.dev
+                }
+            });
+        } else if (new URL(url).host.split(".")[1] === "darkorbit") {
+            if (new URL(url).host.split(".")[0].search("board") !== -1) {
+                window = new BrowserWindow({
+                    'webPreferences': {
+                        'contextIsolation': true,
+                        'nodeIntegration': true,
+                        'plugins': true,
+                        'devTools': argv.dev
+                    }
+                });
+            } else {
+                window = new BrowserWindow({
+                    'webPreferences': {
+                        'contextIsolation': true,
+                        'nodeIntegration': true,
+                        'plugins': true,
+                        'devTools': argv.dev
+                    }
+                });
+            }
+        } else if (new URL(url).host.split(".")[1] === "bpsecure") {
+            window = new BrowserWindow({
+                'webPreferences': {
+                    'contextIsolation': true,
+                    'nodeIntegration': true,
+                    'plugins': true,
+                    'devTools': argv.dev
+                }
+            });
+        } else {
+            require('open')(url)
+            return
+        }
+
+        window.loadURL(url, { userAgent: Useragent });
 
         if (argv.dev) {
-            external.webContents.openDevTools()
+            window.webContents.openDevTools()
         }
     });
 }
