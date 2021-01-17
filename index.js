@@ -16,8 +16,6 @@ if (!settings.getSync().check) {
     settings.setSync(require("./defaultSettings.json"))
 }
 
-console.log(settings.getSync())
-
 let argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
     .option('dosid', {
@@ -111,12 +109,9 @@ async function createWindow() {
         if (new URL(url).search === "?action=internalMapRevolution") {
             windowType = "game";
         } else if (new URL(url).host.split(".")[1] === "darkorbit") {
-            console.log(new URL(url));
             if (new URL(url).host.split(".")[0].search("board") !== -1 || new URL(url).search === "?action=portal.redirectToBoard") {
-                console.log("board");
                 windowType = "board";
             } else {
-                console.log("client");
                 windowType = "client";
             }
         } else if (new URL(url).host.split(".")[1] === "bpsecure") {

@@ -50,7 +50,6 @@ autoUpdater.on('update-available', async (data) => {
 
 autoUpdater.on('download-progress', (progressObj) => {
     progressBar.value = parseInt(progressObj.percent)
-    console.log(progressObj)
 })
 
 autoUpdater.on('update-not-available', () => {
@@ -60,6 +59,7 @@ autoUpdater.on('update-not-available', () => {
 })
 
 autoUpdater.on('update-downloaded', async () => {
+    progressBar.close()
     await dialog.showMessageBoxSync({
         title: 'Install updates',
         message: 'Downloaded updates, the application will close to update ...'
