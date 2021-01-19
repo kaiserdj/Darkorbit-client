@@ -18,6 +18,11 @@ if (!settings.getSync().check) {
 
 let argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
+    .option('login', {
+        alias: 'l',
+        type: 'array',
+        description: 'Autologin on darkorbit. Example: --login user pass'
+    })
     .option('dosid', {
         alias: 'sid',
         type: "string",
@@ -43,6 +48,7 @@ async function createWindow() {
         'x': settings.getSync().client.x,
         'y': settings.getSync().client.y,
         'webPreferences': {
+            'preload': `${__dirname}/inject/main.js`,
             'contextIsolation': true,
             'nodeIntegration': true,
             'plugins': true,
@@ -53,6 +59,13 @@ async function createWindow() {
     if (argv.dev) {
         mainWindow.webContents.openDevTools();
     }
+
+    if (argv.login) {
+        if (argv.login.length === 2) {
+            mainWindow.webContents.on('did-finish-load', () => {
+                mainWindow.webContents.send("login", argv.login)
+            });
+        }
     }
 
     if (argv.dosid) {
@@ -143,13 +156,13 @@ async function createWindow() {
         if (settings.getSync()[windowType].max) {
             window.maximize();
         }
-    
+
         window.on('maximize', () => {
             let backup = settings.getSync();
             backup[windowType].max = true;
             settings.setSync(backup);
         });
-    
+
         window.on("unmaximize", () => {
             let backup = settings.getSync();
             backup[windowType].max = false;
@@ -170,7 +183,7 @@ async function createWindow() {
             let pos = data.sender.getBounds();
             backup[windowType].x = pos.x;
             backup[windowType].y = pos.y;
-    
+
             settings.setSync(backup);
         });
     });
