@@ -19,15 +19,14 @@ if (!settings.getSync().check) {
 let argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
     .option('dosid', {
+        alias: 'sid',
         type: "string",
-        description: "Run client with custom dosid",
-        default: null
+        description: "Run client with custom dosid"
     })
     .option('dev', {
         alias: 'd',
         type: 'boolean',
-        description: 'Run in development mode',
-        default: false
+        description: 'Run in development mode'
     })
     .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
     .argv;
