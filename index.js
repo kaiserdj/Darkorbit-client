@@ -81,39 +81,7 @@ async function createWindow() {
         mainWindow.loadURL(`https://www.darkorbit.com/`, { userAgent: Useragent });
     }
 
-    if (settings.getSync().client.max) {
-        mainWindow.maximize();
-    }
-
-    mainWindow.on('maximize', () => {
-        let backup = settings.getSync();
-        backup.client.max = true;
-        settings.setSync(backup);
-    });
-
-    mainWindow.on("unmaximize", () => {
-        let backup = settings.getSync();
-        backup.client.max = false;
-        settings.setSync(backup);
-    });
-
-    mainWindow.on('resize', function() {
-        let backup = settings.getSync();
-        let size = mainWindow.getSize();
-        backup.client.width = size[0];
-        backup.client.height = size[1];
-
-        settings.setSync(backup);
-    });
-
-    mainWindow.on('move', function(data) {
-        let backup = settings.getSync();
-        let pos = data.sender.getBounds();
-        backup.client.x = pos.x;
-        backup.client.y = pos.y;
-
-        settings.setSync(backup);
-    });
+    settingsWindow(mainWindow, "client");
 
     mainWindow.webContents.on('new-window', async function(e, url) {
         let windowType;
@@ -153,40 +121,8 @@ async function createWindow() {
             window.webContents.openDevTools();
         }
 
-        if (settings.getSync()[windowType].max) {
-            window.maximize();
-        }
-
-        window.on('maximize', () => {
-            let backup = settings.getSync();
-            backup[windowType].max = true;
-            settings.setSync(backup);
+        settingsWindow(window, windowType);
         });
-
-        window.on("unmaximize", () => {
-            let backup = settings.getSync();
-            backup[windowType].max = false;
-            settings.setSync(backup);
-        });
-
-        window.on('resize', function() {
-            let backup = settings.getSync();
-            let size = window.getSize();
-            backup[windowType].width = size[0];
-            backup[windowType].height = size[1];
-
-            settings.setSync(backup);
-        })
-
-        window.on('move', function(data) {
-            let backup = settings.getSync();
-            let pos = data.sender.getBounds();
-            backup[windowType].x = pos.x;
-            backup[windowType].y = pos.y;
-
-            settings.setSync(backup);
-        });
-    });
 };
 
 let ppapi_flash_path;
@@ -214,3 +150,39 @@ app.on('activate', function() {
         createWindow();
     }
 });
+
+function settingsWindow(window, type) {
+    if (settings.getSync()[type].max) {
+        window.maximize();
+    }
+
+    window.on('maximize', () => {
+        let backup = settings.getSync();
+        backup[type].max = true;
+        settings.setSync(backup);
+    });
+
+    window.on("unmaximize", () => {
+        let backup = settings.getSync();
+        backup[type].max = false;
+        settings.setSync(backup);
+    });
+
+    window.on('resize', function() {
+        let backup = settings.getSync();
+        let size = window.getSize();
+        backup[type].width = size[0];
+        backup[type].height = size[1];
+
+        settings.setSync(backup);
+    })
+
+    window.on('move', function(data) {
+        let backup = settings.getSync();
+        let pos = data.sender.getBounds();
+        backup[type].x = pos.x;
+        backup[type].y = pos.y;
+
+        settings.setSync(backup);
+    });
+}
