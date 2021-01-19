@@ -1,7 +1,7 @@
 const http = require('http');
 const parseString = require('xml2js').parseString;
 
-const url = "http://darkorbit-22-client.bpsecure.com/bpflashclient/windows.x64/repository/Updates.xml"
+const url = "http://darkorbit-22-client.bpsecure.com/bpflashclient/windows.x64/repository/Updates.xml";
 
 const httpGet = url => {
     return new Promise((resolve, reject) => {

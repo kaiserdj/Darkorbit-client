@@ -10,10 +10,10 @@ settings.configure({
     atomicSave: true,
     fileName: 'settings.json',
     prettify: true
-})
+});
 
 if (!settings.getSync().check) {
-    settings.setSync(require("./defaultSettings.json"))
+    settings.setSync(require("./defaultSettings.json"));
 }
 
 let argv = yargs(hideBin(process.argv))
@@ -33,8 +33,8 @@ let argv = yargs(hideBin(process.argv))
     .argv;
 
 async function createWindow() {
-    update.checkForUpdates()
-    let Useragent = await userAgent.getVersion()
+    update.checkForUpdates();
+    let Useragent = await userAgent.getVersion();
 
     let mainWindow;
 
@@ -52,7 +52,8 @@ async function createWindow() {
     });
 
     if (argv.dev) {
-        mainWindow.webContents.openDevTools()
+        mainWindow.webContents.openDevTools();
+    }
     }
 
     if (argv.dosid) {
@@ -68,7 +69,7 @@ async function createWindow() {
         mainWindow.loadURL(`https://www.darkorbit.com/`, { userAgent: Useragent });
     }
 
-    if (settings.getSync().client.max){
+    if (settings.getSync().client.max) {
         mainWindow.maximize();
     }
 
@@ -132,7 +133,7 @@ async function createWindow() {
                 'plugins': true,
                 'devTools': argv.dev
             }
-        })
+        });
 
         window.loadURL(url, { userAgent: Useragent });
 
@@ -140,7 +141,7 @@ async function createWindow() {
             window.webContents.openDevTools();
         }
 
-        if (settings.getSync()[windowType].max){
+        if (settings.getSync()[windowType].max) {
             window.maximize();
         }
     
@@ -179,11 +180,11 @@ async function createWindow() {
 let ppapi_flash_path;
 
 if (process.platform == 'win32') {
-    ppapi_flash_path = path.join(app.getAppPath(), '../flash/pepflashplayer.dll')
+    ppapi_flash_path = path.join(app.getAppPath(), '../flash/pepflashplayer.dll');
 } else if (process.platform == 'linux') {
-    ppapi_flash_path = path.join(app.getAppPath(), '../flash/libpepflashplayer.so')
+    ppapi_flash_path = path.join(app.getAppPath(), '../flash/libpepflashplayer.so');
 } else if (process.platform == 'darwin') {
-    ppapi_flash_path = path.join(app.getAppPath(), '../flash/PepperFlashPlayer.plugin')
+    ppapi_flash_path = path.join(app.getAppPath(), '../flash/PepperFlashPlayer.plugin');
 }
 
 app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
