@@ -1,10 +1,12 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const path = require('path');
+const Credentials = require("./credentials/credentials");
 const settings = require("electron-settings");
 const update = require("./update");
 const userAgent = require("./useragent");
+const defaultSettings = require("./defaultSettings.json");
 
 settings.configure({
     atomicSave: true,
@@ -13,8 +15,9 @@ settings.configure({
 });
 
 if (!settings.getSync().check) {
-    settings.setSync(require("./defaultSettings.json"));
+    settings.setSync(defaultSettings);
 }
+console.log(settings.getSync())
 
 let argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
@@ -55,6 +58,8 @@ async function createWindow() {
             'devTools': argv.dev
         },
     });
+
+    let credentials = new Credentials(BrowserWindow, mainWindow, settings, ipcMain);
 
     if (argv.dev) {
         mainWindow.webContents.openDevTools();
@@ -122,7 +127,7 @@ async function createWindow() {
         }
 
         settingsWindow(window, windowType);
-        });
+    });
 };
 
 let ppapi_flash_path;
