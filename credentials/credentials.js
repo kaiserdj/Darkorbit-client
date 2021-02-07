@@ -36,16 +36,21 @@ class credentials {
     }
 
     createWindow(type) {
-        this.window = new this.BrowserWindow({
-            'width': 380,
-            'height': 370,
-            'webPreferences': {
-                'preload': `${__dirname}/html/master.js`,
-                'contextIsolation': true,
-                'nodeIntegration': true,
-                'devTools': true
-            },
-        });
+        if (!this.window) {
+            this.window = new this.BrowserWindow({
+                'width': 380,
+                'height': 370,
+                'webPreferences': {
+                    'preload': `${__dirname}/html/master.js`,
+                    'contextIsolation': true,
+                    'nodeIntegration': true,
+                    'devTools': true
+                },
+            });
+            this.window.on('close', () => {
+                this.window = null;
+            });
+        }
         this.window.setMenuBarVisibility(false);
         this.window.setAlwaysOnTop(true);
 
@@ -80,7 +85,6 @@ class credentials {
 
         this.settings.setSync(backup);
 
-        this.window.close();
         this.createWindow("list");
     }
 
@@ -96,7 +100,6 @@ class credentials {
         if (crypt.decrypt(backup.master) === hashMaster) {
             this.check = true;
             this.hashMaster = hashMaster;
-            this.window.close();
             this.createWindow("list");
         }
 
