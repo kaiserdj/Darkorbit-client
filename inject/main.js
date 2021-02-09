@@ -7,13 +7,11 @@ document.onreadystatechange = function(e) {
 function run() {
     let url = this.location.href;
 
-    switch (url) {
-        case "https://www.darkorbit.com/":
+    switch (true) {
+        case /https:\/\/www.darkorbit.com(\/\?.)?/.test(url):
             require("./login");
-
             break;
         default:
-
             break;
     }
 }
