@@ -19,7 +19,7 @@ class credentials {
             this.registerMaster(pass);
         });
 
-        ipcMain.on('autologin', (event, arg) => {
+        ipcMain.on('autoLogin', (event, arg) => {
             if (this.check) {
                 this.createWindow("list");
             } else {

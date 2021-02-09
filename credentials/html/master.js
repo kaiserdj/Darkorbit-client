@@ -10,7 +10,7 @@ function run() {
     let type = document.body.getAttribute("id");
 
     switch (type) {
-        case "register":
+        case "registerMaster":
             document.getElementById("form").onsubmit = (sub) => {
                 sub.preventDefault();
                 let master = document.getElementById("password").value;
