@@ -98,6 +98,9 @@ async function createWindow() {
             if (new URL(url).host.split(".")[0].search("board") !== -1 || new URL(url).search === "?action=portal.redirectToBoard") {
                 windowType = "board";
             } else {
+                if(new URL(url).search.split("&")[0] === "?action=internalSkylab"){
+                    return mainWindow.loadURL(url, { userAgent: Useragent });
+                }
                 windowType = "client";
             }
         } else if (new URL(url).host.split(".")[1] === "bpsecure") {
