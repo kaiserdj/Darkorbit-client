@@ -13,7 +13,7 @@ class credentials {
 
         if (!settings.getSync().master) {
             this.createWindow("register");
-        };
+        }
 
         ipcMain.on('registerMaster', (event, pass) => {
             this.registerMaster(pass);
@@ -159,7 +159,7 @@ class credentials {
     checkMaster(input) {
         if (this.check === true) {
             return this.check;
-        };
+        }
 
         let backup = this.settings.getSync();
 
