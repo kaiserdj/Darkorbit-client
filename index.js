@@ -100,7 +100,7 @@ async function createWindow() {
             } else {
                 if (new URL(url).search.split("&")[0] === "?action=externalLogout") {
                     return mainWindow.close();
-                } else if (new URL(url).search.split("&")[0] === "?action=internalStart" || new URL(url).search.split("&")[0] === "?action=internalSkylab") {
+                } else if (new URL(url).search.split("&")[0] === "?action=internalStart" || new URL(url).search.split("&")[0] === "?action=internalSkylab" || new URL(url).pathname.split(".")[0] === "/indexInternal") {
                     return mainWindow.loadURL(url, { userAgent: Useragent });
                 }
                 windowType = "client";
