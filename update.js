@@ -21,7 +21,7 @@ autoUpdater.on('update-available', async (data) => {
         type: 'info',
         title: `Updates found: ${data.version}`,
         message: 'Updates found, do you want to update now?',
-        detail: data.releaseNotes.replace(/<a.*>.*?<\/a>/ig,'').replace(/<p>/ig,'').replace(/<\/p>/ig,'').replace(/<br \/>/ig,''),
+        detail: data.releaseNotes.replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
         buttons: ['Yes', 'No']
     });
 
@@ -36,11 +36,11 @@ autoUpdater.on('update-available', async (data) => {
         });
 
         progressBar
-            .on('progress', function(value) {
+            .on('progress', (value) => {
                 progressBar.text = 'Downloading updates.';
                 progressBar.detail = `Downloading ... ${value}%`;
             })
-            .on('completed', function() {
+            .on('completed', () => {
                 progressBar.detail = 'Download complete.';
             });
     } else {

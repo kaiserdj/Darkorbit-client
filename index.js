@@ -149,13 +149,13 @@ app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
 
 app.whenReady().then(createWindow);
 
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
-app.on('activate', function() {
+app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
         createWindow();
     }
@@ -178,7 +178,7 @@ function settingsWindow(window, type) {
         settings.setSync(backup);
     });
 
-    window.on('resize', function() {
+    window.on('resize', () => {
         let backup = settings.getSync();
         let size = window.getSize();
         backup[type].width = size[0];
@@ -187,7 +187,7 @@ function settingsWindow(window, type) {
         settings.setSync(backup);
     })
 
-    window.on('move', function(data) {
+    window.on('move', (data) => {
         let backup = settings.getSync();
         let pos = data.sender.getBounds();
         backup[type].x = pos.x;

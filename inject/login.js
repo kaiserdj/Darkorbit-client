@@ -37,7 +37,7 @@ document.getElementById("autoLogin").addEventListener("click", () => {
 	ipcRenderer.send("autoLogin", true);
 });
 
-ipcRenderer.on("login", function(event, data) {
+ipcRenderer.on("login", (event, data) => {
     document.getElementById("bgcdw_login_form_username").value = data[0];
     document.getElementById("bgcdw_login_form_password").value = data[1];
     document.forms["bgcdw_login_form"].submit();

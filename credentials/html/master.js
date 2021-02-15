@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron')
 
-document.onreadystatechange = function(e) {
+document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
         run();
     }
@@ -91,13 +91,13 @@ function run() {
     }
 }
 
-ipcRenderer.on("checkMasterRet", function(event, data) {
+ipcRenderer.on("checkMasterRet", (event, data) => {
     if (!data) {
         alert("Incorrect password");
     }
 });
 
-ipcRenderer.on("sendList", function(event, data) {
+ipcRenderer.on("sendList", (event, data) => {
     let accounts = JSON.parse(data);
     let i = 0;
     for (let account of accounts) {
@@ -123,7 +123,7 @@ ipcRenderer.on("sendList", function(event, data) {
     }));
 });
 
-ipcRenderer.on("sendEditUser", function(event, data) {
+ipcRenderer.on("sendEditUser", (event, data) => {
     global.id = data[0];
     document.getElementById("username").value = data[1];
 })

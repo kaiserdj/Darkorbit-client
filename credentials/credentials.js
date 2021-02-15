@@ -19,7 +19,7 @@ class credentials {
             this.registerMaster(pass);
         });
 
-        ipcMain.on('autoLogin', (event, arg) => {
+        ipcMain.on('autoLogin', () => {
             if (this.check) {
                 this.createWindow("list");
             } else {
@@ -34,7 +34,7 @@ class credentials {
             }
         });
 
-        ipcMain.on('loadList', (event, arg) => {
+        ipcMain.on('loadList', () => {
             let backup = this.settings.getSync();
 
             if ("accounts" in backup) {
@@ -46,7 +46,7 @@ class credentials {
             this.window.webContents.send("sendList", backup.accounts);
         });
 
-        ipcMain.on('userRegister', (event, arg) => {
+        ipcMain.on('userRegister', () => {
             this.createWindow("userRegister");
         });
 
@@ -65,7 +65,7 @@ class credentials {
 
             this.createWindow("editUser");
 
-            ipcMain.on('getEditUser', (event, e) => {
+            ipcMain.on('getEditUser', () => {
                 this.window.webContents.send("sendEditUser", [account.id, account.username]);
             });
         });
@@ -225,8 +225,8 @@ class credentials {
 
         let newAccounts = [];
 
-        for(let elem of backup.accounts) {
-            if(elem.id !== id) {
+        for (let elem of backup.accounts) {
+            if (elem.id !== id) {
                 newAccounts.push(elem);
             }
         }

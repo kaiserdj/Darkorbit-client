@@ -4,20 +4,20 @@ let css = document.createElement('link');
 css.href = "https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css";
 css.rel = "stylesheet";
 
-document.onreadystatechange = function(e) {
+document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
         nprogress.configure({ showSpinner: false });
         nprogress.start();
         document.getElementsByTagName('head')[0].appendChild(css);
         run();
-    } else{
-        setTimeout(function () {
+    } else {
+        setTimeout(() => {
             nprogress.done();
         }, 1000);
     }
 }
 
-window.addEventListener("beforeunload", function (event) {
+window.addEventListener("beforeunload", () => {
     nprogress.configure({ showSpinner: false, minimum: 0.01 });
     nprogress.start();
 });
