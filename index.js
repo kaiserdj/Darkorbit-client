@@ -17,7 +17,6 @@ settings.configure({
 if (!settings.getSync().check) {
     settings.setSync(defaultSettings);
 }
-console.log(settings.getSync())
 
 let argv = yargs(hideBin(process.argv))
     .usage('Usage: $0 [options]')
@@ -38,6 +37,10 @@ let argv = yargs(hideBin(process.argv))
     })
     .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
     .argv;
+
+if (argv.dev) {
+    console.log(settings.getSync());
+}
 
 async function createWindow() {
     update.checkForUpdates();
