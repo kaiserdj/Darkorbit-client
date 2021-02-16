@@ -17,7 +17,7 @@
     "release": "electron-builder --publish always",
     "test-build": "electron-builder"
   },
-  "author": "Kaiserdj",
+  "author": "Kaiserdj <kaiserdj@kaiserdj.com>",
   "license": "ISC",
   "devDependencies": {
     "electron": "^11.2.0",
@@ -44,7 +44,8 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        "AppImage",
+        "snap"
       ],
       "category": "Game"
     },
