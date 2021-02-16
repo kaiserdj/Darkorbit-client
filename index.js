@@ -143,7 +143,8 @@ let ppapi_flash_path;
 if (process.platform == 'win32') {
     ppapi_flash_path = path.join(app.getAppPath(), '../flash/pepflashplayer.dll');
 } else if (process.platform == 'linux') {
-    ppapi_flash_path = path.join(app.getAppPath(), '../flash/libpepflashplayer.so');
+    ppapi_flash_path = path.join(process.resourcesPath, './flash/libpepflashplayer.so');
+    app.commandLine.appendSwitch("--no-sandbox");
 } else if (process.platform == 'darwin') {
     ppapi_flash_path = path.join(app.getAppPath(), '../flash/PepperFlashPlayer.plugin');
 }
