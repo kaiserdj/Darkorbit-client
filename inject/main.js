@@ -1,3 +1,4 @@
+const tools = require("./tools");
 const nprogress = require("./nprogress");
 
 let css = document.createElement('link');
@@ -6,6 +7,7 @@ css.rel = "stylesheet";
 
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
+        tools.addStyle("#qc-cmp2-container {display: none;}");
         nprogress.configure({ showSpinner: false });
         nprogress.start();
         document.getElementsByTagName('head')[0].appendChild(css);
