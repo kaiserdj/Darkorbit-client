@@ -20,14 +20,14 @@
   "author": "Kaiserdj",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^11.2.0",
+    "electron": "^11.2.3",
     "electron-builder": "^22.9.1"
   },
   "dependencies": {
     "electron-progressbar": "^2.0.0",
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.5",
-    "open": "^7.3.1",
+    "open": "^7.4.2",
     "xml2js": "^0.4.23",
     "yargs": "^16.2.0"
   },
