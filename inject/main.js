@@ -8,7 +8,8 @@ css.rel = "stylesheet";
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
         tools.addStyle("#qc-cmp2-container {display: none;}");
-        nprogress.configure({ showSpinner: false });
+        tools.addStyle("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
+        nprogress.configure({ showSpinner: false,  });
         nprogress.start();
         document.getElementsByTagName('head')[0].appendChild(css);
         run();
