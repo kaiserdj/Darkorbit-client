@@ -24,6 +24,8 @@
     "electron-builder": "^22.9.1"
   },
   "dependencies": {
+    "electron-context-menu": "^2.4.0",
+    "electron-is-dev": "^1.2.0",
     "electron-progressbar": "^2.0.0",
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.5",

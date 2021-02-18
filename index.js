@@ -7,6 +7,7 @@ const settings = require("electron-settings");
 const update = require("./update");
 const userAgent = require("./useragent");
 const defaultSettings = require("./defaultSettings.json");
+const contextMenu = require("electron-context-menu");
 
 settings.configure({
     atomicSave: true,
@@ -33,7 +34,8 @@ let argv = yargs(hideBin(process.argv))
     .option('dev', {
         alias: 'd',
         type: 'boolean',
-        description: 'Run in development mode'
+        description: 'Run in development mode',
+        default: false
     })
     .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
     .argv;
@@ -45,6 +47,69 @@ if (argv.dev) {
 async function createWindow() {
     update.checkForUpdates();
     let Useragent = await userAgent.getVersion();
+
+    contextMenu({
+        shouldShowMenu: (event, params) => {
+            switch (params.pageURL.split(":")[0]) {
+                case "file":
+                    if (argv.dev) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    default:
+                        return true;
+            }
+        },
+        prepend: (defaultActions, params, browserWindow) => [{
+                label: 'Back',
+                icon: `${__dirname}/contextMenu/back.png`,
+                enabled: browserWindow.webContents.canGoBack(),
+                click: (menu, win) => win.webContents.goBack()
+            },
+            {
+                label: 'Forward',
+                icon: `${__dirname}/contextMenu/forward.png`,
+                enabled: browserWindow.webContents.canGoForward(),
+                click: (menu, win) => win.webContents.goForward()
+            },
+            {
+                label: 'Refresh',
+                icon: `${__dirname}/contextMenu/refresh.png`,
+                click: (menu, win) => win.webContents.reload()  
+            },
+            {
+                label: 'Full Screen',
+                icon: `${__dirname}/contextMenu/fullscreen.png`,
+                visible: !browserWindow.isFullScreen(),
+                click: (menu, win) => win.setFullScreen(true)  
+            },
+            {
+                label: 'Full Screen',
+                icon: `${__dirname}/contextMenu/fullscreen_exit.png`,
+                visible: browserWindow.isFullScreen(),
+                click: (menu, win) => win.setFullScreen(false)  
+            },
+            {
+                type: 'separator',
+                visible: argv.dev
+            },
+            {
+                label: 'Inspect Element',
+                icon: `${__dirname}/contextMenu/inspectElement.png`,
+                visible: argv.dev,
+                click: () => browserWindow.inspectElement(params.x, params.y)
+            }
+        ],
+        showLookUpSelection: false,
+        showCopyImage: false,
+        showCopyImageAddress: false,
+        showSaveImageAs: false,
+        showSaveLinkAs: false,
+        showInspectElement: false,
+        showServices: false,
+        showSearchWithGoogle: false
+    });
 
     let mainWindow;
 
@@ -61,6 +126,8 @@ async function createWindow() {
             'devTools': argv.dev
         },
     });
+
+    mainWindow.setMenuBarVisibility(false);
 
     let credentials = new Credentials(BrowserWindow, mainWindow, settings, ipcMain);
 
@@ -127,6 +194,8 @@ async function createWindow() {
                 'devTools': argv.dev
             }
         });
+
+        window.setMenuBarVisibility(false);
 
         window.loadURL(url, { userAgent: Useragent });
 
