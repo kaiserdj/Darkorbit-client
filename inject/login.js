@@ -38,7 +38,11 @@ document.getElementById("autoLogin").addEventListener("click", () => {
 });
 
 ipcRenderer.on("login", (event, data) => {
+    document.getElementById("bgcdw_login_form_username").click();
     document.getElementById("bgcdw_login_form_username").value = data[0];
+
+    document.getElementById("bgcdw_login_form_password").click();
     document.getElementById("bgcdw_login_form_password").value = data[1];
-    document.forms["bgcdw_login_form"].submit();
+
+    document.querySelector("input.bgcdw_login_form_login[type=submit]").click();
 });
