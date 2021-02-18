@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, systemPreferences, nativeTheme } = require('electron');
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const path = require('path');
@@ -63,30 +63,30 @@ async function createWindow() {
         },
         prepend: (defaultActions, params, browserWindow) => [{
                 label: 'Back',
-                icon: `${__dirname}/contextMenu/back.png`,
+                icon: `${__dirname}/contextMenu/back${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 enabled: browserWindow.webContents.canGoBack(),
                 click: (menu, win) => win.webContents.goBack()
             },
             {
                 label: 'Forward',
-                icon: `${__dirname}/contextMenu/forward.png`,
+                icon: `${__dirname}/contextMenu/forward${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 enabled: browserWindow.webContents.canGoForward(),
                 click: (menu, win) => win.webContents.goForward()
             },
             {
                 label: 'Refresh',
-                icon: `${__dirname}/contextMenu/refresh.png`,
+                icon: `${__dirname}/contextMenu/refresh${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 click: (menu, win) => win.webContents.reload()  
             },
             {
                 label: 'Full Screen',
-                icon: `${__dirname}/contextMenu/fullscreen.png`,
+                icon: `${__dirname}/contextMenu/fullscreen${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: !browserWindow.isFullScreen(),
                 click: (menu, win) => win.setFullScreen(true)  
             },
             {
                 label: 'Full Screen',
-                icon: `${__dirname}/contextMenu/fullscreen_exit.png`,
+                icon: `${__dirname}/contextMenu/fullscreen_exit${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: browserWindow.isFullScreen(),
                 click: (menu, win) => win.setFullScreen(false)  
             },
@@ -96,7 +96,7 @@ async function createWindow() {
             },
             {
                 label: 'Inspect Element',
-                icon: `${__dirname}/contextMenu/inspectElement.png`,
+                icon: `${__dirname}/contextMenu/inspectElement${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: argv.dev,
                 click: () => browserWindow.inspectElement(params.x, params.y)
             }
