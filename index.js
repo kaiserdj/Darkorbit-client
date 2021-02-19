@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, systemPreferences, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeTheme, globalShortcut  } = require('electron');
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const path = require('path');
@@ -220,7 +220,12 @@ if (process.platform == 'win32') {
 
 app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    globalShortcut.register('CommandOrControl+Shift+K', () => {
+        argv.dev = argv.dev? false : true;
+    })
+    createWindow();
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
