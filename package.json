@@ -24,6 +24,7 @@
     "electron-builder": "^22.9.1"
   },
   "dependencies": {
+    "@krisdages/electron-process-manager": "^1.0.0-elec10",
     "electron-context-menu": "^2.4.0",
     "electron-is-dev": "^1.2.0",
     "electron-progressbar": "^2.0.0",

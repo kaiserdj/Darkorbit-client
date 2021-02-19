@@ -8,6 +8,7 @@ const update = require("./update");
 const userAgent = require("./useragent");
 const defaultSettings = require("./defaultSettings.json");
 const contextMenu = require("electron-context-menu");
+const { openProcessManager } = require('@krisdages/electron-process-manager');
 
 settings.configure({
     atomicSave: true,
@@ -99,11 +100,18 @@ async function createWindow() {
                 icon: `${__dirname}/contextMenu/inspectElement${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: argv.dev,
                 click: () => browserWindow.inspectElement(params.x, params.y)
+            },
+            {
+                label: 'Process Manager',
+                icon: `${__dirname}/contextMenu/processManager${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
+                visible: argv.dev,
+                click: () => openProcessManager()
             }
         ],
         showLookUpSelection: false,
         showCopyImage: false,
         showCopyImageAddress: false,
+        showSaveImage: false,
         showSaveImageAs: false,
         showSaveLinkAs: false,
         showInspectElement: false,
