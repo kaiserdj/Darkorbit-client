@@ -229,8 +229,11 @@ if (process.platform == 'win32') {
 app.commandLine.appendSwitch('ppapi-flash-path', ppapi_flash_path);
 
 app.whenReady().then(() => {
+    let check_dev = argv.dev;
     globalShortcut.register('CommandOrControl+Shift+K', () => {
-        argv.dev = argv.dev? false : true;
+        if(check_dev){
+            argv.dev = argv.dev? false : true;
+        }
     })
     createWindow();
 });
