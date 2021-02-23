@@ -4,8 +4,12 @@ const algorithm = 'aes-256-ctr';
 const secretKey = 'vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3';
 let iv = crypto.randomBytes(16);
 
-const hash = (data) => {
-    return crypto.createHash('md5').update(data).digest("hex");
+const salt = () => {
+    return crypto.randomBytes(16).toString('hex');
+}
+
+const hash = (data, salt) => {
+    return crypto.createHash('md5').update(data + salt).digest("hex");
 }
 
 const encrypt = (data, customIv) => {
@@ -33,6 +37,7 @@ const decrypt = (data) => {
 };
 
 module.exports = {
+    salt,
     hash,
     encrypt,
     decrypt

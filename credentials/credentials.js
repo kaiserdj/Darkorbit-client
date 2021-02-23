@@ -1,4 +1,5 @@
 const crypt = require("./crypt");
+const { dialog } = require('electron');
 
 class credentials {
     constructor(BrowserWindow, mainWindow, settings, ipcMain) {
@@ -23,6 +24,29 @@ class credentials {
             if (this.check) {
                 this.createWindow("list");
             } else {
+                let backup = this.settings.getSync();
+
+                if (!backup.salt) {
+                    const message = {
+                        type: "warning",
+                        title: "Security update",
+                        message: "An update has been made to make saving passwords more secure.\nAll credentials will be erased and you will have to save them again. \n \nSorry for the inconvenience.",
+                        buttons: ["OK"]
+                    }
+
+                    dialog.showMessageBox(message)
+                        .then(() => {
+                            backup.salt = true;
+                            delete backup.master;
+                            delete backup.accounts;
+                            this.settings.setSync(backup);
+
+                            this.createWindow("register");
+                        })
+
+                    return;
+                }
+
                 this.createWindow("login");
             }
         });
@@ -143,7 +167,9 @@ class credentials {
     registerMaster(input) {
         let backup = this.settings.getSync();
 
-        this.hashMaster = crypt.hash(input);
+        backup.salt = crypt.salt();
+
+        this.hashMaster = crypt.hash(input, backup.salt);
 
         this.master = crypt.encrypt(this.hashMaster);
 
@@ -163,7 +189,7 @@ class credentials {
 
         let backup = this.settings.getSync();
 
-        let hashMaster = crypt.hash(input);
+        let hashMaster = crypt.hash(input, backup.salt);
 
         if (crypt.decrypt(backup.master) === hashMaster) {
             this.check = true;
