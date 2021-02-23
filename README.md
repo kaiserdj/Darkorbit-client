@@ -18,7 +18,6 @@ Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
 | Multi platform                                                        | ✔   |
 | Flash player injected (0 configuration)                               | ✔   |
 | Custom loading Dosid                                                  | ✔   |
-| [Plugin Darkbot](https://github.com/kaiserdj/Plugin-Launcher-Darkbot) | ✔   |
 
 
 Download
