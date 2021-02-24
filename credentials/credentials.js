@@ -128,6 +128,25 @@ class credentials {
 
     config() {
         let tray = new Tray(`${__dirname}/html/tray.png`);
+        const contextMenu = Menu.buildFromTemplate([
+            {
+                label: "Auto-close",
+                type: "checkbox",
+                checked: settings.getSync().autoClose ? true : false,
+                click: () => {
+                    let backup = settings.getSync();
+                    if (backup.autoClose) {
+                        backup.autoClose = false;
+                    } else {
+                        backup.autoClose = true;
+                    }
+                    settings.setSync(backup);
+                }
+            },
+            {
+                type: "separator"
+            },
+            {
                 label: "Login with Dosid",
                 type: "normal",
                 click: () => this.loginDosid()

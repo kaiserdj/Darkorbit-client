@@ -1,5 +1,6 @@
 {
     "check": true,
+    "autoClose": true,
     "client": {
         "width": 1000,
         "height": 723

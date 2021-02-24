@@ -102,6 +102,12 @@ class Client {
 
         tools.settingsWindow(window, type);
 
+        window.on("close", () => {
+            if (settings.getSync().autoClose && BrowserWindow.getAllWindows().length <= 2){
+                global.app.quit();
+            }
+        })
+
         let client = this;
         window.webContents.on('new-window', async function(e, url) {
             e.preventDefault();

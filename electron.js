@@ -14,12 +14,6 @@ class Electron {
             await this.app.whenReady();
             this.appReady = true;
 
-            this.app.on('window-all-closed', () => {
-                if (process.platform !== 'darwin') {
-                    app.quit();
-                }
-            });
-
             return this
         })()
     }
