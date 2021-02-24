@@ -127,8 +127,7 @@ class credentials {
     }
 
     config() {
-        let tray = new Tray(`${__dirname}/html/icon.png`);
-        const contextMenu = Menu.buildFromTemplate([{
+        let tray = new Tray(`${__dirname}/html/tray.png`);
                 label: "Login with Dosid",
                 type: "normal",
                 click: () => this.loginDosid()
