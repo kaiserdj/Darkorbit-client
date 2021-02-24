@@ -2,7 +2,6 @@ const { dialog } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const ProgressBar = require('electron-progressbar');
 
-let updater;
 autoUpdater.autoDownload = false;
 autoUpdater.setFeedURL({
     "provider": 'github',
@@ -43,9 +42,6 @@ autoUpdater.on('update-available', async (data) => {
             .on('completed', () => {
                 progressBar.detail = 'Download complete.';
             });
-    } else {
-        updater.enabled = true;
-        updater = null;
     }
 });
 
@@ -55,8 +51,6 @@ autoUpdater.on('download-progress', (progressObj) => {
 
 autoUpdater.on('update-not-available', () => {
     console.log("No update");
-    updater.enabled = true;
-    updater = null;
 });
 
 autoUpdater.on('update-downloaded', async () => {
@@ -69,9 +63,8 @@ autoUpdater.on('update-downloaded', async () => {
     autoUpdater.quitAndInstall();
 });
 
-function checkForUpdates(menuItem, focusedWindow, event) {
-    updater = { enabled: false };
-    updater.enabled = false;
-    autoUpdater.checkForUpdates();
+async function checkForUpdates() {
+    await autoUpdater.checkForUpdates();
 }
-module.exports.checkForUpdates = checkForUpdates;
+
+module.exports = checkForUpdates;
