@@ -7,6 +7,10 @@ document.onreadystatechange = () => {
 }
 
 function run() {
+    document.oncontextmenu = function() {
+        return false;
+    }
+
     let type = document.body.getAttribute("id");
 
     switch (type) {
