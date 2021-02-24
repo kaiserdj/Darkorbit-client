@@ -1,30 +1,30 @@
+const { dialog, ipcMain, BrowserWindow, Tray, Menu } = require('electron');
+const { menubar } = require('menubar');
+const settings = require("electron-settings");
+const Alert = require("electron-alert");
+
 const crypt = require("./crypt");
-const { dialog } = require('electron');
 
 class credentials {
-    constructor(BrowserWindow, mainWindow, settings, ipcMain) {
-        this.BrowserWindow = BrowserWindow;
-        this.mainWindow = mainWindow;
-        this.settings = settings;
-        this.ipcMain = ipcMain;
+    constructor(client) {
+        this.client = client;
+        this.mb = menubar(this.config());
         this.window;
         this.check = false;
         this.hashMaster;
         this.master;
 
-        if (!settings.getSync().master) {
-            this.createWindow("register");
-        }
-
         ipcMain.on('registerMaster', (event, pass) => {
             this.registerMaster(pass);
         });
 
-        ipcMain.on('autoLogin', () => {
+        ipcMain.on('autoLogin', (event, id) => {
+            this.window = BrowserWindow.fromId(id);
+
             if (this.check) {
-                this.createWindow("list");
+                this.load("list");
             } else {
-                let backup = this.settings.getSync();
+                let backup = settings.getSync();
 
                 if (!backup.salt) {
                     const message = {
@@ -39,27 +39,27 @@ class credentials {
                             backup.salt = true;
                             delete backup.master;
                             delete backup.accounts;
-                            this.settings.setSync(backup);
+                            settings.setSync(backup);
 
-                            this.createWindow("register");
+                            this.load("register");
                         })
 
                     return;
                 }
 
-                this.createWindow("login");
+                this.load("login");
             }
         });
 
         ipcMain.on('checkMaster', (event, pass) => {
             this.checkMaster(pass);
             if (!this.check) {
-                this.window.webContents.send("checkMasterRet", this.check);
+                this.mb.window.webContents.send("checkMasterRet", this.check);
             }
         });
 
         ipcMain.on('loadList', () => {
-            let backup = this.settings.getSync();
+            let backup = settings.getSync();
 
             if ("accounts" in backup) {
                 backup.accounts = crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts });
@@ -67,105 +67,137 @@ class credentials {
                 backup.accounts = [];
             }
 
-            this.window.webContents.send("sendList", backup.accounts);
+            this.mb.window.webContents.send("sendList", backup.accounts);
         });
 
         ipcMain.on('userRegister', () => {
-            this.createWindow("userRegister");
+            this.load("userRegister");
         });
 
         ipcMain.on('registerUser', (event, data) => {
             this.registerAccount(data);
 
-            this.createWindow("list");
+            this.load("list");
         });
 
-        ipcMain.on('editUser', (event, data) => {
-            let backup = this.settings.getSync();
+        ipcMain.on('editUser', (event, id) => {
+            let backup = settings.getSync();
 
             backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
 
-            let account = backup.accounts.find(o => o.id == data);
+            let account = backup.accounts.find(o => o.id == id);
 
-            this.createWindow("editUser");
+            this.load("editUser");
 
             ipcMain.on('getEditUser', () => {
-                this.window.webContents.send("sendEditUser", [account.id, account.username]);
+                this.mb.window.webContents.send("sendEditUser", [account.id, account.username]);
             });
         });
 
         ipcMain.on('changeUser', (event, data) => {
             this.editAccount(data);
-            this.createWindow("list");
+            this.load("list");
         });
 
         ipcMain.on('deleteUser', (event, data) => {
             this.deleteAccount(data);
-            this.createWindow("list");
+            this.load("list");
         });
 
         ipcMain.on('loginUser', (event, data) => {
-            this.window.close();
+            this.mb.hideWindow();
 
-            let backup = this.settings.getSync();
+            let backup = settings.getSync();
 
             backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
 
             let account = backup.accounts.find(o => o.id == data);
 
-            this.mainWindow.webContents.send("login", [account.username, account.password]);
+            if (this.window) {
+                if (new URL(this.window.webContents.getURL()).origin === "https://www.darkorbit.com") {
+                    return this.window.webContents.send("login", [account.username, account.password]);
+                }
+            }
+
+            let window = this.client.createWindow("client");
+            window.webContents.on('did-finish-load', () => {
+                window.webContents.send("login", [account.username, account.password])
+            });
         });
     }
 
-    createWindow(type) {
-        if (!this.window) {
-            this.window = new this.BrowserWindow({
+    config() {
+        let tray = new Tray(`${__dirname}/html/icon.png`);
+        const contextMenu = Menu.buildFromTemplate([{
+                label: "Login with Dosid",
+                type: "normal",
+                click: () => this.loginDosid()
+            },
+            {
+                label: "Exit",
+                click: () => global.app.quit()
+            }
+        ]);
+        tray.setContextMenu(contextMenu);
+
+        let config = {
+            tray,
+            preloadWindow: true,
+            browserWindow: {
                 'width': 380,
                 'height': 370,
                 'webPreferences': {
                     'preload': `${__dirname}/html/master.js`,
                     'contextIsolation': true,
                     'nodeIntegration': true,
-                    'devTools': true
-                },
-            });
-            this.window.on('close', () => {
-                this.window = null;
-            });
-        }
-        this.window.setMenuBarVisibility(false);
-        this.window.setAlwaysOnTop(true);
+                    'plugins': true,
+                    'devTools': this.client.arg.dev
+                }
+            }
+        };
 
+        if (!settings.getSync().master) {
+            config.index = `${__dirname}/html/masterRegister.html`;
+        } else {
+            config.index = `${__dirname}/html/masterLogin.html`;
+        }
+
+        return config;
+    }
+
+    load(type) {
         switch (type) {
             case "login":
-                this.window.loadFile("./credentials/html/masterLogin.html");
+                this.mb.window.loadURL("./credentials/html/masterLogin.html");
 
                 break;
             case "register":
-                this.window.setSize(380, 400);
-                this.window.loadFile("./credentials/html/masterRegister.html");
+                this.mb.window.setSize(380, 400);
+                this.mb.window.loadFile("./credentials/html/masterRegister.html");
 
                 break;
             case "list":
-                this.window.setSize(500, 500);
-                this.window.loadFile("./credentials/html/list.html");
+                this.mb.window.setSize(500, 500);
+                this.mb.window.loadFile("./credentials/html/list.html");
 
                 break;
             case "userRegister":
-                this.window.setSize(380, 400);
-                this.window.loadFile("./credentials/html/userRegister.html");
+                this.mb.window.setSize(380, 400);
+                this.mb.window.loadFile("./credentials/html/userRegister.html");
 
                 break;
             case "editUser":
-                this.window.setSize(380, 480);
-                this.window.loadFile("./credentials/html/userEdit.html");
+                this.mb.window.setSize(380, 480);
+                this.mb.window.loadFile("./credentials/html/userEdit.html");
 
                 break;
         }
+
+        this.mb.showWindow();
     }
 
     registerMaster(input) {
-        let backup = this.settings.getSync();
+        let backup = settings.getSync();
 
         backup.salt = crypt.salt();
 
@@ -177,9 +209,9 @@ class credentials {
 
         backup.master = this.master;
 
-        this.settings.setSync(backup);
+        settings.setSync(backup);
 
-        this.createWindow("list");
+        this.load("list");
     }
 
     checkMaster(input) {
@@ -187,21 +219,21 @@ class credentials {
             return this.check;
         }
 
-        let backup = this.settings.getSync();
+        let backup = settings.getSync();
 
         let hashMaster = crypt.hash(input, backup.salt);
 
         if (crypt.decrypt(backup.master) === hashMaster) {
             this.check = true;
             this.hashMaster = hashMaster;
-            this.createWindow("list");
+            this.load("list");
         }
 
         return this.check;
     }
 
     registerAccount(input) {
-        let backup = this.settings.getSync();
+        let backup = settings.getSync();
 
         if ("accounts" in backup) {
             backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
@@ -221,13 +253,13 @@ class credentials {
 
         backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
 
-        this.settings.setSync(backup);
+        settings.setSync(backup);
 
-        this.createWindow("list");
+        this.load("list");
     }
 
     editAccount(input) {
-        let backup = this.settings.getSync();
+        let backup = settings.getSync();
 
         backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
 
@@ -241,11 +273,11 @@ class credentials {
 
         backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
 
-        this.settings.setSync(backup);
+        settings.setSync(backup);
     }
 
     deleteAccount(id) {
-        let backup = this.settings.getSync();
+        let backup = settings.getSync();
 
         backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
 
@@ -261,7 +293,40 @@ class credentials {
 
         backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
 
-        this.settings.setSync(backup);
+        settings.setSync(backup);
+    }
+
+    loginDosid() {
+        let alert = new Alert();
+
+        let swalOptions = {
+            imageUrl: 'https://i.imgur.com/tkyZuOn.png',
+            imageHeight: 30,
+            imageAlt: 'Sid Login',
+            input: 'text',
+            inputPlaceholder: 'https://es1.darkorbit.com/?dosid=c21cf6377518dd6e93450c6085a548b1',
+            inputAttributes: {
+                maxlength: 100,
+                autocapitalize: 'off',
+                autocorrect: 'off'
+            },
+            showCancelButton: true,
+            cancelButtonColor: '#d33',
+        };
+
+        alert.fireFrameless(swalOptions, null, true, true).then((dosid) => {
+            if (dosid.value) {
+                let sid = dosid.value.match(/[?&](dosid|sid)=([^&]+)/);
+                let baseUrl = new URL(dosid.value).origin;
+
+                if (sid !== null && baseUrl !== null) {
+                    const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+                    let window = this.client.createWindow("client");
+                    window.webContents.session.cookies.set(cookie);
+                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
+                }
+            }
+        });
     }
 }
 
