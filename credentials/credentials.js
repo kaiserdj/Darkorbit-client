@@ -159,6 +159,7 @@ class credentials {
         tray.setContextMenu(contextMenu);
 
         let config = {
+            tooltip: "Darkorbit Client",
             tray,
             preloadWindow: true,
             browserWindow: {
