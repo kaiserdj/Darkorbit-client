@@ -161,7 +161,9 @@ class credentials {
         let config = {
             tooltip: "Darkorbit Client",
             tray,
+            transparent: true,
             preloadWindow: true,
+            showOnAllWorkspaces: false,
             browserWindow: {
                 'width': 380,
                 'height': 370,
