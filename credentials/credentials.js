@@ -147,6 +147,11 @@ class credentials {
                 type: "separator"
             },
             {
+                label: "Autologin",
+                type: "normal",
+                click: () => this.mb.showWindow()
+            },
+            {
                 label: "Login with Dosid",
                 type: "normal",
                 click: () => this.loginDosid()
