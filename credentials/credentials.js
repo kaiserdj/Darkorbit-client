@@ -178,9 +178,9 @@ class credentials {
         };
 
         if (!settings.getSync().master) {
-            config.index = `${__dirname}/html/masterRegister.html`;
+            config.index = `file://${__dirname}/html/masterRegister.html`;
         } else {
-            config.index = `${__dirname}/html/masterLogin.html`;
+            config.index = `file://${__dirname}/html/masterLogin.html`;
         }
 
         return config;
