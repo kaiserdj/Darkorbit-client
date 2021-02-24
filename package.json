@@ -25,13 +25,14 @@
   },
   "dependencies": {
     "@krisdages/electron-process-manager": "^1.0.0-elec10",
+    "electron-alert": "^0.1.11",
     "electron-context-menu": "^2.5.0",
     "electron-is-dev": "^1.2.0",
     "electron-progressbar": "^2.0.0",
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.5",
+    "menubar": "^9.0.3",
     "open": "^7.4.2",
-    "xml2js": "^0.4.23",
     "yargs": "^16.2.0"
   },
   "build": {
