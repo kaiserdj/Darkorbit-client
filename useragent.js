@@ -1,5 +1,4 @@
 const http = require('http');
-const parseString = require('xml2js').parseString;
 
 const url = "http://darkorbit-22-client.bpsecure.com/bpflashclient/windows.x64/repository/Updates.xml";
 
@@ -14,25 +13,11 @@ const httpGet = url => {
     });
 };
 
-function parseXml(xml) {
-    return new Promise((resolve, reject) => {
-        parseString(xml, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-}
-
 async function getVersion() {
     let xml = await httpGet(url);
-    let json = await parseXml(xml);
+    let version = xml.match(/>(.*)<\/Version/)[1];
 
-    return `BigPointClient/${json.Updates.PackageUpdate[0].Version[0]}`;
+    return `BigPointClient/${version}`;
 }
 
-module.exports = {
-    getVersion
-}
+module.exports = getVersion;
