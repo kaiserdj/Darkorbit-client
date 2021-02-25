@@ -64,7 +64,7 @@ function settingsWindow(window, type) {
     });
 }
 
-function contextMenu(browserWindow, dev) {
+function contextMenu(dev) {
     contextmenu({
         shouldShowMenu: (event, params) => {
             switch (params.pageURL.split(":")[0]) {

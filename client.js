@@ -31,6 +31,8 @@ class Client {
                 console.log(settings.getSync())
             }
 
+            tools.contextMenu(this.arg.dev);
+
             this.createWindow("client");
 
             if (!settings.getSync().master) {
@@ -64,8 +66,6 @@ class Client {
         }
 
         window = new BrowserWindow(options);
-
-        tools.contextMenu(window, this.arg.dev);
 
         window.setMenuBarVisibility(false);
 
