@@ -114,9 +114,13 @@ class credentials {
             let account = backup.accounts.find(o => o.id == data);
 
             if (this.window) {
+                try {
                 if (new URL(this.window.webContents.getURL()).origin === "https://www.darkorbit.com") {
                     return this.window.webContents.send("login", [account.username, account.password]);
                 }
+                } catch (e) {
+                    
+            }
             }
 
             let window = this.client.createWindow("client");
