@@ -1,4 +1,4 @@
-const { nativeTheme, Menu } = require("electron");
+const { nativeTheme } = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
