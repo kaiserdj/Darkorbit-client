@@ -115,12 +115,12 @@ class credentials {
 
             if (this.window) {
                 try {
-                if (new URL(this.window.webContents.getURL()).origin === "https://www.darkorbit.com") {
-                    return this.window.webContents.send("login", [account.username, account.password]);
-                }
+                    if (new URL(this.window.webContents.getURL()).origin === "https://www.darkorbit.com") {
+                        return this.window.webContents.send("login", [account.username, account.password]);
+                    }
                 } catch (e) {
-                    
-            }
+
+                }
             }
 
             let window = this.client.createWindow("client");
@@ -136,8 +136,7 @@ class credentials {
 
     config() {
         let tray = new Tray(`${__dirname}/html/tray.png`);
-        const contextMenu = Menu.buildFromTemplate([
-            {
+        const contextMenu = Menu.buildFromTemplate([{
                 label: "Auto-close",
                 type: "checkbox",
                 checked: settings.getSync().autoClose ? true : false,

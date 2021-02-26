@@ -125,7 +125,7 @@ class Client {
         tools.settingsWindow(window, type);
 
         window.on("close", () => {
-            if (settings.getSync().autoClose && BrowserWindow.getAllWindows().length <= 2){
+            if (settings.getSync().autoClose && BrowserWindow.getAllWindows().length <= 2) {
                 global.app.quit();
             }
         })
