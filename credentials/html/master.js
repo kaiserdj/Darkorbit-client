@@ -63,6 +63,10 @@ function run() {
             });
             break;
         case "registerUser":
+            document.getElementById("close").onclick = () => {
+                ipcRenderer.send("close", true)
+            }
+
             document.getElementById("form").onsubmit = (sub) => {
                 sub.preventDefault();
                 let username = document.getElementById("username").value;
@@ -73,6 +77,10 @@ function run() {
             break;
         case "editUser":
             ipcRenderer.send('getEditUser', true);
+
+            document.getElementById("close").onclick = () => {
+                ipcRenderer.send("close", true)
+            }
 
             document.getElementById("form").onsubmit = (sub) => {
                 sub.preventDefault();

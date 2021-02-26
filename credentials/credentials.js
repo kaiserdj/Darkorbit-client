@@ -128,6 +128,10 @@ class credentials {
                 window.webContents.send("login", [account.username, account.password])
             });
         });
+
+        ipcMain.on('close', () => {
+            this.load("list")
+        });
     }
 
     config() {
