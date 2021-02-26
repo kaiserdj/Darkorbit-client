@@ -1,4 +1,4 @@
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, globalShortcut } = require('electron');
 const settings = require("electron-settings");
 
 const tools = require("./tools");
@@ -38,6 +38,28 @@ class Client {
             if (!settings.getSync().master) {
                 this.credentials.mb.showWindow();
             }
+
+            let focus = () => BrowserWindow.getFocusedWindow();
+            globalShortcut.register('F5', () => {
+                if (focus()) {
+                    focus().reload()
+                }
+            });
+            globalShortcut.register('CmdOrCtrl+num0', () => {
+                if (focus()) {
+                    focus().webContents.zoomLevel = 0;
+                }
+            })
+            globalShortcut.register('CmdOrCtrl+numadd', () => {
+                if (focus()) {
+                    focus().webContents.zoomLevel += 0.5;
+                }
+            })
+            globalShortcut.register('CmdOrCtrl+numsub', () => {
+                if (focus()) {
+                    focus().webContents.zoomLevel -= 0.5;
+                }
+            })
 
             return this
         })()
