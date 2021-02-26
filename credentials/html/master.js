@@ -31,14 +31,29 @@ function run() {
                     }).then((result) => {
                         if (result.isConfirmed) {
                             ipcRenderer.send('registerMaster', master);
-                }
+                        }
                     })
                 } else {
-                ipcRenderer.send('registerMaster', master);
-            }
+                    ipcRenderer.send('registerMaster', master);
+                }
             }
             break;
         case "login":
+            document.getElementById("lost").onclick = (sub) => {
+                sub.preventDefault();
+                sweetalert2.default.fire({
+                    html: "Passwords cannot be recovered.<br>The only option is to delete the master password and all saved passwords.<br>Do you want to delete them?",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        ipcRenderer.send('resetMaster', true);
+                    }
+                })
+            }
+
             document.getElementById("form").onsubmit = (sub) => {
                 sub.preventDefault();
                 let master = document.getElementById("password").value;
@@ -111,11 +126,11 @@ function run() {
                     confirmButtonText: `Yes`,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33'
-                  }).then((result) => {
+                }).then((result) => {
                     if (result.isConfirmed) {
                         ipcRenderer.send('deleteUser', global.id);
                     }
-                  })
+                })
             });
             break;
     }

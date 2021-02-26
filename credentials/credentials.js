@@ -58,6 +58,10 @@ class credentials {
             }
         });
 
+        ipcMain.on('resetMaster', () => {
+            this.resetMaster();
+        });
+
         ipcMain.on('loadList', () => {
             let backup = settings.getSync();
 
@@ -263,6 +267,18 @@ class credentials {
         }
 
         return this.check;
+    }
+
+    resetMaster() {
+        let backup = settings.getSync();
+
+        delete backup.master;
+        delete backup.salt;
+        delete backup.accounts;
+
+        settings.setSync(backup);
+
+        this.load("register");
     }
 
     registerAccount(input) {
