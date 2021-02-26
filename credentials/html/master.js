@@ -21,12 +21,21 @@ function run() {
                 sub.preventDefault();
                 let master = document.getElementById("password").value;
 
-                if (master === "" && !confirm("Are you sure to leave the master password empty?")) {
-                    return;
+                if (master === "") {
+                    sweetalert2.default.fire({
+                        title: 'Are you sure to leave the master password empty?',
+                        showCancelButton: true,
+                        confirmButtonText: `Yes`,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            ipcRenderer.send('registerMaster', master);
                 }
-
+                    })
+                } else {
                 ipcRenderer.send('registerMaster', master);
-                close();
+            }
             }
             break;
         case "login":
@@ -99,7 +108,9 @@ function run() {
                 sweetalert2.default.fire({
                     title: 'Are you sure to delete the account data?',
                     showCancelButton: true,
-                    confirmButtonText: `Yes`
+                    confirmButtonText: `Yes`,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33'
                   }).then((result) => {
                     if (result.isConfirmed) {
                         ipcRenderer.send('deleteUser', global.id);
