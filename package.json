@@ -33,6 +33,7 @@
     "electron-updater": "^4.3.5",
     "menubar": "^9.0.3",
     "open": "^7.4.2",
+    "sweetalert2": "^10.15.5",
     "yargs": "^16.2.0"
   },
   "build": {

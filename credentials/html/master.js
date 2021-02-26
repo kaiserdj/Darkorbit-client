@@ -1,7 +1,9 @@
-const { ipcRenderer } = require('electron')
+const { ipcRenderer } = require('electron');
+let sweetalert2;
 
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
+        sweetalert2 = require('sweetalert2')
         run();
     }
 }
@@ -92,12 +94,17 @@ function run() {
                 }
             };
 
-            document.getElementById("delete").addEventListener("click", () => {
-                if (!confirm("Are you sure to delete the account data?")) {
-                    return;
-                }
-
-                ipcRenderer.send('deleteUser', global.id);
+            document.getElementById("delete").addEventListener("click", (sub) => {
+                sub.preventDefault();
+                sweetalert2.default.fire({
+                    title: 'Are you sure to delete the account data?',
+                    showCancelButton: true,
+                    confirmButtonText: `Yes`
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                        ipcRenderer.send('deleteUser', global.id);
+                    }
+                  })
             });
             break;
     }
@@ -105,7 +112,10 @@ function run() {
 
 ipcRenderer.on("checkMasterRet", (event, data) => {
     if (!data) {
-        alert("Incorrect password");
+        sweetalert2.default.fire({
+            icon: 'error',
+            title: 'Incorrect password',
+        })
     }
 });
 
