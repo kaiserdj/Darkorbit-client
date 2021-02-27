@@ -5,6 +5,8 @@ const { hideBin } = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
 const { openProcessManager } = require('@krisdages/electron-process-manager');
 
+const defaultSettings = require("./defaultSettings.json");
+
 function commandLine() {
     return yargs(hideBin(process.argv))
         .usage('Usage: $0 [options]')
@@ -26,6 +28,21 @@ function commandLine() {
         })
         .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
         .argv;
+}
+
+function checkSettings() {
+    let backup = settings.getSync();
+
+    const isObject = x =>
+        Object(x) === x
+
+    const merge = (left = {}, right = {}) =>
+        Object.entries(right)
+        .reduce((acc, [k, v]) =>
+            isObject(v) && isObject(left[k]) ? { ...acc, [k]: merge(left[k], v) } : { ...acc, [k]: v }, left
+        )
+
+    settings.setSync(merge(defaultSettings, backup))
 }
 
 function settingsWindow(window, type) {
@@ -109,21 +126,21 @@ function contextMenu(dev) {
                 click: (menu, win) => win.setFullScreen(false)
             },
             { type: 'separator' },
-            { 
+            {
                 role: 'resetzoom',
                 label: 'Normal zoom',
                 accelerator: "CmdOrCtrl+num0",
                 icon: `${__dirname}/contextMenu/resetZoom${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`
             },
-            { 
+            {
                 role: 'zoomin',
                 accelerator: "CmdOrCtrl+numadd",
-                icon: `${__dirname}/contextMenu/zoomIn${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png` 
+                icon: `${__dirname}/contextMenu/zoomIn${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`
             },
-            { 
+            {
                 role: 'zoomout',
                 accelerator: "CmdOrCtrl+numsub",
-                icon: `${__dirname}/contextMenu/zoomOut${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png` 
+                icon: `${__dirname}/contextMenu/zoomOut${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`
             },
             {
                 type: 'separator',
@@ -141,7 +158,7 @@ function contextMenu(dev) {
                 visible: dev,
                 click: () => openProcessManager()
             },
-            { 
+            {
                 role: 'forcereload',
                 label: 'Force reload',
                 icon: `${__dirname}/contextMenu/forceReload${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
@@ -162,6 +179,7 @@ function contextMenu(dev) {
 
 module.exports = {
     commandLine,
+    checkSettings,
     settingsWindow,
     contextMenu
 }

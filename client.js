@@ -17,6 +17,8 @@ class Client {
 
         if (!settings.getSync().check) {
             settings.setSync(defaultSettings);
+        } else {
+            tools.checkSettings();
         }
 
         return (async () => {
@@ -63,6 +65,8 @@ class Client {
         window = new BrowserWindow(options);
 
         window.setMenuBarVisibility(false);
+
+        window.webContents.executeJavaScript("const onFlashCall = (obj) => console.log('Data --> ', obj)");
 
         if (this.arg.dev) {
             window.webContents.openDevTools();
