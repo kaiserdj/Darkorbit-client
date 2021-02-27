@@ -39,28 +39,6 @@ class Client {
                 this.credentials.mb.showWindow();
             }
 
-            let focus = () => BrowserWindow.getFocusedWindow();
-            globalShortcut.register('CmdOrCtrl+F5', () => {
-                if (focus()) {
-                    focus().reload()
-                }
-            });
-            globalShortcut.register('CmdOrCtrl+num0', () => {
-                if (focus()) {
-                    focus().webContents.zoomLevel = 0;
-                }
-            })
-            globalShortcut.register('CmdOrCtrl+numadd', () => {
-                if (focus()) {
-                    focus().webContents.zoomLevel += 0.5;
-                }
-            })
-            globalShortcut.register('CmdOrCtrl+numsub', () => {
-                if (focus()) {
-                    focus().webContents.zoomLevel -= 0.5;
-                }
-            })
-
             return this
         })()
     }
@@ -123,6 +101,26 @@ class Client {
         }
 
         tools.settingsWindow(window, type);
+
+        window.webContents.on('before-input-event', (event, input) => {
+            let focus = () => BrowserWindow.getFocusedWindow();
+            if (input.control && input.code === "F5") {
+                focus().reload()
+                event.preventDefault()
+            }
+            if (input.control && input.code === "Numpad0") {
+                focus().webContents.zoomLevel = 0;
+                event.preventDefault()
+            }
+            if (input.control && input.key === "+") {
+                focus().webContents.zoomLevel += 0.5;
+                event.preventDefault()
+            }
+            if (input.control && input.key === "-") {
+                focus().webContents.zoomLevel -= 0.5;
+                event.preventDefault()
+            }
+        })
 
         window.on("close", () => {
             if (settings.getSync().autoClose && BrowserWindow.getAllWindows().length <= 2) {
