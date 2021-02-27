@@ -51,6 +51,7 @@ class Client {
             'x': settings.getSync()[type].x,
             'y': settings.getSync()[type].y,
             'webPreferences': {
+                'preload': `${__dirname}/inject/main.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
                 'enableRemoteModule': true,
@@ -58,12 +59,6 @@ class Client {
                 'devTools': this.arg.dev
             }
         };
-
-        switch (type) {
-            case "client":
-                options.webPreferences.preload = `${__dirname}/inject/main.js`;
-                break;
-        }
 
         window = new BrowserWindow(options);
 
