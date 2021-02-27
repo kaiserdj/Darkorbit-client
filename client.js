@@ -131,6 +131,8 @@ class Client {
             } else if (new URL(url).host.split(".")[1] === "darkorbit") {
                 if (new URL(url).host.split(".")[0].search("board") !== -1 || new URL(url).search === "?action=portal.redirectToBoard") {
                     client.createWindow("board", url)
+                } else if (new URL(url).search.split("&")[0] === "?action=internalPaymentProxy") {
+                    client.createWindow("shop", url);
                 } else {
                     if (new URL(url).search.split("&")[0] === "?action=externalLogout") {
                         return window.close();
