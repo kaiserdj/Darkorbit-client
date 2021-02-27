@@ -91,6 +91,8 @@ class Client {
 
         window.setMenuBarVisibility(false);
 
+        window.webContents.executeJavaScript("const onFlashCall = (obj) => console.log('Data --> ', obj)")
+
         if (this.arg.dev) {
             window.webContents.openDevTools();
         }
