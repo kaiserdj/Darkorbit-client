@@ -40,7 +40,7 @@ class Client {
             }
 
             let focus = () => BrowserWindow.getFocusedWindow();
-            globalShortcut.register('F5', () => {
+            globalShortcut.register('CmdOrCtrl+F5', () => {
                 if (focus()) {
                     focus().reload()
                 }
