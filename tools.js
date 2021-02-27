@@ -92,6 +92,7 @@ function contextMenu(dev) {
             },
             {
                 label: 'Refresh',
+                accelerator: "CmdOrCtrl+F5",
                 icon: `${__dirname}/contextMenu/refresh${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 click: (menu, win) => win.webContents.reload()
             },
@@ -111,14 +112,17 @@ function contextMenu(dev) {
             { 
                 role: 'resetzoom',
                 label: 'Normal zoom',
+                accelerator: "CmdOrCtrl+num0",
                 icon: `${__dirname}/contextMenu/resetZoom${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`
             },
             { 
                 role: 'zoomin',
+                accelerator: "CmdOrCtrl+numadd",
                 icon: `${__dirname}/contextMenu/zoomIn${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png` 
             },
             { 
                 role: 'zoomout',
+                accelerator: "CmdOrCtrl+numsub",
                 icon: `${__dirname}/contextMenu/zoomOut${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png` 
             },
             {
