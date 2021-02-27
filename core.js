@@ -1,7 +1,7 @@
 const { app } = require('electron');
 const path = require("path");
 
-class Electron {
+class Core {
     constructor() {
         return (async () => {
             this.app = app;
@@ -32,4 +32,4 @@ class Electron {
     }
 }
 
-module.exports = Electron;
+module.exports = Core;
