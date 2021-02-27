@@ -8,7 +8,7 @@ const Credentials = require("./credentials/credentials");
 const defaultSettings = require("./defaultSettings.json");
 
 class Client {
-    constructor(electron) {
+    constructor(core) {
         settings.configure({
             atomicSave: true,
             fileName: 'settings.json',
@@ -22,7 +22,7 @@ class Client {
         }
 
         return (async () => {
-            this.electron = electron;
+            this.core = core;
             this.arg = tools.commandLine();
             this.useragent = await useragent();
             this.credentials = new Credentials(this);
@@ -30,7 +30,11 @@ class Client {
             await update();
 
             if (this.arg.dev) {
-                console.log(settings.getSync())
+                console.log("Settings:");
+                console.log(settings.getSync());
+                console.log("Arguments:");
+                console.log(this.arg);
+                console.log(`Ppapi flash: ${this.core.ppapi_flash_path}`);
             }
 
             tools.contextMenu(this.arg.dev);
@@ -65,8 +69,6 @@ class Client {
         window = new BrowserWindow(options);
 
         window.setMenuBarVisibility(false);
-
-        window.webContents.executeJavaScript("const onFlashCall = (obj) => console.log('Data --> ', obj)");
 
         if (this.arg.dev) {
             window.webContents.openDevTools();
