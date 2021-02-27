@@ -129,6 +129,9 @@ class Client {
 
         let client = this;
         window.webContents.on('new-window', async function(e, url) {
+            if (type === "shop") {
+                return;
+            }
             e.preventDefault();
             if (new URL(url).search === "?action=internalMapRevolution") {
                 client.createWindow("game", url)
