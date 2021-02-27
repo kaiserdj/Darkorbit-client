@@ -29,7 +29,7 @@ function run() {
     let url = this.location.href;
 
     switch (true) {
-        case /https:\/\/www.darkorbit.com(\/\?.)?/.test(url):
+        case /https:\/\/www.darkorbit.com/.test(url):
         case /https:\/\/.{0,4}darkorbit.com\/index\.es\?action=externalHome&loginError=99/.test(url):
             require("./login");
             break;
