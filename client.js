@@ -140,7 +140,7 @@ class Client {
                     client.createWindow("client", url);
                 }
             } else if (new URL(url).host.split(".")[1] === "bpsecure") {
-                createWindow("config", url);
+                client.createWindow("config", url);
             } else {
                 require('open')(url);
                 return;
