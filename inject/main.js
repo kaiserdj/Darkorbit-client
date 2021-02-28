@@ -1,17 +1,14 @@
 const tools = require("./tools");
-const nprogress = require("./nprogress");
-
-let css = document.createElement('link');
-css.href = "https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css";
-css.rel = "stylesheet";
+const nprogress = require("../libs/nprogress/nprogress");
+const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
+        tools.addStyle(nprogressCss);
         tools.addStyle("#qc-cmp2-container {display: none;}");
         tools.addStyle("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
         nprogress.configure({ showSpinner: false,  });
         nprogress.start();
-        document.getElementsByTagName('head')[0].appendChild(css);
         run();
     } else {
         setTimeout(() => {

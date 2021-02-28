@@ -139,7 +139,7 @@ class credentials {
     }
 
     config() {
-        let tray = new Tray(`${__dirname}/html/tray.png`);
+        let tray = new Tray(`${__dirname}/tray.png`);
         const contextMenu = Menu.buildFromTemplate([{
                 label: "Auto-close",
                 type: "checkbox",
