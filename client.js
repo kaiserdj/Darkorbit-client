@@ -105,6 +105,11 @@ class Client {
 
         window.webContents.on('before-input-event', (event, input) => {
             let focus = () => BrowserWindow.getFocusedWindow();
+
+            if(!focus()) {
+                return;
+            }
+
             if (input.control && input.code === "F5") {
                 focus().reload()
                 event.preventDefault()
