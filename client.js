@@ -106,7 +106,7 @@ class Client {
         window.webContents.on('before-input-event', (event, input) => {
             let focus = () => BrowserWindow.getFocusedWindow();
 
-            if(!focus()) {
+            if (!focus()) {
                 return;
             }
 
@@ -115,20 +115,20 @@ class Client {
                 focus().webContents.toggleDevTools()
             }
             if (input.control && input.code === "F5") {
-                focus().reload()
                 event.preventDefault()
+                focus().reload()
             }
             if (input.control && input.code === "Numpad0") {
-                focus().webContents.zoomLevel = 0;
                 event.preventDefault()
+                focus().webContents.zoomLevel = 0;
             }
             if (input.control && input.key === "+") {
-                focus().webContents.zoomLevel += 0.5;
                 event.preventDefault()
+                focus().webContents.zoomLevel += 0.5;
             }
             if (input.control && input.key === "-") {
-                focus().webContents.zoomLevel -= 0.5;
                 event.preventDefault()
+                focus().webContents.zoomLevel -= 0.5;
             }
         })
 
