@@ -1,4 +1,4 @@
-const { app } = require('electron');
+const { app, Menu } = require('electron');
 const path = require("path");
 const fs = require('fs');
 
@@ -11,6 +11,8 @@ class Core {
             this.ppapi_flash_path;
 
             this.ppapi();
+
+            Menu.setApplicationMenu(Menu.buildFromTemplate([{label: "File", submenu: [{role: "reload"}, {role: "close"}]}]));
 
             await this.app.whenReady();
             this.appReady = true;
