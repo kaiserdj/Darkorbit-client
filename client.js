@@ -110,6 +110,10 @@ class Client {
                 return;
             }
 
+            if (this.arg.dev && input.control && input.shift && input.code === "KeyI" && new URL(focus().webContents.getURL()).search === "?action=internalMapRevolution") {
+                event.preventDefault()
+                focus().webContents.toggleDevTools()
+            }
             if (input.control && input.code === "F5") {
                 focus().reload()
                 event.preventDefault()
