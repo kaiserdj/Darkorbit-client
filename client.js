@@ -136,7 +136,7 @@ class Client {
 
         let client = this;
         window.webContents.on('new-window', async function(e, url) {
-            if (type === "shop") {
+            if (type === "game" || type === "shop") {
                 return;
             }
             e.preventDefault();
