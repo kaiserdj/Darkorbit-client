@@ -1,4 +1,4 @@
-const { dialog, ipcMain, BrowserWindow, Tray, Menu } = require('electron');
+const { dialog, ipcMain, BrowserWindow, MenuItem } = require('electron');
 const { menubar } = require('menubar');
 const settings = require("electron-settings");
 const Alert = require("electron-alert");
@@ -139,44 +139,21 @@ class credentials {
     }
 
     config() {
-        let tray = new Tray(`${__dirname}/tray.png`);
-        const contextMenu = Menu.buildFromTemplate([{
-                label: "Auto-close",
-                type: "checkbox",
-                checked: settings.getSync().autoClose ? true : false,
-                click: () => {
-                    let backup = settings.getSync();
-                    if (backup.autoClose) {
-                        backup.autoClose = false;
-                    } else {
-                        backup.autoClose = true;
-                    }
-                    settings.setSync(backup);
-                }
-            },
-            {
-                type: "separator"
-            },
-            {
-                label: "Autologin",
-                type: "normal",
-                click: () => this.mb.showWindow()
-            },
-            {
-                label: "Login with Dosid",
-                type: "normal",
-                click: () => this.loginDosid()
-            },
-            {
-                label: "Exit",
-                click: () => global.app.quit()
-            }
-        ]);
-        tray.setContextMenu(contextMenu);
+        this.client.menuTray.insert(2, new MenuItem({
+            label: "Login with Dosid",
+            type: "normal",
+            click: () => this.loginDosid()
+        }));
+    
+        this.client.menuTray.insert(2, new MenuItem({
+            label: "Autologin",
+            type: "normal",
+            click: () => this.mb.showWindow()
+        }));
 
         let config = {
             tooltip: "Darkorbit Client",
-            tray,
+            tray: this.client.tray,
             transparent: true,
             preloadWindow: true,
             showOnAllWorkspaces: false,

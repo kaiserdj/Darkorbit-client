@@ -1,4 +1,4 @@
-const { nativeTheme } = require("electron");
+const { nativeTheme, Tray, Menu } = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -45,40 +45,32 @@ function checkSettings() {
     settings.setSync(merge(defaultSettings, backup))
 }
 
-function settingsWindow(window, type) {
-    if (settings.getSync()[type].max) {
-        window.maximize();
-    }
+function tray(client) {
+    let tray = new Tray(`${__dirname}/tray.png`);
+    client.menuTray = Menu.buildFromTemplate([{
+            label: "Auto-close",
+            type: "checkbox",
+            checked: settings.getSync().autoClose ? true : false,
+            click: () => {
+                let backup = settings.getSync();
 
-    window.on('maximize', () => {
-        let backup = settings.getSync();
-        backup[type].max = true;
-        settings.setSync(backup);
-    });
+                backup.autoClose = !backup.autoClose;
 
-    window.on("unmaximize", () => {
-        let backup = settings.getSync();
-        backup[type].max = false;
-        settings.setSync(backup);
-    });
+                settings.setSync(backup);
+            }
+        },
+        {
+            type: "separator"
+        },
+        {
+            label: "Exit",
+            click: () => client.core.app.quit()
+        }
+    ]);
+    tray.setToolTip("Darkorbit Client");
+    tray.setContextMenu(client.menuTray);
 
-    window.on('resize', () => {
-        let backup = settings.getSync();
-        let size = window.getSize();
-        backup[type].width = size[0];
-        backup[type].height = size[1];
-
-        settings.setSync(backup);
-    })
-
-    window.on('move', (data) => {
-        let backup = settings.getSync();
-        let pos = data.sender.getBounds();
-        backup[type].x = pos.x;
-        backup[type].y = pos.y;
-
-        settings.setSync(backup);
-    });
+    return tray;
 }
 
 function contextMenu(dev) {
@@ -177,9 +169,46 @@ function contextMenu(dev) {
     });
 }
 
+function settingsWindow(window, type) {
+    if (settings.getSync()[type].max) {
+        window.maximize();
+    }
+
+    window.on('maximize', () => {
+        let backup = settings.getSync();
+        backup[type].max = true;
+        settings.setSync(backup);
+    });
+
+    window.on("unmaximize", () => {
+        let backup = settings.getSync();
+        backup[type].max = false;
+        settings.setSync(backup);
+    });
+
+    window.on('resize', () => {
+        let backup = settings.getSync();
+        let size = window.getSize();
+        backup[type].width = size[0];
+        backup[type].height = size[1];
+
+        settings.setSync(backup);
+    })
+
+    window.on('move', (data) => {
+        let backup = settings.getSync();
+        let pos = data.sender.getBounds();
+        backup[type].x = pos.x;
+        backup[type].y = pos.y;
+
+        settings.setSync(backup);
+    });
+}
+
 module.exports = {
     commandLine,
     checkSettings,
+    tray,
+    contextMenu,
     settingsWindow,
-    contextMenu
 }

@@ -25,6 +25,8 @@ class Client {
             this.core = core;
             this.arg = tools.commandLine();
             this.useragent = await useragent();
+            this.menuTray;
+            this.tray = tools.tray(this);
             this.credentials = new Credentials(this);
 
             await update();
@@ -45,7 +47,7 @@ class Client {
                 this.credentials.mb.showWindow();
             }
 
-            return this
+            return this;
         })()
     }
 
