@@ -1,4 +1,4 @@
-const { BrowserWindow, globalShortcut } = require('electron');
+const { BrowserWindow } = require('electron');
 const settings = require("electron-settings");
 
 const tools = require("./tools");
