@@ -5,7 +5,7 @@ const Alert = require("electron-alert");
 
 const crypt = require("./crypt");
 
-class credentials {
+class Credentials {
     constructor(client) {
         this.client = client;
         this.mb = menubar(this.config());
@@ -356,4 +356,4 @@ class credentials {
     }
 }
 
-module.exports = credentials;
+module.exports = Credentials;
