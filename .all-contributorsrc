@@ -16,10 +16,19 @@
         "projectManagement",
         "tool"
       ]
+    },
+    {
+      "login": "odakab",
+      "name": "odakab",
+      "avatar_url": "https://avatars.githubusercontent.com/u/49538323?v=4",
+      "profile": "https://github.com/ODAKAB",
+      "contributions": [
+        "financial"
+      ]
     }
   ],
   "contributorsPerLine": 5,
-  "projectName": "Darkorbit client",
+  "projectName": "Darkorbit-client",
   "projectOwner": "kaiserdj",
   "repoType": "github",
   "repoHost": "https://github.com",
