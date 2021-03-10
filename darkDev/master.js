@@ -108,7 +108,7 @@ function run() {
 
         downloadLink.click();
     }
-};
+}
 
 function load(data) {
     if (data.CustomLoad.enable) {
@@ -155,7 +155,7 @@ function load(data) {
             location.reload();
         }));
     }
-};
+}
 
 ipcRenderer.on("consoleDownload", (event, data) => {
     let console = document.getElementById("Console");
