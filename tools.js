@@ -1,4 +1,4 @@
-const { nativeTheme, Tray, Menu } = require("electron");
+const { BrowserWindow ,nativeTheme, Tray, Menu } = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -64,7 +64,12 @@ function tray(client) {
         },
         {
             label: "Exit",
-            click: () => client.core.app.quit()
+            click: () => {
+                BrowserWindow.getAllWindows().forEach((win) => {
+                    win.destroy();
+                });
+                client.core.app.quit();
+            }
         }
     ]);
     tray.setToolTip("Darkorbit Client");

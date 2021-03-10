@@ -92,6 +92,20 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
+## Story
+
+My initial intention with this project was to create a client for darkorbit that could be used by any user with any operating system (Windows, mac or linux), and had better performance.
+
+When I already had a stable version, I tried to contact darkorbit to give them the client and if they wanted, implement it, modify it, or whatever they wanted ..... but after many attempts:
+- Twitter: I never received a reply
+- Official darkorbit forum: They delete my posts, saying that I can't publish external links. After talking on discord with an admin, he told me the steps I should follow to publish a post correctly, without a link, as a suggestion, etc.
+- Discord: They treated me as if I was trying to steal data or as if I was a hack
+- etc...
+
+I abandon the idea of ​​contacting Darkorbit.
+
+From now on I will continue to develop utilities for the client, not only as a client to play, but also to develop. With the intention of learning more about electron, js and in general to practice programming, while having fun with it.
+
 ## Disclaimer
 
 This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Bigpoint or any of its subsidiaries or its affiliates. The official Bigpoint website can be found at https://www.bigpoint.net. "Bigpoint" as well as related names, marks, emblems and images are registered trademarks of their respective owners.

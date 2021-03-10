@@ -1,10 +1,14 @@
 const { BrowserWindow } = require('electron');
 const settings = require("electron-settings");
+const fs = require("fs");
+const path = require("path");
+const axios = require("axios");
 
 const tools = require("./tools");
 const update = require("./update");
 const useragent = require("./useragent");
 const Credentials = require("./credentials/credentials");
+const DarkDev = require("./darkDev/darkDev");
 const defaultSettings = require("./defaultSettings.json");
 
 class Client {
@@ -28,6 +32,7 @@ class Client {
             this.menuTray;
             this.tray = tools.tray(this);
             this.credentials = new Credentials(this);
+            this.darkDev = new DarkDev(this);
 
             await update();
 
@@ -46,6 +51,10 @@ class Client {
             if (!settings.getSync().master) {
                 this.credentials.mb.showWindow();
             }
+
+            this.core.app.on("browser-window-created", () => {
+                this.setCustomLoad();
+            })
 
             return this;
         })()
@@ -75,6 +84,8 @@ class Client {
         if (this.arg.dev) {
             window.webContents.openDevTools();
         }
+
+        this.setCustomLoad();
 
         if (this.arg.login) {
             if (this.arg.login.length === 2) {
@@ -135,8 +146,24 @@ class Client {
         })
 
         window.on("close", () => {
-            if (settings.getSync().autoClose && BrowserWindow.getAllWindows().length <= 2) {
-                global.app.quit();
+            if (this.arg.dev) {
+                let winFocused = BrowserWindow.getFocusedWindow();
+                winFocused.webContents.debugger.detach();
+            }
+
+            if (settings.getSync().autoClose) {
+                if (BrowserWindow.getAllWindows().length <= 3 && this.arg.dev === true) {
+                    BrowserWindow.getAllWindows().forEach((win) => {
+                        win.destroy();
+                    })
+                    this.core.app.quit();
+                }
+                if (BrowserWindow.getAllWindows().length <= 2 && this.arg.dev === false) {
+                    BrowserWindow.getAllWindows().forEach((win) => {
+                        win.destroy();
+                    })
+                    this.core.app.quit();
+                }
             }
         })
 
@@ -170,6 +197,100 @@ class Client {
         });
 
         return window;
+    }
+
+    setCustomLoad() {
+        if (!this.arg.dev) {
+            return;
+        }
+
+        let backup = settings.getSync();
+        let customLoad = backup.DarkDev.CustomLoad;
+
+        let windows = BrowserWindow.getAllWindows();
+
+        for (let win of windows) {
+            if (win.webContents.getURL().split(":")[0] === "file") {
+                return;
+            }
+
+            let statusDevTools = win.webContents.isDevToolsOpened();
+            if (!statusDevTools) {
+                win.webContents.openDevTools()
+            }
+
+            if (!win.webContents.debugger.isAttached()) {
+                win.webContents.debugger.attach("1.1");
+            }
+
+            if (!customLoad.enable) {
+                win.webContents.debugger.sendCommand("Fetch.enable", { patterns: [] });
+                win.webContents.debugger.removeAllListeners("message");
+                if (!statusDevTools) {
+                    win.webContents.closeDevTools()
+                }
+                return;
+            }
+
+            let patterns = [];
+
+            for (let id in customLoad.list) {
+                if (customLoad.list[id].enable) {
+                    patterns.push({ urlPattern: customLoad.list[id].match });
+                }
+            }
+
+            win.webContents.debugger.sendCommand("Fetch.enable", { patterns });
+
+            win.webContents.debugger.removeAllListeners("message");
+
+            win.webContents.debugger.on("message", async (event, method, params) => {
+                if (method !== "Fetch.requestPaused") {
+                    return;
+                }
+
+                for (let id in customLoad.list) {
+                    if (!customLoad.list[id].enable) {
+                        continue;
+                    }
+
+                    let pattern = customLoad.list[id].match.replaceAll("/", "\\/");
+                    pattern = pattern.replaceAll(".", "\\.");
+                    pattern = pattern.replaceAll("*", ".*");
+                    pattern = pattern.replace(/[+?^${}()|]/g, '\\$&');
+
+                    let check = new RegExp(pattern).test(params.request.url);
+                    if (check) {
+                        let body;
+
+                        if (customLoad.list[id].LocalFileEnable) {
+                            body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), { encoding: "base64" });
+                        } else {
+                            body = await this.get(customLoad.list[id].actionUrl);
+                        }
+
+                        win.webContents.debugger.sendCommand("Fetch.fulfillRequest", {
+                            responseCode: 200,
+                            requestId: params.requestId,
+                            body
+                        });
+
+                        return;
+                    }
+                }
+
+                alert(`Error when injecting custom load in the url: ${params.request.url}`);
+                win.webContents.debugger.sendCommand("Fetch.continueRequest", { requestId: params.requestId });
+            })
+        }
+    }
+
+    async get(url) {
+        return new Promise((resolve, reject) => {
+            axios.get(url, { responseType: 'arraybuffer' })
+                .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
+                .catch(error => reject(error));
+        });
     }
 }
 

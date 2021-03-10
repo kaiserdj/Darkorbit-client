@@ -1,6 +1,6 @@
 {
   "name": "darkorbit-client",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "description": "Open source darkorbit client",
   "main": "index.js",
   "repository": {
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@krisdages/electron-process-manager": "^1.0.0-elec10",
+    "axios": "^0.21.1",
     "electron-alert": "^0.1.11",
     "electron-context-menu": "^2.5.0",
     "electron-progressbar": "^2.0.0",
@@ -33,6 +34,7 @@
     "menubar": "^9.0.3",
     "open": "^8.0.2",
     "sweetalert2": "^10.15.5",
+    "xml2js": "^0.4.23",
     "yargs": "^16.2.0"
   },
   "build": {

@@ -20,5 +20,11 @@
     "config": {
         "width": 1000,
         "height": 723
+    },
+    "DarkDev": {
+        "CustomLoad": {
+            "enable": false,
+            "list": {}
+        }
     }
 }

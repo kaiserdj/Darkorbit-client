@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Kaiserdj">
+    <title>DarkDev (BETA)</title>
+
+    <script src="../libs/bootstrap/bootstrap.min.js"></script>
+
+    <link href="../libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="./style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row gutters-sm">
+            <div class="col-md-4 d-none d-md-block">
+                <div class="card">
+                    <div class="card-body">
+                        <nav class="nav flex-column nav-pills nav-gap-y-1">
+                            <a href="#customLoad" class="nav-item nav-link has-icon nav-link-faded active" id="nav-customLoad-tab" data-bs-toggle="tab" data-bs-target="#nav-customLoad" role="tab" aria-controls="nav-customLoad" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cloud" viewBox="0 0 24 24">
+                                    <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z" />
+                                </svg> Custom load
+                            </a>
+                            <a href="#ResourceDownload" class="nav-item nav-link has-icon nav-link-faded" id="nav-ResourceDownload-tab" data-bs-toggle="tab" data-bs-target="#nav-ResourceDownload" role="tab" aria-controls="nav-ResourceDownload" aria-selected="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-download" viewBox="0 0 24 24">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                </svg> Resource download
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header border-bottom mb-3 d-flex d-md-none">
+                        <ul class="nav nav-tabs card-header-tabs nav-gap-x-1" role="tablist" role="tablist">
+                            <li class="nav-item">
+                                <a href="#customLoad" class="nav-link has-icon active" id="nav-customLoad-tab" data-bs-toggle="tab" data-bs-target="#nav-customLoad" type="button" role="tab" aria-controls="nav-customLoad" aria-selected="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cloud" viewBox="0 0 16 16">
+                                        <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z" />
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#ResourceDownload" class="nav-link has-icon" id="nav-ResourceDownload-tab" data-bs-toggle="tab" data-bs-target="#nav-ResourceDownload" type="button" role="tab" aria-controls="nav-ResourceDownload" aria-selected="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content card-body" id="nav-tabContent">
+                        <div class="tab-pane fade active show" id="nav-customLoad" role="tabpanel" aria-labelledby="nav-customLoad-tab">
+                            <div class="position-relative">
+                                <h6 class="position-relative top-0 start-0">Custom Load</h6>
+                                <div class="form-check form-switch position-absolute top-0 end-0">
+                                    <input id="EnableCustomLoad" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" for="EnableCustomLoad">Enable</label>
+                                </div>
+                            </div>
+                            <hr>
+                            DarkDev's Custom Load tab allows you to return files from your local disk instead of transmitting the request to the client.
+                            <p></p>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-primary me-md-2" type="button" data-bs-toggle="modal" data-bs-target="#NewRule">Add New Rule</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="TableCustomLoad" class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Enable</th>
+                                            <th scope="col">Match</th>
+                                            <th scope="col">Local File</th>
+                                            <th scope="col">Action</th>
+                                            <th scope="col">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                <div class="modal fade" id="NewRule" tabindex="-1" aria-labelledby="NewRule" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form id="NewCustomLoad">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">New Rule</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label for="Match" class="form-label">Match</label>
+                                                        <input type="text" class="form-control" id="Match" placeholder="String To Match Allow Regex. Example: *bpsecure*main.swf*" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="exampleFormControlInput1" class="form-label">Action Url</label>
+                                                        <input id="ActionUrl" type="url" class="form-control" placeholder="Example: https://darkorbit-22.bpsecure.com/spacemap/main.swf" required>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input id="LocalFileEnable" class="form-check-input" type="checkbox">
+                                                        <label class="form-check-label" for="LocalFileEnable">Local file</label>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="LocalFile" class="form-label">Action</label>
+                                                        <input class="form-control" type="file" id="LocalFile" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button id="CloseNewRule" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-ResourceDownload" role="tabpanel" aria-labelledby="nav-ResourceDownload-tab">
+                            <h6>Resource Download</h6>
+                            <hr>
+                            <div id="initResourceDownload">
+                                <p>
+                                    Download all Darkorbit resources from its official servers. <br>
+                                    By default it is downloaded from https://darkorbit-22.bpsecure.com
+                                </p>
+                                <div class="accordion accordion-flush" id="accordionFlushExample">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="flush-headingOne">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                Xml Colections
+                                            </button>
+                                        </h2>
+                                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                            <div id="xmlColections" class="accordion-body">
+                                                <div class="form-check">
+                                                    <input id="res0" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="res0">
+                                                        spacemap/xml/resources.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="res1" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="res1">
+                                                        spacemap/xml/resources_3d.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="res2" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="res2">
+                                                        spacemap/xml/resources_3d.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="res3" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="res3">
+                                                        spacemap/xml/resources_3d_particles.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="res4" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="res4">
+                                                        spacemap/xml/assets_loadingScreen.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang0" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang0">
+                                                        spacemap/templates/language_de.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang1" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang1">
+                                                        spacemap/templates/language_en.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang2" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang2">
+                                                        spacemap/templates/language_fr.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang3" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang3">
+                                                        spacemap/templates/language_en_US.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang4" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang4">
+                                                        spacemap/templates/language_es.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang5" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang5">
+                                                        spacemap/templates/language_sv.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang6" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang6">
+                                                        spacemap/templates/language_ru.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang7" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang7">
+                                                        spacemap/templates/language_it.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang8" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang8">
+                                                        spacemap/templates/language_tr.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang9" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang9">
+                                                        spacemap/templates/language_fi.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang10" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang10">
+                                                        spacemap/templates/language_pl.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang11" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang11">
+                                                        spacemap/templates/language_da.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang12" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang12">
+                                                        spacemap/templates/language_pt.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang13" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang13">
+                                                        spacemap/templates/language_nl.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang14" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang14">
+                                                        spacemap/templates/language_no.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang15" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang15">
+                                                        spacemap/templates/language_cs.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang16" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang16">
+                                                        spacemap/templates/language_sk.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang17" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang17">
+                                                        spacemap/templates/language_pt_BR.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang18" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang18">
+                                                        spacemap/templates/language_ro.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang19" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang19">
+                                                        spacemap/templates/language_el.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang20" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang20">
+                                                        spacemap/templates/language_bg.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang21" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang21">
+                                                        spacemap/templates/language_hu.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang22" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang22">
+                                                        spacemap/templates/language_es_CO.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang23" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang23">
+                                                        spacemap/templates/language_es_VE.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang24" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang24">
+                                                        spacemap/templates/language_es_CL.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang25" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang25">
+                                                        spacemap/templates/language_es_AR.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang26" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang26">
+                                                        spacemap/templates/language_es_PE.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="lang27" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="lang27">
+                                                        spacemap/templates/language_ja.xml
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="flush-headingTwo">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                                                Extra Files
+                                            </button>
+                                        </h2>
+                                        <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                                            <div id="extraFiles" class="accordion-body">
+                                                <div class="form-check">
+                                                    <input id="extra0" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="extra0">
+                                                        spacemap/xml/maps.php
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="extra1" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="extra1">
+                                                        spacemap/xml/profile.xml
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="extra2" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="extra2">
+                                                        spacemap/preloader.swf
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="extra3" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="extra3">
+                                                        spacemap/main.swf
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="extra4" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="extra4">
+                                                        spacemap/loadingscreen.swf
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input id="extra5" class="form-check-input" type="checkbox" checked>
+                                                    <label class="form-check-label" for="extra5">
+                                                        eurostileFonts.swf
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p></p>
+                                <div class="form-check form-switch">
+                                    <input id="checkHash" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" for="checkHash">Check download hashes</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input id="CustomServer" class="form-check-input" type="checkbox">
+                                    <label class="form-check-label" for="CustomServer">Custom server</label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Server</span>
+                                    <input id="server" type="text" class="form-control" value="es1" aria-label="server" aria-describedby="server" disabled>
+                                </div>
+                                <button id="ResourceDownloadButton" class="btn btn-primary" type="button">Download</button>
+                            </div>
+                            <div id="subResourceDownload" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="Console" class="form-label">Console</label>
+                                    <textarea class="form-control" id="Console" rows="10" disabled></textarea>
+                                </div>
+                                <button id="SaveConsoleDownloadCButton" class="btn btn-primary" type="button">Save log</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
