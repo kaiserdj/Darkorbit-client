@@ -71,6 +71,25 @@ You can support the maintainer of this project through the link below
 
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/kaiserdj/)
 
+## Contributors ✨
+
+Thanks go to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://kaiserdj.github.io"><img src="https://avatars2.githubusercontent.com/u/5487950?v=4" width="100px;" alt=""/><br /><sub><b>Kaiserdj</b></sub></a><br /><a href="https://github.com/kaiserdj/Darkorbit-client/commits?author=kaiserdj" title="Code">💻</a> <a href="https://github.com/kaiserdj/Darkorbit-client/commits?author=kaiserdj" title="Tests">⚠️</a> <a href="#projectManagement-kaiserdj" title="Project Management">📆</a> <a href="#tool-kaiserdj" title="Tools">🔧</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
 ## Disclaimer
 
 This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Bigpoint or any of its subsidiaries or its affiliates. The official Bigpoint website can be found at https://www.bigpoint.net. "Bigpoint" as well as related names, marks, emblems and images are registered trademarks of their respective owners.
