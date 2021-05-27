@@ -17,7 +17,7 @@ class Core {
             await this.app.whenReady();
             this.appReady = true;
 
-            return this
+            return this;
         })()
     }
 

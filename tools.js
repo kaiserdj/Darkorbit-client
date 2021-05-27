@@ -1,4 +1,4 @@
-const { BrowserWindow ,nativeTheme, Tray, Menu } = require("electron");
+const { BrowserWindow, nativeTheme, Tray, Menu } = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -57,6 +57,22 @@ function tray(client) {
                 backup.autoClose = !backup.autoClose;
 
                 settings.setSync(backup);
+            }
+        },
+        {
+            label: "Clear Cache",
+            click: () => {
+                const wins = BrowserWindow.getAllWindows();
+
+                wins.forEach(async (win)=> {
+                    await win.webContents.session.clearCache();
+                    await win.webContents.session.clearStorageData();
+                    await win.webContents.session.clearHostResolverCache();
+                    await win.webContents.session.clearAuthCache();
+                })
+
+                client.core.app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+                client.core.app.exit(0);
             }
         },
         {
@@ -210,10 +226,11 @@ function settingsWindow(window, type) {
     });
 }
 
+
 module.exports = {
     commandLine,
     checkSettings,
     tray,
     contextMenu,
-    settingsWindow,
+    settingsWindow
 }
