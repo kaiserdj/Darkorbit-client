@@ -13,7 +13,7 @@ label#eh_mc_checkbox_text {
 }
 
 #autoLogin {
-    background: url(https://darkorbit-22.bpsecure.com/do_img/global/companyChoose/button_sprite_238x52.png?__cv=f1bb073…) no-repeat;
+    background: url(https://darkorbit-22.bpsecure.com/do_img/global/companyChoose/button_sprite_238x52.png) no-repeat;
     width: 238px;
     height: 52px !important;
     color: #ffffff;
@@ -26,6 +26,10 @@ label#eh_mc_checkbox_text {
 }
 #autoLogin:hover {
     background-position: 0px -52px;
+}
+
+.bgc .bgcdw_login_form_buttons {
+    top: 150px !important;
 }
 `;
 
