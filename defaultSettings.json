@@ -1,6 +1,7 @@
 {
     "check": true,
     "autoClose": true,
+    "hideMasterRegister": false,
     "client": {
         "width": 1000,
         "height": 723

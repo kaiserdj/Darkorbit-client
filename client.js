@@ -48,7 +48,7 @@ class Client {
 
             this.createWindow("client");
 
-            if (!settings.getSync().master) {
+            if (!settings.getSync().master && typeof this.arg.login === "undefined" && typeof this.arg.sid === "undefined" && !settings.getSync().hideMasterRegister) {
                 this.credentials.mb.showWindow();
             }
 
@@ -91,7 +91,7 @@ class Client {
             if (this.arg.login.length === 2) {
                 window.webContents.once('did-finish-load', () => {
                     window.webContents.send("login", this.arg.login)
-                delete this.arg.login;
+                    delete this.arg.login;
                 });
             }
         }

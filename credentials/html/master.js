@@ -17,6 +17,21 @@ function run() {
 
     switch (type) {
         case "registerMaster":
+            document.getElementById("hide").onclick = (sub) => {
+                sub.preventDefault();
+                sweetalert2.default.fire({
+                    html: "This window will not come out automatically every time you open the client.<br>Is it what you want?",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, please!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        ipcRenderer.send('hideMasterRegister', true);
+                    }
+                })
+            }
+
             document.getElementById("form").onsubmit = (sub) => {
                 sub.preventDefault();
                 let master = document.getElementById("password").value;

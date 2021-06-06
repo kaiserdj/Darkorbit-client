@@ -26,7 +26,7 @@ class Credentials {
             } else {
                 let backup = settings.getSync();
 
-                if (!backup.salt) {
+                if (typeof backup.salt === "undefined" && typeof backup.master !== "undefined") {
                     const message = {
                         type: "warning",
                         title: "Security update",
@@ -56,6 +56,16 @@ class Credentials {
             if (!this.check) {
                 this.mb.window.webContents.send("checkMasterRet", this.check);
             }
+        });
+
+        ipcMain.on('hideMasterRegister', (event, data) => {
+            let backup = settings.getSync();
+
+            backup.hideMasterRegister = data;
+
+            settings.setSync(backup);
+
+            this.mb.window.hide();
         });
 
         ipcMain.on('resetMaster', () => {
@@ -144,7 +154,7 @@ class Credentials {
             type: "normal",
             click: () => this.loginDosid()
         }));
-    
+
         this.client.menuTray.insert(2, new MenuItem({
             label: "Autologin",
             type: "normal",
@@ -159,7 +169,7 @@ class Credentials {
             showOnAllWorkspaces: false,
             browserWindow: {
                 'width': 380,
-                'height': 370,
+                'height': !settings.getSync().master ? 400 : 370,
                 'webPreferences': {
                     'preload': `${__dirname}/html/master.js`,
                     'contextIsolation': true,
