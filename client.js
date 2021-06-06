@@ -89,11 +89,10 @@ class Client {
 
         if (this.arg.login) {
             if (this.arg.login.length === 2) {
-                window.webContents.on('did-finish-load', () => {
+                window.webContents.once('did-finish-load', () => {
                     window.webContents.send("login", this.arg.login)
-                });
-
                 delete this.arg.login;
+                });
             }
         }
 
