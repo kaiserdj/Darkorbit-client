@@ -8,6 +8,12 @@ document.onreadystatechange = () => {
 };
 
 function run() {
+    if (window.location.search) {
+        let urlParams = new URLSearchParams(window.location.search);
+        let tab = urlParams.get('tab');
+        changeTab(tab)
+    }
+
     ipcRenderer.send("LoadConfigDarkDev", true);
 
     /* Custom Load */
@@ -37,14 +43,35 @@ function run() {
         let item = {};
         item.id = new Date().valueOf();
         item.enable = true;
-        item.match = document.getElementById("Match").value;
-        item.actionUrl = document.getElementById("ActionUrl").value;
+        item.match = document.getElementById("MatchLoad").value;
+        item.actionUrl = document.getElementById("ActionUrlLoad").value;
         item.LocalFileEnable = document.getElementById("LocalFileEnable").checked;
         item.LocalFile = document.querySelector("#LocalFile").files.length != 0 ? document.querySelector("#LocalFile").files[0].path : "";
 
         ipcRenderer.send("NewCustomLoad", item);
 
-        location.reload();
+        window.location.search = 'tab=nav-customLoad-tab';
+    }
+
+    /* Custom Css */
+    document.getElementById("EnableCustomCss").onclick = () => {
+        ipcRenderer.send("SetEnableCustomCss", document.getElementById("EnableCustomCss").checked)
+    }
+
+    /* Custom Css modal */
+
+    document.getElementById("NewCustomCss").onsubmit = (sub) => {
+        sub.preventDefault();
+
+        let item = {};
+        item.id = new Date().valueOf();
+        item.enable = true;
+        item.match = document.getElementById("MatchCss").value;
+        item.actionUrl = document.getElementById("ActionUrlCss").value;
+
+        ipcRenderer.send("NewCustomCss", item);
+
+        window.location.search = 'tab=nav-customCss-tab';
     }
 
     /* Resource Download */
@@ -111,6 +138,7 @@ function run() {
 }
 
 function load(data) {
+    /* Custom Load */
     if (data.CustomLoad.enable) {
         document.getElementById("EnableCustomLoad").checked = data.CustomLoad.enable;
     }
@@ -152,9 +180,62 @@ function load(data) {
                 elem = elem.parentNode;
             }
             ipcRenderer.send('removeCustomLoadItem', elem.querySelectorAll(".idCustomLoadItem")[0].innerText);
-            location.reload();
+            
+            window.location.search = 'tab=nav-customLoad-tab';
         }));
     }
+
+    /* Custom Css */
+
+    if (data.CustomCss.enable) {
+        document.getElementById("EnableCustomCss").checked = data.CustomCss.enable;
+    }
+
+    if (data.CustomCss.list) {
+        for (let id in data.CustomCss.list) {
+            let elem = data.CustomCss.list[id];
+            let table = document.getElementById('TableCustomCss').getElementsByTagName('tbody')[0];
+            let newRow = table.insertRow();
+            newRow.innerHTML = `
+            <tr>
+                <td class="idCustomCssItem">${elem.id}</td>
+                <th scope="row">
+                    <div class="form-check form-switch"><input class="form-check-input enableCustomCssItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
+                </th>
+                <td>${elem.match}</td>
+                <td>${elem.actionUrl}</td>
+                <td>&nbsp;
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash removeCustomCssItem" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                    </svg>
+                </td>
+            </tr>`;
+        }
+        const enableCustomCssItem = document.querySelectorAll('.enableCustomCssItem');
+        enableCustomCssItem.forEach(el => el.addEventListener('click', (event) => {
+            let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomCssItem")[0].innerText;
+            let enable = event.target.checked;
+
+            ipcRenderer.send('enableCustomCssItem', { id, enable });
+        }));
+
+        const removeCustomCssItem = document.querySelectorAll('.removeCustomCssItem');
+        removeCustomCssItem.forEach(el => el.addEventListener('click', (event) => {
+            let elem = event.target.parentNode.parentNode;
+            if (elem.tagName !== "TR") {
+                elem = elem.parentNode;
+            }
+            ipcRenderer.send('removeCustomCssItem', elem.querySelectorAll(".idCustomCssItem")[0].innerText);
+
+            window.location.search = 'tab=nav-customCss-tab';
+        }));
+    }
+}
+
+function changeTab(tab) {
+    document.getElementById(tab).click();
+    document.getElementById(`${tab}-mini`);
 }
 
 ipcRenderer.on("consoleDownload", (event, data) => {

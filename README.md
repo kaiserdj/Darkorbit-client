@@ -23,6 +23,7 @@ Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
 | Flash player injected (0 configuration)                               | ✔   |
 | Custom loading Dosid                                                  | ✔   |
 | Custom load - DarkDev (Modify request)                                | ✔   |
+| Custom css - DarkDev                                                  | ✔   |
 | Resource download - DarkDev                                           | ✔   |
 | [Plugin Darkbot](https://github.com/kaiserdj/Plugin-Launcher-Darkbot) | ✔   |
 

@@ -54,6 +54,7 @@ class Client {
 
             this.core.app.on("browser-window-created", () => {
                 this.setCustomLoad();
+                this.setCustomCss();
             })
 
             return this;
@@ -86,6 +87,7 @@ class Client {
         }
 
         this.setCustomLoad();
+        this.setCustomCss();
 
         if (this.arg.login) {
             if (this.arg.login.length === 2) {
@@ -284,12 +286,24 @@ class Client {
         }
     }
 
-    async get(url) {
-        return new Promise((resolve, reject) => {
-            axios.get(url, { responseType: 'arraybuffer' })
-                .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
-                .catch(error => reject(error));
-        });
+    setCustomCss() {
+        if (!this.arg.dev) {
+            return;
+        }
+
+        let windows = BrowserWindow.getAllWindows();
+
+        for (let win of windows) {
+            if (win.webContents.getURL().split(":")[0] === "file") {
+                return;
+            }
+
+            win.webContents.on("dom-ready", () => {
+                if(settings.getSync().DarkDev.CustomCss.enable) {
+                    win.webContents.send("customCss", settings.getSync().DarkDev.CustomCss)
+                }
+            })
+        }
     }
 }
 

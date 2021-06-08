@@ -26,6 +26,10 @@
         "CustomLoad": {
             "enable": false,
             "list": {}
+        },
+        "CustomCss": {
+            "enable": false,
+            "list": {}
         }
     }
 }
