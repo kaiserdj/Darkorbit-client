@@ -4,6 +4,7 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
 const { openProcessManager } = require('@krisdages/electron-process-manager');
+const axios = require("axios");
 
 const defaultSettings = require("./defaultSettings.json");
 
@@ -226,11 +227,19 @@ function settingsWindow(window, type) {
     });
 }
 
+async function get(url) {
+    return new Promise((resolve, reject) => {
+        axios.get(url, { responseType: 'arraybuffer' })
+            .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
+            .catch(error => reject(error));
+    });
+}
 
 module.exports = {
     commandLine,
     checkSettings,
     tray,
     contextMenu,
-    settingsWindow
+    settingsWindow,
+    get
 }

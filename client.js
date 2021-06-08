@@ -2,7 +2,6 @@ const { BrowserWindow } = require('electron');
 const settings = require("electron-settings");
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
 
 const tools = require("./tools");
 const update = require("./update");
@@ -267,7 +266,7 @@ class Client {
                         if (customLoad.list[id].LocalFileEnable) {
                             body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), { encoding: "base64" });
                         } else {
-                            body = await this.get(customLoad.list[id].actionUrl);
+                            body = await tools.get(customLoad.list[id].actionUrl);
                         }
 
                         win.webContents.debugger.sendCommand("Fetch.fulfillRequest", {
