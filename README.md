@@ -21,7 +21,8 @@ Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
 | Multi platform                                                        | ✔   |
 | Multi account                                                         | ✔   |
 | Flash player injected (0 configuration)                               | ✔   |
-| Custom loading Dosid                                                  | ✔   |
+| Custom loading Dosid (by GUI or by launch parameters)                 | ✔   |
+| AutoLogin (by GUI or by launch parameters)                            | ✔   |
 | Custom load - DarkDev (Modify request)                                | ✔   |
 | Custom css - DarkDev                                                  | ✔   |
 | Resource download - DarkDev                                           | ✔   |

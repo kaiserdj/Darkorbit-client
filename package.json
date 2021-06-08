@@ -1,6 +1,6 @@
 {
   "name": "darkorbit-client",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Open source darkorbit client",
   "main": "index.js",
   "repository": {
@@ -33,9 +33,9 @@
     "electron-updater": "^4.3.9",
     "menubar": "^9.0.4",
     "open": "^8.2.0",
-    "sweetalert2": "^11.0.12",
+    "sweetalert2": "^11.0.16",
     "xml2js": "^0.4.23",
-    "yargs": "^16.2.0"
+    "yargs": "^17.0.1"
   },
   "build": {
     "appId": "com.DarkOrbitClient.Kaiserdj",
