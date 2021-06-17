@@ -41,6 +41,8 @@ class Client {
                 console.log("Arguments:");
                 console.log(this.arg);
                 console.log(`Ppapi flash: ${this.core.ppapi_flash_path}`);
+                console.log("Data GPU:");
+                console.log(await this.core.app.getGPUFeatureStatus());
             }
 
             tools.contextMenu(this.arg.dev);
