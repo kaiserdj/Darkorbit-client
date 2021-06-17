@@ -26,14 +26,14 @@ function run() {
     document.getElementById("LocalFileEnable").onclick = () => {
         if (document.getElementById("LocalFileEnable").checked) {
             document.getElementById("LocalFile").removeAttribute("disabled")
-            document.getElementById("ActionUrl").setAttribute("disabled", "")
-            document.getElementById("ActionUrl").removeAttribute("required")
+            document.getElementById("ActionUrlLoad").setAttribute("disabled", "")
+            document.getElementById("ActionUrlLoad").removeAttribute("required")
             document.getElementById("LocalFile").setAttribute("required", "")
         } else {
-            document.getElementById("ActionUrl").removeAttribute("disabled")
+            document.getElementById("ActionUrlLoad").removeAttribute("disabled")
             document.getElementById("LocalFile").setAttribute("disabled", "")
             document.getElementById("LocalFile").removeAttribute("required")
-            document.getElementById("ActionUrl").setAttribute("required", "")
+            document.getElementById("ActionUrlLoad").setAttribute("required", "")
         }
     }
 
