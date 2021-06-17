@@ -21,19 +21,19 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "11.3.0",
-    "electron-builder": "^22.10.5"
+    "electron-builder": "^22.11.7"
   },
   "dependencies": {
-    "@krisdages/electron-process-manager": "^1.0.0-elec10",
+    "@krisdages/electron-process-manager": "1.0.0-elec10",
     "axios": "^0.21.1",
     "electron-alert": "^0.1.11",
-    "electron-context-menu": "^3.1.0",
+    "electron-context-menu": "^3.1.1",
     "electron-progressbar": "^2.0.1",
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.9",
     "menubar": "^9.0.4",
     "open": "^8.2.0",
-    "sweetalert2": "^11.0.16",
+    "sweetalert2": "^11.0.17",
     "xml2js": "^0.4.23",
     "yargs": "^17.0.1"
   },
