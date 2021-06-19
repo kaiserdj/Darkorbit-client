@@ -53,6 +53,27 @@ function run() {
         window.location.search = 'tab=nav-customLoad-tab';
     }
 
+    /* Custom Js */
+    document.getElementById("EnableCustomJs").onclick = () => {
+        ipcRenderer.send("SetEnableCustomJs", document.getElementById("EnableCustomJs").checked)
+    }
+
+    /* Custom Js modal */
+
+    document.getElementById("NewCustomJs").onsubmit = (sub) => {
+        sub.preventDefault();
+
+        let item = {};
+        item.id = new Date().valueOf();
+        item.enable = true;
+        item.match = document.getElementById("MatchJs").value;
+        item.actionUrl = document.getElementById("ActionUrlJs").value;
+
+        ipcRenderer.send("NewCustomJs", item);
+
+        window.location.search = 'tab=nav-customJs-tab';
+    }
+
     /* Custom Css */
     document.getElementById("EnableCustomCss").onclick = () => {
         ipcRenderer.send("SetEnableCustomCss", document.getElementById("EnableCustomCss").checked)
@@ -180,8 +201,55 @@ function load(data) {
                 elem = elem.parentNode;
             }
             ipcRenderer.send('removeCustomLoadItem', elem.querySelectorAll(".idCustomLoadItem")[0].innerText);
-            
+
             window.location.search = 'tab=nav-customLoad-tab';
+        }));
+    }
+
+    /* Custom Js */
+
+    if (data.CustomJs.enable) {
+        document.getElementById("EnableCustomJs").checked = data.CustomJs.enable;
+    }
+
+    if (data.CustomJs.list) {
+        for (let id in data.CustomJs.list) {
+            let elem = data.CustomJs.list[id];
+            let table = document.getElementById('TableCustomJs').getElementsByTagName('tbody')[0];
+            let newRow = table.insertRow();
+            newRow.innerHTML = `
+            <tr>
+                <td class="idCustomJsItem">${elem.id}</td>
+                <th scope="row">
+                    <div class="form-check form-switch"><input class="form-check-input enableCustomJsItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
+                </th>
+                <td>${elem.match}</td>
+                <td>${elem.actionUrl}</td>
+                <td>&nbsp;
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash removeCustomJsItem" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                    </svg>
+                </td>
+            </tr>`;
+        }
+        const enableCustomJsItem = document.querySelectorAll('.enableCustomJsItem');
+        enableCustomJsItem.forEach(el => el.addEventListener('click', (event) => {
+            let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomJsItem")[0].innerText;
+            let enable = event.target.checked;
+
+            ipcRenderer.send('enableCustomJsItem', { id, enable });
+        }));
+
+        const removeCustomJsItem = document.querySelectorAll('.removeCustomJsItem');
+        removeCustomJsItem.forEach(el => el.addEventListener('click', (event) => {
+            let elem = event.target.parentNode.parentNode;
+            if (elem.tagName !== "TR") {
+                elem = elem.parentNode;
+            }
+            ipcRenderer.send('removeCustomJsItem', elem.querySelectorAll(".idCustomJsItem")[0].innerText);
+
+            window.location.search = 'tab=nav-customJs-tab';
         }));
     }
 

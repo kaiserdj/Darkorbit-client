@@ -27,6 +27,10 @@
             "enable": false,
             "list": {}
         },
+        "CustomJs": {
+            "enable": false,
+            "list": {}
+        },
         "CustomCss": {
             "enable": false,
             "list": {}

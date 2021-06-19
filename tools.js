@@ -65,7 +65,7 @@ function tray(client) {
             click: () => {
                 const wins = BrowserWindow.getAllWindows();
 
-                wins.forEach(async (win)=> {
+                wins.forEach(async (win) => {
                     await win.webContents.session.clearCache();
                     await win.webContents.session.clearStorageData();
                     await win.webContents.session.clearHostResolverCache();
@@ -229,6 +229,16 @@ function settingsWindow(window, type) {
 
 async function get(url) {
     return new Promise((resolve, reject) => {
+        axios.get(url)
+            .then(response => {
+                resolve(response.data)
+            })
+            .catch(error => reject(error));
+    });
+}
+
+async function getBase64(url) {
+    return new Promise((resolve, reject) => {
         axios.get(url, { responseType: 'arraybuffer' })
             .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
             .catch(error => reject(error));
@@ -241,5 +251,6 @@ module.exports = {
     tray,
     contextMenu,
     settingsWindow,
-    get
+    get,
+    getBase64
 }

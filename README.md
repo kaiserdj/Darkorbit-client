@@ -24,6 +24,7 @@ Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
 | Custom loading Dosid (by GUI or by launch parameters)                 | ✔   |
 | AutoLogin (by GUI or by launch parameters)                            | ✔   |
 | Custom load - DarkDev (Modify request)                                | ✔   |
+| Custom js - DarkDev                                                   | ✔   |
 | Custom css - DarkDev                                                  | ✔   |
 | Resource download - DarkDev                                           | ✔   |
 | [Plugin Darkbot](https://github.com/kaiserdj/Plugin-Launcher-Darkbot) | ✔   |

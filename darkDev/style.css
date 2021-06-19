@@ -61,11 +61,11 @@ body {
     box-shadow: none !important;
 }
 
-.idCustomLoadItem, .idCustomCssItem {
+.idCustomLoadItem, .idCustomJsItem, .idCustomCssItem {
     display: none;
 }
 
-.removeCustomLoadItem, .removeCustomCssItem {
+.removeCustomLoadItem, .removeCustomJsItem, .removeCustomCssItem {
     color: #0d6efd;
     cursor: pointer;
 }

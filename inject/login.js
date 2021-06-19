@@ -1,5 +1,4 @@
 const { ipcRenderer, remote } = require("electron");
-const tools = require("./tools");
 
 let style = `
 body {
@@ -33,7 +32,7 @@ label#eh_mc_checkbox_text {
 }
 `;
 
-tools.addStyle(style);
+require("./api").inejctCss(style);
 
 document.getElementsByClassName("eh_mc_table_td")[1].insertAdjacentHTML('afterbegin', '<div align="center" style=""><input id="autoLogin" value="AUTOLOGIN" type="button"></div>');
 

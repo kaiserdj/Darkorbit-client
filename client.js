@@ -8,6 +8,7 @@ const update = require("./update");
 const useragent = require("./useragent");
 const Credentials = require("./credentials/credentials");
 const DarkDev = require("./darkDev/darkDev");
+const Api = require("./api");
 const defaultSettings = require("./defaultSettings.json");
 
 class Client {
@@ -36,6 +37,7 @@ class Client {
             await update();
 
             if (this.arg.dev) {
+                this.api = new Api();
                 console.log("Settings:");
                 console.log(settings.getSync());
                 console.log("Arguments:");
@@ -55,6 +57,7 @@ class Client {
 
             this.core.app.on("browser-window-created", () => {
                 this.setCustomLoad();
+                this.setCustomJs();
                 this.setCustomCss();
             })
 
@@ -88,6 +91,7 @@ class Client {
         }
 
         this.setCustomLoad();
+        this.setCustomJs();
         this.setCustomCss();
 
         if (this.arg.login) {
@@ -268,7 +272,7 @@ class Client {
                         if (customLoad.list[id].LocalFileEnable) {
                             body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), { encoding: "base64" });
                         } else {
-                            body = await tools.get(customLoad.list[id].actionUrl);
+                            body = await tools.getBase64(customLoad.list[id].actionUrl);
                         }
 
                         win.webContents.debugger.sendCommand("Fetch.fulfillRequest", {
@@ -287,6 +291,26 @@ class Client {
         }
     }
 
+    setCustomJs() {
+        if (!this.arg.dev) {
+            return;
+        }
+
+        let windows = BrowserWindow.getAllWindows();
+
+        for (let win of windows) {
+            if (win.webContents.getURL().split(":")[0] === "file") {
+                return;
+            }
+
+            win.webContents.on("dom-ready", () => {
+                if (settings.getSync().DarkDev.CustomJs.enable) {
+                    win.webContents.send("customJs", settings.getSync().DarkDev.CustomJs)
+                }
+            })
+        }
+    }
+
     setCustomCss() {
         if (!this.arg.dev) {
             return;
@@ -300,7 +324,7 @@ class Client {
             }
 
             win.webContents.on("dom-ready", () => {
-                if(settings.getSync().DarkDev.CustomCss.enable) {
+                if (settings.getSync().DarkDev.CustomCss.enable) {
                     win.webContents.send("customCss", settings.getSync().DarkDev.CustomCss)
                 }
             })

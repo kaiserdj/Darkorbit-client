@@ -2,6 +2,7 @@ const { BrowserWindow, MenuItem, ipcMain } = require('electron');
 const settings = require("electron-settings");
 
 const CustomLoad = require("./tools/CustomLoad");
+const CustomJs = require("./tools/CustomJs");
 const CustomCss = require("./tools/CustomCss");
 const ResourceDownload = require("./tools/ResourceDownload");
 
@@ -9,6 +10,7 @@ class DarkDev {
     constructor(client) {
         this.client = client;
         this.customLoad;
+        this.customJs;
         this.customCss;
         this.window;
 
@@ -52,6 +54,7 @@ class DarkDev {
         })
 
         this.customLoad = new CustomLoad(this.client, this.window);
+        this.customJs = new CustomJs(this.client, this.window);
         this.customCss = new CustomCss(this.client, this.window);
 
         ipcMain.on("LoadConfigDarkDev", () => {
