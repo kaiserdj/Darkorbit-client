@@ -92,6 +92,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     <td align="center"><a href="https://github.com/ODAKAB"><img src="https://avatars.githubusercontent.com/u/49538323?v=4?s=100" width="100px;" alt=""/><br /><sub><b>odakab</b></sub></a><br /><a href="#financial-odakab" title="Financial">💵</a></td>
     <td align="center"><a href="https://github.com/QR4SH3D"><img src="https://avatars.githubusercontent.com/u/69433658?v=4?s=100" width="100px;" alt=""/><br /><sub><b>OneManArmy</b></sub></a><br /><a href="#financial-QR4SH3D" title="Financial">💵</a></td>
     <td align="center"><a href="https://github.com/HeizerGe5"><img src="https://avatars.githubusercontent.com/u/71152480?v=4?s=100" width="100px;" alt=""/><br /><sub><b>HeizerGe5</b></sub></a><br /><a href="#financial-HeizerGe5" title="Financial">💵</a></td>
+    <td align="center"><a href="https://github.com/SenttX1"><img src="https://avatars.githubusercontent.com/u/86185939?v=4?s=100" width="100px;" alt=""/><br /><sub><b>SenttX1</b></sub></a><br /><a href="#financial-SenttX1" title="Financial">💵</a></td>
   </tr>
 </table>
 
