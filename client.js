@@ -34,7 +34,9 @@ class Client {
             this.credentials = new Credentials(this);
             this.darkDev = new DarkDev(this);
 
-            await update();
+            if (await update()) {
+                return this;
+            }
 
             if (this.arg.dev) {
                 this.api = new Api();

@@ -9,6 +9,7 @@ autoUpdater.setFeedURL({
     "repo": "Darkorbit-client"
 });
 
+let updater = false;
 let progressBar;
 
 autoUpdater.on('error', (error) => {
@@ -25,6 +26,7 @@ autoUpdater.on('update-available', async (data) => {
     });
 
     if (check === 0) {
+        updater = true;
         autoUpdater.downloadUpdate();
 
         progressBar = new ProgressBar({
@@ -65,6 +67,8 @@ autoUpdater.on('update-downloaded', async () => {
 
 async function checkForUpdates() {
     await autoUpdater.checkForUpdates();
+    
+    return updater;
 }
 
 module.exports = checkForUpdates;
