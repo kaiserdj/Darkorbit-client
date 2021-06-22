@@ -153,27 +153,23 @@ class Client {
             }
         })
 
-        window.on("close", () => {
+        window.on("close", (closeWin) => {
             if (this.arg.dev) {
-                let winFocused = BrowserWindow.getFocusedWindow();
-                winFocused.webContents.debugger.detach();
-            }
-
-            if (settings.getSync().autoClose) {
-                if (BrowserWindow.getAllWindows().length <= 3 && this.arg.dev === true) {
-                    BrowserWindow.getAllWindows().forEach((win) => {
-                        win.destroy();
-                    })
-                    this.core.app.quit();
-                }
-                if (BrowserWindow.getAllWindows().length <= 2 && this.arg.dev === false) {
-                    BrowserWindow.getAllWindows().forEach((win) => {
-                        win.destroy();
-                    })
-                    this.core.app.quit();
-                }
+                closeWin.sender.webContents.debugger.detach();
             }
         })
+
+        window.on("closed", () => {
+            if (settings.getSync().autoClose) {
+                let allWin = BrowserWindow.getAllWindows();
+                if ((allWin.length < 3 && this.arg.dev === true) || (allWin.length < 2 && this.arg.dev === false)) {
+                    allWin.forEach((win) => {
+                        win.destroy();
+                    })
+                    this.core.app.quit();
+                }
+            }
+        }) 
 
         let client = this;
         window.webContents.on('new-window', async function(e, url) {
