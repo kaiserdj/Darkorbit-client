@@ -105,6 +105,23 @@ function run() {
         }
     }
 
+    document.getElementById("resAll").onclick = (sub) => {
+        let active;
+        if (document.getElementById("resAll").checked) {
+            active = false;
+        } else {
+            active = true;
+        }
+        let xmlColections = document.getElementById("xmlColections").getElementsByTagName("input");
+                for (let elem of xmlColections) {
+                    if(active) {
+                        elem.checked = false;
+                    } else {
+                        elem.checked = true;
+                    }
+                }
+    }
+
     document.getElementById("ResourceDownloadButton").onclick = (sub) => {
         sub.preventDefault();
         dialog.showOpenDialog({
