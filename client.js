@@ -1,4 +1,4 @@
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, dialog } = require('electron');
 const settings = require("electron-settings");
 const fs = require("fs");
 const path = require("path");
@@ -282,8 +282,7 @@ class Client {
                         return;
                     }
                 }
-
-                alert(`Error when injecting custom load in the url: ${params.request.url}`);
+                dialog.showErrorBox("Injecting custom load", `Error when injecting custom load in the url: ${params.request.url}`);
                 win.webContents.debugger.sendCommand("Fetch.continueRequest", { requestId: params.requestId });
             })
         }
