@@ -105,7 +105,7 @@ function run() {
         }
     }
 
-    document.getElementById("resAll").onclick = (sub) => {
+    document.getElementById("resAll").onclick = () => {
         let active;
         if (document.getElementById("resAll").checked) {
             active = false;
