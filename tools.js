@@ -3,7 +3,7 @@ const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
-const { openProcessManager } = require('@krisdages/electron-process-manager');
+const { openProcessManager } = require('electron-process-manager');
 const axios = require("axios");
 
 const defaultSettings = require("./defaultSettings.json");
@@ -170,7 +170,12 @@ function contextMenu(dev) {
                 label: 'Process Manager',
                 icon: `${__dirname}/contextMenu/processManager${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: dev,
-                click: () => openProcessManager()
+                click: () => openProcessManager({
+                    defaultSorting: {
+                        path: 'pid',
+                        how: 'ascending'
+                    }
+                })
             },
             {
                 role: 'forcereload',
