@@ -38,7 +38,7 @@ function run() {
     }
 }
 
-function customUrlRedex(match, url) {
+function customUrlRegex(match, url) {
     let pattern = match.replaceAll("/", "\\/");
     pattern = pattern.replaceAll(".", "\\.");
     pattern = pattern.replaceAll("*", ".*");
@@ -51,7 +51,7 @@ ipcRenderer.once("customJs", (event, data) => {
     if (data.enable) {
         for (let id in data.list) {
             if (data.list[id].enable) {
-                if (customUrlRedex(data.list[id].match, document.location.href)) {
+                if (customUrlRegex(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
                         .then(res => api.inejctJs(res))
                 }
@@ -64,7 +64,7 @@ ipcRenderer.once("customCss", (event, data) => {
     if (data.enable) {
         for (let id in data.list) {
             if (data.list[id].enable) {
-                if (customUrlRedex(data.list[id].match, document.location.href)) {
+                if (customUrlRegex(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
                         .then(res => api.inejctCss(res))
                 }
