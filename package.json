@@ -20,8 +20,8 @@
   "author": "Kaiserdj",
   "license": "ISC",
   "devDependencies": {
-    "electron": "11.3.0",
-    "electron-builder": "22.10.5"
+    "electron": "11.4.9",
+    "electron-builder": "^22.11.7"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -32,8 +32,8 @@
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.9",
     "menubar": "^9.0.4",
-    "open": "^8.2.0",
-    "sweetalert2": "^11.0.17",
+    "open": "^8.2.1",
+    "sweetalert2": "^11.0.18",
     "xml2js": "^0.4.23",
     "yargs": "^17.0.1"
   },
