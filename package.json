@@ -1,6 +1,6 @@
 {
   "name": "darkorbit-client",
-  "version": "2.4.1",
+  "version": "2.4.0",
   "description": "Open source darkorbit client",
   "main": "index.js",
   "repository": {
