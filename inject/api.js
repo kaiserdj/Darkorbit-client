@@ -23,6 +23,9 @@ const api = {
     "get": async (data) => {
         return ipcRenderer.invoke("get", data).then(data => data)
     },
+    "open": async (data) => {
+        return ipcRenderer.invoke("open", data).then(data => data)
+    },
 }
 
 module.exports = api;

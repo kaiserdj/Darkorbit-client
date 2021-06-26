@@ -16,6 +16,11 @@ class Api {
         ipcMain.handle("get", async (event, data) => {
             return await tools.get(data);
         })
+
+        ipcMain.handle("open", async (event, data) => {
+            require('open')(data);
+            return true;
+        })
     }
 }
 
