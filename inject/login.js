@@ -47,5 +47,9 @@ ipcRenderer.on("login", (event, data) => {
     document.getElementById("bgcdw_login_form_password").click();
     document.getElementById("bgcdw_login_form_password").value = data[1];
 
-    document.querySelector("input.bgcdw_login_form_login[type=submit]").click();
+    if (document.querySelectorAll('iframe[title="reCAPTCHA"]').length != 0) {
+        alert("Por favor, complete el captcha");
+    } else {
+        document.querySelector("input.bgcdw_login_form_login[type=submit]").click();
+    }
 });
