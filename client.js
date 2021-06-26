@@ -32,13 +32,15 @@ class Client {
             this.menuTray;
             this.tray = tools.tray(this);
             this.credentials = new Credentials(this);
-            this.darkDev = new DarkDev(this);
+            this.darkDev;
+            this.api;
 
             if (await update()) {
                 return this;
             }
 
             if (this.arg.dev) {
+                this.darkDev = new DarkDev(this);
                 this.api = new Api();
                 console.log("Settings:");
                 console.log(settings.getSync());
@@ -162,7 +164,7 @@ class Client {
         window.on("closed", () => {
             if (settings.getSync().autoClose) {
                 let allWin = BrowserWindow.getAllWindows();
-                if ((allWin.length < 3 && this.arg.dev === true) || (allWin.length < 2 && this.arg.dev === false)) {
+                if (allWin.length < 2) {
                     allWin.forEach((win) => {
                         win.destroy();
                     })

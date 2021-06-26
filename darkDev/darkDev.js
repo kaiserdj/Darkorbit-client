@@ -18,8 +18,36 @@ class DarkDev {
             return;
         }
 
+        this.client.menuTray.insert(0, new MenuItem({
+            label: "DarkDev",
+            type: "normal",
+            click: () => this.open()
+        }));
+
+        this.client.menuTray.insert(1, new MenuItem({
+            type: "separator"
+        }));
+
+        this.customLoad = new CustomLoad(this.client, this.window);
+        this.customJs = new CustomJs(this.client, this.window);
+        this.customCss = new CustomCss(this.client, this.window);
+
+        ipcMain.on("LoadConfigDarkDev", () => {
+            this.window.webContents.send("SendLoadConfigDarkDev", settings.getSync().DarkDev)
+        })
+
+        ipcMain.on('ResourceDownload', (event, opt) => {
+            this.resourceDownload(opt);
+        });
+    }
+
+    async open() {
+        if (this.window) {
+            this.window.focus();
+            return;
+        }
+
         let options = {
-            'show': false,
             'webPreferences': {
                 'preload': `${__dirname}/master.js`,
                 'contextIsolation': true,
@@ -38,32 +66,9 @@ class DarkDev {
 
         this.window.loadFile("./darkDev/index.html");
 
-        this.client.menuTray.insert(0, new MenuItem({
-            label: "DarkDev",
-            type: "normal",
-            click: () => this.window.show()
-        }));
-
-        this.client.menuTray.insert(1, new MenuItem({
-            type: "separator"
-        }));
-
-        this.window.on('close', (event) => {
-            event.preventDefault();
-            this.window.hide();
+        this.window.on('close', () => {
+            this.window = null;
         })
-
-        this.customLoad = new CustomLoad(this.client, this.window);
-        this.customJs = new CustomJs(this.client, this.window);
-        this.customCss = new CustomCss(this.client, this.window);
-
-        ipcMain.on("LoadConfigDarkDev", () => {
-            this.window.webContents.send("SendLoadConfigDarkDev", settings.getSync().DarkDev)
-        })
-
-        ipcMain.on('ResourceDownload', (event, opt) => {
-            this.resourceDownload(opt);
-        });
     }
 
     async resourceDownload(opt) {
