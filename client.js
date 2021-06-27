@@ -162,15 +162,7 @@ class Client {
         })
 
         window.on("closed", () => {
-            if (settings.getSync().autoClose) {
-                let allWin = BrowserWindow.getAllWindows();
-                if (allWin.length < 2) {
-                    allWin.forEach((win) => {
-                        win.destroy();
-                    })
-                    this.core.app.quit();
-                }
-            }
+            this.autoclose();
         }) 
 
         let client = this;
@@ -327,6 +319,18 @@ class Client {
                     win.webContents.send("customCss", settings.getSync().DarkDev.CustomCss)
                 }
             })
+        }
+    }
+
+    autoclose() {
+        if (settings.getSync().autoClose) {
+            let allWin = BrowserWindow.getAllWindows();
+            if (allWin.length < 2) {
+                allWin.forEach((win) => {
+                    win.destroy();
+                })
+                this.core.app.quit();
+            }
         }
     }
 }

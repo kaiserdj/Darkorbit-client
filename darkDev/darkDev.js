@@ -66,9 +66,10 @@ class DarkDev {
 
         this.window.loadFile("./darkDev/index.html");
 
-        this.window.on('close', () => {
+        this.window.on('closed', () => {
             this.window = null;
-        })
+            this.client.autoclose();
+        });
     }
 
     async resourceDownload(opt) {
