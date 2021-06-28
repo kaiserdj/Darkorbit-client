@@ -6,6 +6,7 @@ const path = require("path");
 const tools = require("./tools");
 const update = require("./update");
 const useragent = require("./useragent");
+const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
 const DarkDev = require("./darkDev/darkDev");
 const Api = require("./api");
@@ -31,6 +32,7 @@ class Client {
             this.useragent = await useragent();
             this.menuTray;
             this.tray = tools.tray(this);
+            this.config = new Settings(this);
             this.credentials = new Credentials(this);
             this.darkDev;
             this.api;
@@ -163,7 +165,7 @@ class Client {
 
         window.on("closed", () => {
             this.autoclose();
-        }) 
+        })
 
         let client = this;
         window.webContents.on('new-window', async function(e, url) {
@@ -180,7 +182,11 @@ class Client {
                     client.createWindow("shop", url);
                 } else {
                     if (new URL(url).search.split("&")[0] === "?action=externalLogout") {
-                        return window.close();
+                        if (settings.getSync().Settings.PreventCloseSessionWindow) {
+                            return window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
+                        } else {
+                            return window.close();
+                        }
                     } else if (new URL(url).host.split(".")[1] === "darkorbit") {
                         return window.loadURL(url, { userAgent: client.useragent });
                     }

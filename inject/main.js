@@ -33,6 +33,14 @@ function run() {
         case /https:\/\/.*\.darkorbit\.com\/index\.[^.\/]*\?action=externalHome&loginError=.{0,3}/.test(url):
             require("./login");
             break;
+        case /.*\?action=internalMapRevolution.*/.test(url):
+            api.getConfig().then((data) => {
+                if (data.Settings.PreventCloseGame) {
+                    api.inejctJs("bpCloseWindow = function() {}");
+                    window.removeEventListener("beforeunload");
+                }
+            })
+            break;
         default:
             break;
     }

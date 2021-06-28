@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Kaiserdj">
+    <title>Settings - Darkorbit client</title>
+
+    <script src="../libs/bootstrap/bootstrap.min.js"></script>
+
+    <link href="../libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="./style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row gutters-sm">
+            <div class="col-md-4 d-none d-md-block">
+                <div class="card">
+                    <div class="card-body">
+                        <nav class="nav flex-column nav-pills nav-gap-y-1">
+                            <a href="#settings" class="nav-item nav-link has-icon nav-link-faded active" id="nav-settings-tab" data-bs-toggle="tab" data-bs-target="#nav-settings" role="tab" aria-controls="nav-settings" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-gear" viewBox="0 0 20 20">
+                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                </svg> Settings
+                            </a>
+                            <a href="#contributors" class="nav-item nav-link has-icon nav-link-faded" id="nav-contributors-tab" data-bs-toggle="tab" data-bs-target="#nav-contributors" role="tab" aria-controls="nav-contributors" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-heart" viewBox="0 0 20 20">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                </svg> Contributors
+                            </a>
+                            <a href="#donation" class="nav-item nav-link has-icon nav-link-faded" id="nav-donation-tab" data-bs-toggle="tab" data-bs-target="#nav-donation" role="tab" aria-controls="nav-donation" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-piggy-bank" viewBox="0 0 20 20">
+                                    <path d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm1.138-1.496A6.613 6.613 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.602 7.602 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962z" />
+                                    <path fill-rule="evenodd" d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069c0-.145-.007-.29-.02-.431.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a.95.95 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.735.735 0 0 0-.375.562c-.024.243.082.48.32.654a2.112 2.112 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595zM2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.558 6.558 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.649 4.649 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393zm12.621-.857a.565.565 0 0 1-.098.21.704.704 0 0 1-.044-.025c-.146-.09-.157-.175-.152-.223a.236.236 0 0 1 .117-.173c.049-.027.08-.021.113.012a.202.202 0 0 1 .064.199z" />
+                                </svg> Donation
+                            </a>
+                            <a href="#about" class="nav-item nav-link has-icon nav-link-faded" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about" role="tab" aria-controls="nav-about" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-square" viewBox="0 0 20 20">
+                                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                </svg> About us
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header border-bottom mb-3 d-flex d-md-none">
+                        <ul class="nav nav-tabs card-header-tabs nav-gap-x-1" role="tablist" role="tablist">
+                            <li class="nav-item">
+                                <a href="#settings" class="nav-link has-icon active" id="nav-settings-tab-mini" data-bs-toggle="tab" data-bs-target="#nav-settings" type="button" role="tab" aria-controls="nav-settings" aria-selected="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                                        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#contributors" class="nav-link has-icon" id="nav-contributors-tab-mini" data-bs-toggle="tab" data-bs-target="#nav-contributors" type="button" role="tab" aria-controls="nav-contributors" aria-selected="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#donation" class="nav-link has-icon" id="nav-donation-tab-mini" data-bs-toggle="tab" data-bs-target="#nav-donation" type="button" role="tab" aria-controls="nav-donation" aria-selected="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-piggy-bank" viewBox="0 0 16 16">
+                                        <path d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm1.138-1.496A6.613 6.613 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.602 7.602 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962z" />
+                                        <path fill-rule="evenodd" d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069c0-.145-.007-.29-.02-.431.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a.95.95 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.735.735 0 0 0-.375.562c-.024.243.082.48.32.654a2.112 2.112 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595zM2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.558 6.558 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.649 4.649 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393zm12.621-.857a.565.565 0 0 1-.098.21.704.704 0 0 1-.044-.025c-.146-.09-.157-.175-.152-.223a.236.236 0 0 1 .117-.173c.049-.027.08-.021.113.012a.202.202 0 0 1 .064.199z" />
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#about" class="nav-link has-icon" id="nav-about-tab-mini" data-bs-toggle="tab" data-bs-target="#nav-about" type="button" role="tab" aria-controls="nav-about" aria-selected="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
+                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content card-body" id="nav-tabContent">
+                        <div class="tab-pane fade active show" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
+                            <div class="position-relative">
+                                <h6 class="position-relative top-0 start-0">Settings</h6>
+                            </div>
+                            <hr>
+                            <div class="form-check form-switch">
+                                <input id="PreventCloseGame" class="form-check-input" type="checkbox">
+                                <label class="form-check-label" for="PreventCloseGame">Prevent window from closing on in-game logout</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input id="PreventCloseSessionWindow" class="form-check-input" type="checkbox">
+                                <label class="form-check-label" for="PreventCloseSessionWindow">Back to login when the account session is closed</label>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-contributors" role="tabpanel" aria-labelledby="nav-contributors-tab">
+                            <div class="position-relative">
+                                <h6 class="position-relative top-0 start-0">Contributors ✨</h6>
+                            </div>
+                            <hr>
+                            <p style="margin-bottom: 0px;">
+                                Thanks go to these wonderful people:
+                                
+                            </p>
+                            <div id="contributors" class="row"></div>
+                            <br>
+                            <p></p>
+                            <span class="badge bg-secondary" style="width: 100%">You can also support the project and appear here</span>
+                        </div>
+                        <div class="tab-pane fade" id="nav-donation" role="tabpanel" aria-labelledby="nav-donation-tab">
+                            <div class="position-relative">
+                                <h6 class="position-relative top-0 start-0">Donation</h6>
+                            </div>
+                            <hr>
+                            <p>
+                                Being a free project without advertising or anything paid, it does not generate profits.
+                                <br>But you can financially support it so that it continues to be maintained and improved from the following links.
+                                <div class="card">
+                                    <div class="card-header">
+                                        Paypal
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="btc donate-crypto-box">
+                                            <div class="coin">
+                                                <div class="coin-face">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+                                                        <defs />
+                                                        <g fill-rule="evenodd">
+                                                            <path fill="#fbfbfb" d="M133 86v1c-2 0-5 2-6 4l-2 9a433 433 0 01-7 40 485 485 0 01-8 51 613 613 0 00-8 54l-1 4-4 28c-3 15-3 16 0 19 2 2 1 2 26 2h24v-1a407 407 0 015-29v-5a699 699 0 016-35c1-4 2-6 6-8l2-1h19a358 358 0 0026-1c39-7 65-39 66-79 0-11-1-13-3-21a46 46 0 00-35-29l-12-2-94-1" />
+                                                            <path fill="#049ce4" d="M276 152a78 78 0 01-69 66l-22 1h-19l-2 1-6 6a248 248 0 00-5 42l-1 5a118 118 0 00-1 8l-1 3v5l-1 3v3l-1 5v3l-1 2v3l-1 3v2 8l3 3 21 1c22 0 21 0 24-4 2-1 2-1 2-6a409 409 0 016-35 99 99 0 012-14l3-5c3-3 4-3 20-3a58 58 0 0012-1l2-1h4l1-1h2l1-1h1a32 32 0 014-2h2l1-1h1v-1h1l4-2a38 38 0 006-4 77 77 0 0015-18 119 119 0 0010-27v-5a74 74 0 00-1-26v-1l-1-1v-1l-2-4v-1h-1l-1-2-7-7-2-2h-1l-1-1-1 4" />
+                                                            <path fill="#042c8c" d="M179 0l-4 1h-3l-3 1h-5l-2 1h-2l-2 1h-3l-2 1h-2l-1 1h-4l-1 1h-1l-1 1h-2-1l-6 2h-1l-2 1-2 1h-1l-2 1-1 1h-1-1l-1 1h-1l-1 1h-1-1l-1 1h-1v1h-2l-1 1h-1l-1 1c1 0 0 0 0 0l-3 1v1h-1-1l-1 1h-1l-1 1-1 1h-1v1c-1-1-4 1-4 1v1l-2 1-2 1-1 1-2 1h-1l-1 1-1 1-1 1-2 1h-1l-1 2-2 1-2 1-1 1-3 3h-1l-2 2-3 2v1l-5 4-10 10a42 42 0 00-5 5l-2 3-2 2-2 3-1 1-1 1-1 2-1 2-2 1v1l-1 2-1 1-1 1-1 1v1l-1 2-1 1-1 2-1 2h-1s-2 3-1 4h-1v1l-1 1-1 1v1l-1 1v2h-1l-1 3s0 1 0 0l-1 1v1l-1 1v2h-1v1l-1 1v2l-1 1v1l-1 1v2l-1 1v2a59 59 0 01-3 5v1l-2 6v3l-1 1v1l-1 1v4l-1 1v2l-1 2v3l-1 2v2l-1 2v5l-1 3v3a574 574 0 003 70l1 2v2l1 1v4l1 1v1l1 1v3l2 6v1l1 1a32 32 0 012 6l1 1v2l1 1v1l1 1v2l1 1v1h1v2l1 1v1l1 1c0-1 0 0 0 0l1 3h1v2l1 1v1l1 1 1 1v1h1c-1 1 1 4 1 4h1l1 2 1 2 1 1 1 2v1l1 1 1 1 1 1 1 2v1l2 1 1 2 1 2 1 1 1 1 1 1 1 2 2 2 2 3a146 146 0 0015 15 49 49 0 008 7l2 2 2 1 2 2 1 1 2 1 1 1 1 1h1v1h1l2 1 1 1 1 1 1 1h1l2 1 1 1 2 1 2 1v1l5 2 1 1 1 1h1l1 1h2v1l3 1h1v1h1v1h2l1 1h2v1h2l1 1h1l1 1h2l1 1 2 1 4 1 2 1h1l2 1h2l2 1h2l1 1h1l2 1h3l1 1h2l1 1h4l2 1h2l2 1h5l3 1h3a574 574 0 0071-3l1-1h2l1-1h3l2-1h1l1-1h2l2-1h2l1-1h2l3-1 3-1 2-1 1-1h2l1-1h1l1-1h2v-1h2a342 342 0 0121-12l2-1 1-1 2-1h1l1-1 1-1 1-1 2-1h1l1-2 2-1h1v-1h1l1-1 2-2 2-1 3-2 2-2 5-5 10-10a47 47 0 007-7l2-3 1-2 2-2 1-1v-1h1v-1l1-2 2-1v-1l1-2 1-1 1-1 1-1v-1l1-2 1-1 1-2 1-2h1v-1l1-1 1-2 1-2 1-2 1-1v-1-1h1l2-4a342 342 0 018-19l1-3v-2l1-1v-2l1-2v-2l1-1v-1l1-2v-1-2l1-1v-2l1-1v-2-2l1-2v-2l1-2v-3-2l1-3v-3l1-25a179 179 0 00-6-50v-2-1l-1-2v-1l-1-1v-2l-1-2v-2l-1-2v-1l-1-2-1-4-1-2-1-1v-1-1l-1-1v-1l-1-1v-1-1h-1v-2l-1-1v-2h-1v-1h-1v-1l-1-3h-1v-1-1l-1-1-1-2-1-2-1-2-1-1v-1h-1l-1-2-1-2-1-1-1-2v-1l-1-1-1-1-1-1-1-2v-1h-1v-1l-1-1-1-1-1-2-1-1-2-2-1-2-2-2-2-3-5-5a1066 1066 0 01-27-24l-2-1-1-2h-1l-2-1-1-1-1-1-1-1h-1l-2-1-1-1-2-1-2-1v-1s-3-2-4-1v-1h-1l-1-1-1-1h-1l-1-1h-1-1v-1l-3-1s-1 0 0 0l-1-1h-1l-1-1h-1-1v-1h-1l-1-1h-2l-1-1h-1l-1-1h-1-1l-1-1-2-1a32 32 0 00-4-1l-1-1h-1l-6-2h-1-2l-1-1h-1l-1-1h-4l-1-1h-2l-2-1h-3l-2-1h-2l-2-1h-5l-3-1h-3l-46-1m46 86a116 116 0 0123 6c14 5 25 18 28 33 1 5 2 16 1 20v2l2 2c12 8 18 22 17 39-2 18-7 32-17 45-5 7-14 15-22 19-10 5-15 6-33 6-18 1-18 1-20 17a1624 1624 0 01-4 20v6l-3 14c-1 6-2 8-6 9l-21 2c-21 0-21 0-23-3-3-2-3-4 0-19v-6 1h-24c-25 0-25 0-27-2-2-3-2-6-1-13a223 223 0 004-23 457 457 0 008-51 430 430 0 016-40 918 918 0 003-19l2-10a1021 1021 0 017-44c0-5 3-8 7-10 2-2 83-2 93-1" />
+                                                            <path fill="#5e7ab5" d="M146 86c-14 0-14 0-17 3-3 2-4 4-4 8a131 131 0 01-3 14 222 222 0 00-2 18l-2 12-2 10a450 450 0 01-7 44 3281 3281 0 0018-104l5-4 1-1a2494 2494 0 01106 3l3 1a46 46 0 0135 49v6c1-5 0-16-1-23a45 45 0 00-30-31 95 95 0 00-21-5h-79m7 170v2l1-1v-2l-1 1m-54 1a110 110 0 01-1 9 156 156 0 01-3 18c-1 7-1 10 2 13 1 2 1 2 26 2h24v-2 1h-24c-25 0-24 0-26-2-3-3-3-4 2-34l1-6-1 1m54 3l-1 2h1v-2m-1 6v-1 1m-1 4v4-1l1-3-1-1v1m-1 5v4-1l1-3h-1" />
+                                                            <path fill="#048cd5" d="M277 148l1 1h1l2 2a36 36 0 018 9h1v1l2 4v1l1 1v1l1 2 1 5a74 74 0 01-2 28l-1 2v3l-1 1v1l-1 1v2l-1 1v1a119 119 0 01-11 18l-1 2a77 77 0 01-14 13l-4 2h-1v1h-1l-1 1h-1-1a32 32 0 01-6 3h-2l-1 1h-4l-2 1h-3l-9 1c-16 0-17 0-20 3l-3 5v1l-1 3a115 115 0 01-2 16 106 106 0 01-2 15 424 424 0 00-5 20c-3 4-2 4-24 4l-21-1-3-3v-8-2l1-3v-3l1-2v-3l1-5v-3l1-3 1-8v-3a120 120 0 011-11v3a389 389 0 01-5 34c-3 15-3 17 0 19 2 3 2 3 23 3 25-1 25-1 27-11l3-14v-6a614 614 0 014-20c2-16 2-16 20-17 25-1 36-5 49-18 5-5 7-7 11-14 14-22 16-54 4-69-3-4-12-12-11-9M154 253v1l1-1h-1m-1 5l1 1v-1c0-2 0-2-1 0m0 5v2l1-2c0-2-1-2-1 0" />
+                                                        </g>
+                                                    </svg>
+                                                </div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+                                                        <defs />
+                                                        <g fill-rule="evenodd">
+                                                            <path fill="#fbfbfb" d="M133 86v1c-2 0-5 2-6 4l-2 9a433 433 0 01-7 40 485 485 0 01-8 51 613 613 0 00-8 54l-1 4-4 28c-3 15-3 16 0 19 2 2 1 2 26 2h24v-1a407 407 0 015-29v-5a699 699 0 016-35c1-4 2-6 6-8l2-1h19a358 358 0 0026-1c39-7 65-39 66-79 0-11-1-13-3-21a46 46 0 00-35-29l-12-2-94-1" />
+                                                            <path fill="#049ce4" d="M276 152a78 78 0 01-69 66l-22 1h-19l-2 1-6 6a248 248 0 00-5 42l-1 5a118 118 0 00-1 8l-1 3v5l-1 3v3l-1 5v3l-1 2v3l-1 3v2 8l3 3 21 1c22 0 21 0 24-4 2-1 2-1 2-6a409 409 0 016-35 99 99 0 012-14l3-5c3-3 4-3 20-3a58 58 0 0012-1l2-1h4l1-1h2l1-1h1a32 32 0 014-2h2l1-1h1v-1h1l4-2a38 38 0 006-4 77 77 0 0015-18 119 119 0 0010-27v-5a74 74 0 00-1-26v-1l-1-1v-1l-2-4v-1h-1l-1-2-7-7-2-2h-1l-1-1-1 4" />
+                                                            <path fill="#042c8c" d="M179 0l-4 1h-3l-3 1h-5l-2 1h-2l-2 1h-3l-2 1h-2l-1 1h-4l-1 1h-1l-1 1h-2-1l-6 2h-1l-2 1-2 1h-1l-2 1-1 1h-1-1l-1 1h-1l-1 1h-1-1l-1 1h-1v1h-2l-1 1h-1l-1 1c1 0 0 0 0 0l-3 1v1h-1-1l-1 1h-1l-1 1-1 1h-1v1c-1-1-4 1-4 1v1l-2 1-2 1-1 1-2 1h-1l-1 1-1 1-1 1-2 1h-1l-1 2-2 1-2 1-1 1-3 3h-1l-2 2-3 2v1l-5 4-10 10a42 42 0 00-5 5l-2 3-2 2-2 3-1 1-1 1-1 2-1 2-2 1v1l-1 2-1 1-1 1-1 1v1l-1 2-1 1-1 2-1 2h-1s-2 3-1 4h-1v1l-1 1-1 1v1l-1 1v2h-1l-1 3s0 1 0 0l-1 1v1l-1 1v2h-1v1l-1 1v2l-1 1v1l-1 1v2l-1 1v2a59 59 0 01-3 5v1l-2 6v3l-1 1v1l-1 1v4l-1 1v2l-1 2v3l-1 2v2l-1 2v5l-1 3v3a574 574 0 003 70l1 2v2l1 1v4l1 1v1l1 1v3l2 6v1l1 1a32 32 0 012 6l1 1v2l1 1v1l1 1v2l1 1v1h1v2l1 1v1l1 1c0-1 0 0 0 0l1 3h1v2l1 1v1l1 1 1 1v1h1c-1 1 1 4 1 4h1l1 2 1 2 1 1 1 2v1l1 1 1 1 1 1 1 2v1l2 1 1 2 1 2 1 1 1 1 1 1 1 2 2 2 2 3a146 146 0 0015 15 49 49 0 008 7l2 2 2 1 2 2 1 1 2 1 1 1 1 1h1v1h1l2 1 1 1 1 1 1 1h1l2 1 1 1 2 1 2 1v1l5 2 1 1 1 1h1l1 1h2v1l3 1h1v1h1v1h2l1 1h2v1h2l1 1h1l1 1h2l1 1 2 1 4 1 2 1h1l2 1h2l2 1h2l1 1h1l2 1h3l1 1h2l1 1h4l2 1h2l2 1h5l3 1h3a574 574 0 0071-3l1-1h2l1-1h3l2-1h1l1-1h2l2-1h2l1-1h2l3-1 3-1 2-1 1-1h2l1-1h1l1-1h2v-1h2a342 342 0 0121-12l2-1 1-1 2-1h1l1-1 1-1 1-1 2-1h1l1-2 2-1h1v-1h1l1-1 2-2 2-1 3-2 2-2 5-5 10-10a47 47 0 007-7l2-3 1-2 2-2 1-1v-1h1v-1l1-2 2-1v-1l1-2 1-1 1-1 1-1v-1l1-2 1-1 1-2 1-2h1v-1l1-1 1-2 1-2 1-2 1-1v-1-1h1l2-4a342 342 0 018-19l1-3v-2l1-1v-2l1-2v-2l1-1v-1l1-2v-1-2l1-1v-2l1-1v-2-2l1-2v-2l1-2v-3-2l1-3v-3l1-25a179 179 0 00-6-50v-2-1l-1-2v-1l-1-1v-2l-1-2v-2l-1-2v-1l-1-2-1-4-1-2-1-1v-1-1l-1-1v-1l-1-1v-1-1h-1v-2l-1-1v-2h-1v-1h-1v-1l-1-3h-1v-1-1l-1-1-1-2-1-2-1-2-1-1v-1h-1l-1-2-1-2-1-1-1-2v-1l-1-1-1-1-1-1-1-2v-1h-1v-1l-1-1-1-1-1-2-1-1-2-2-1-2-2-2-2-3-5-5a1066 1066 0 01-27-24l-2-1-1-2h-1l-2-1-1-1-1-1-1-1h-1l-2-1-1-1-2-1-2-1v-1s-3-2-4-1v-1h-1l-1-1-1-1h-1l-1-1h-1-1v-1l-3-1s-1 0 0 0l-1-1h-1l-1-1h-1-1v-1h-1l-1-1h-2l-1-1h-1l-1-1h-1-1l-1-1-2-1a32 32 0 00-4-1l-1-1h-1l-6-2h-1-2l-1-1h-1l-1-1h-4l-1-1h-2l-2-1h-3l-2-1h-2l-2-1h-5l-3-1h-3l-46-1m46 86a116 116 0 0123 6c14 5 25 18 28 33 1 5 2 16 1 20v2l2 2c12 8 18 22 17 39-2 18-7 32-17 45-5 7-14 15-22 19-10 5-15 6-33 6-18 1-18 1-20 17a1624 1624 0 01-4 20v6l-3 14c-1 6-2 8-6 9l-21 2c-21 0-21 0-23-3-3-2-3-4 0-19v-6 1h-24c-25 0-25 0-27-2-2-3-2-6-1-13a223 223 0 004-23 457 457 0 008-51 430 430 0 016-40 918 918 0 003-19l2-10a1021 1021 0 017-44c0-5 3-8 7-10 2-2 83-2 93-1" />
+                                                            <path fill="#5e7ab5" d="M146 86c-14 0-14 0-17 3-3 2-4 4-4 8a131 131 0 01-3 14 222 222 0 00-2 18l-2 12-2 10a450 450 0 01-7 44 3281 3281 0 0018-104l5-4 1-1a2494 2494 0 01106 3l3 1a46 46 0 0135 49v6c1-5 0-16-1-23a45 45 0 00-30-31 95 95 0 00-21-5h-79m7 170v2l1-1v-2l-1 1m-54 1a110 110 0 01-1 9 156 156 0 01-3 18c-1 7-1 10 2 13 1 2 1 2 26 2h24v-2 1h-24c-25 0-24 0-26-2-3-3-3-4 2-34l1-6-1 1m54 3l-1 2h1v-2m-1 6v-1 1m-1 4v4-1l1-3-1-1v1m-1 5v4-1l1-3h-1" />
+                                                            <path fill="#048cd5" d="M277 148l1 1h1l2 2a36 36 0 018 9h1v1l2 4v1l1 1v1l1 2 1 5a74 74 0 01-2 28l-1 2v3l-1 1v1l-1 1v2l-1 1v1a119 119 0 01-11 18l-1 2a77 77 0 01-14 13l-4 2h-1v1h-1l-1 1h-1-1a32 32 0 01-6 3h-2l-1 1h-4l-2 1h-3l-9 1c-16 0-17 0-20 3l-3 5v1l-1 3a115 115 0 01-2 16 106 106 0 01-2 15 424 424 0 00-5 20c-3 4-2 4-24 4l-21-1-3-3v-8-2l1-3v-3l1-2v-3l1-5v-3l1-3 1-8v-3a120 120 0 011-11v3a389 389 0 01-5 34c-3 15-3 17 0 19 2 3 2 3 23 3 25-1 25-1 27-11l3-14v-6a614 614 0 014-20c2-16 2-16 20-17 25-1 36-5 49-18 5-5 7-7 11-14 14-22 16-54 4-69-3-4-12-12-11-9M154 253v1l1-1h-1m-1 5l1 1v-1c0-2 0-2-1 0m0 5v2l1-2c0-2-1-2-1 0" />
+                                                        </g>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <input class="coin-address" onclick="window.open(`https://paypal.me/kaiserdj`)" readonly="readonly" spellcheck="false" type="text" value="https://paypal.me/kaiserdj">
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        Bitcoin
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="btc donate-crypto-box">
+                                            <div class="coin">
+                                                <div class="coin-face">
+                                                    <svg height="10" viewBox="0 0 32 32" width="10" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M21.78 15.37c.51-.61.83-1.4.83-2.26 0-2.74-1.6-4.38-4.24-4.38V5.45c0-.12-.1-.22-.22-.22h-1.27c-.11 0-.2.1-.2.21v3.3h-1.7V5.44c0-.12-.1-.22-.22-.22H13.5c-.12 0-.2.1-.21.21v3.3H9.67c-.12 0-.21.09-.21.21v1.31c0 .12.1.22.21.22h.21c.94 0 1.7.79 1.7 1.75v7c0 .92-.68 1.67-1.55 1.75a.21.21 0 0 0-.18.16l-.33 1.32c-.01.06 0 .13.04.19.04.05.1.08.17.08h3.55v3.3c0 .1.1.2.2.2h1.28c.12 0 .21-.1.21-.22v-3.28h1.7v3.3c0 .1.1.2.21.2h1.27c.12 0 .22-.1.22-.22v-3.28h.85c2.65 0 4.24-1.64 4.24-4.37 0-1.28-.68-2.39-1.68-3zm-6.8-4.01h2.54c.94 0 1.7.78 1.7 1.75 0 .96-.76 1.75-1.7 1.75h-2.55v-3.5zm3.39 8.75h-3.4v-3.5h3.4c.93 0 1.7.78 1.7 1.75 0 .96-.77 1.75-1.7 1.75z" fill="#FFF"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face">
+                                                    <svg height="10" viewBox="0 0 32 32" width="10" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M21.78 15.37c.51-.61.83-1.4.83-2.26 0-2.74-1.6-4.38-4.24-4.38V5.45c0-.12-.1-.22-.22-.22h-1.27c-.11 0-.2.1-.2.21v3.3h-1.7V5.44c0-.12-.1-.22-.22-.22H13.5c-.12 0-.2.1-.21.21v3.3H9.67c-.12 0-.21.09-.21.21v1.31c0 .12.1.22.21.22h.21c.94 0 1.7.79 1.7 1.75v7c0 .92-.68 1.67-1.55 1.75a.21.21 0 0 0-.18.16l-.33 1.32c-.01.06 0 .13.04.19.04.05.1.08.17.08h3.55v3.3c0 .1.1.2.2.2h1.28c.12 0 .21-.1.21-.22v-3.28h1.7v3.3c0 .1.1.2.21.2h1.27c.12 0 .22-.1.22-.22v-3.28h.85c2.65 0 4.24-1.64 4.24-4.37 0-1.28-.68-2.39-1.68-3zm-6.8-4.01h2.54c.94 0 1.7.78 1.7 1.75 0 .96-.76 1.75-1.7 1.75h-2.55v-3.5zm3.39 8.75h-3.4v-3.5h3.4c.93 0 1.7.78 1.7 1.75 0 .96-.77 1.75-1.7 1.75z" fill="#FFF"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <input class="coin-address" onclick="this.select()" readonly="readonly" spellcheck="false" type="text" value="3BTj9GCv3AywXkxvkGhei61Fsy4kYoEA22">
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        Ethereum
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="eth donate-crypto-box">
+                                            <div class="coin">
+                                                <div class="coin-face">
+                                                    <svg height="10" viewBox="0 0 32 32" width="10" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M10.13 17.76c-.1-.15-.06-.2.09-.12l5.49 3.09c.15.08.4.08.56 0l5.58-3.08c.16-.08.2-.03.1.11L16.2 25.9c-.1.15-.28.15-.38 0l-5.7-8.13zm.04-2.03a.3.3 0 0 1-.13-.42l5.74-9.2c.1-.15.25-.15.34 0l5.77 9.19c.1.14.05.33-.12.41l-5.5 2.78a.73.73 0 0 1-.6 0l-5.5-2.76z" fill="#FFF"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face"></div>
+                                                <div class="coin-face">
+                                                    <svg height="8" viewBox="0 0 32 32" width="8" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M10.13 17.76c-.1-.15-.06-.2.09-.12l5.49 3.09c.15.08.4.08.56 0l5.58-3.08c.16-.08.2-.03.1.11L16.2 25.9c-.1.15-.28.15-.38 0l-5.7-8.13zm.04-2.03a.3.3 0 0 1-.13-.42l5.74-9.2c.1-.15.25-.15.34 0l5.77 9.19c.1.14.05.33-.12.41l-5.5 2.78a.73.73 0 0 1-.6 0l-5.5-2.76z" fill="#fff"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <input class="coin-address" onclick="this.select()" readonly="readonly" spellcheck="false" type="text" value="0xae9faaa05Cf9205010BBAf728633051000695333">
+                                        </label>
+                                    </div>
+                                </div>
+                            </p>
+                        </div>
+                        <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+                            <div class="position-relative">
+                                <h6 class="position-relative top-0 start-0">About us</h6>
+                            </div>
+                            <hr>
+                            <p>
+                                This is a project that was created so that darkorbit users could play without any problem on any pc operating system.
+                                <br>The project is free code and anyone can see it and even modify it.
+                            </p>
+                            <div id="Github" class="d-flex justify-content-around" style="cursor: pointer"><img src="https://gb-maker.herokuapp.com/makebadge/kaiserdj/Darkorbit-client" alt="Github"></div>
+                            <br>
+                            <a class="d-flex justify-content-around" href="https://discord.gg/HzmcNtkKh5" target="_blank"><img src="https://discordapp.com/api/guilds/819695791072608296/widget.png?style=banner2" alt="Discord"></a>
+                            <hr>
+                            <h6>Disclaimer</h6>
+                            <p>
+                                This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Bigpoint or any of its subsidiaries or its affiliates.
+                                <br>The official Bigpoint website can be found at <a href="https://www.bigpoint.net" target="_blank">https://www.bigpoint.net</a>.
+                                <br>"Bigpoint" as well as related names, marks, emblems and images are registered trademarks of their respective owners.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
