@@ -110,16 +110,43 @@ class Client {
         }
 
         if (this.arg.dosid) {
+            let check;
+            try {
+                new URL(this.arg.dosid);
+                let checkSID = this.arg.dosid.search(/(dosid|sid)/);
+                if (checkSID) {
+                    check = true;
+                }
+            } catch (err) {
+                check = false;
+            }
+
+            if (check) {
             let sid = this.arg.dosid.match(/[?&](dosid|sid)=([^&]+)/);
             let baseUrl = new URL(this.arg.dosid).origin;
 
             if (sid !== null && baseUrl !== null) {
-                const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+                    let cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
                 window.webContents.session.cookies.set(cookie);
                 window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
+                }
+            } else {
+                if (this.arg.url) {
+                    let baseUrl = new URL(this.arg.url).origin;
+                    let cookie = { url: baseUrl, name: 'dosid', value: this.arg.dosid };
+                    window.webContents.session.cookies.set(cookie);
+                    window.loadURL(this.arg.url, { userAgent: this.useragent });
+
+                    delete this.arg.url
+                } else {
+                    dialog.showErrorBox("Load SID", `You also need the url parameter to be able to load the sid`);
+                    window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
+                }
             }
 
             delete this.arg.dosid;
+        } else if (this.arg.url) {
+            window.loadURL(this.arg.url, { userAgent: this.useragent });
         } else if (url) {
             window.loadURL(url, { userAgent: this.useragent });
         } else {

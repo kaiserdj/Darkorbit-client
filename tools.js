@@ -16,6 +16,10 @@ function commandLine() {
             type: 'array',
             description: 'Autologin on darkorbit. Example: --login user pass'
         })
+        .option('url', {
+            type: "string",
+            description: "test"
+        })
         .option('dosid', {
             alias: 'sid',
             type: "string",
