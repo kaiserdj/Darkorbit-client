@@ -22,6 +22,10 @@
         "width": 1000,
         "height": 723
     },
+    "api": {
+        "width": 1016,
+        "height": 700
+    },
     "Settings": {
         "PreventCloseGame": false,
         "PreventCloseSessionWindow": false

@@ -1,4 +1,4 @@
-const { BrowserWindow, dialog } = require('electron');
+const { BrowserWindow, ipcMain, dialog } = require('electron');
 const settings = require("electron-settings");
 const fs = require("fs");
 const path = require("path");
@@ -30,6 +30,15 @@ class Client {
             this.core = core;
             this.arg = tools.commandLine();
             this.useragent = await useragent();
+
+            if (this.arg.api) {
+                console.log("api");
+                console.log("Arguments:");
+                console.log(this.arg);
+                this.createWindow("api");
+                return this;
+            }
+
             this.menuTray;
             this.tray = tools.tray(this);
             this.config = new Settings(this);
@@ -79,7 +88,7 @@ class Client {
             'x': settings.getSync()[type].x,
             'y': settings.getSync()[type].y,
             'webPreferences': {
-                'preload': `${__dirname}/inject/main.js`,
+                'preload': `${__dirname}/inject/${this.arg.api ? "ws" : "main"}.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
                 'enableRemoteModule': true,
@@ -88,6 +97,12 @@ class Client {
             }
         };
 
+        if (this.arg.api) {
+            global.api = this.arg.api;
+            global.dev = this.arg.dev;
+            ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
+            ipcMain.handle("getAppMetrics", async (event) => this.core.app.getAppMetrics());
+        }
 
         if (this.arg.size) {
             delete this.arg.size;
@@ -127,13 +142,13 @@ class Client {
             }
 
             if (check) {
-            let sid = this.arg.dosid.match(/[?&](dosid|sid)=([^&]+)/);
-            let baseUrl = new URL(this.arg.dosid).origin;
+                let sid = this.arg.dosid.match(/[?&](dosid|sid)=([^&]+)/);
+                let baseUrl = new URL(this.arg.dosid).origin;
 
-            if (sid !== null && baseUrl !== null) {
+                if (sid !== null && baseUrl !== null) {
                     let cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
-                window.webContents.session.cookies.set(cookie);
-                window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
+                    window.webContents.session.cookies.set(cookie);
+                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
                 }
             } else {
                 if (this.arg.url) {
@@ -236,7 +251,7 @@ class Client {
     }
 
     setCustomLoad() {
-        if (!this.arg.dev) {
+        if (!this.arg.dev || this.arg.api) {
             return;
         }
 
@@ -321,7 +336,7 @@ class Client {
     }
 
     setCustomJs() {
-        if (!this.arg.dev) {
+        if (!this.arg.dev || this.arg.api) {
             return;
         }
 
@@ -341,7 +356,7 @@ class Client {
     }
 
     setCustomCss() {
-        if (!this.arg.dev) {
+        if (!this.arg.dev || this.arg.api) {
             return;
         }
 
@@ -361,6 +376,9 @@ class Client {
     }
 
     autoclose() {
+        if (this.arg.api) {
+            return;
+        }
         if (settings.getSync().autoClose) {
             let allWin = BrowserWindow.getAllWindows();
             if (allWin.length < 2) {

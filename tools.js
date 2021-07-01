@@ -31,6 +31,10 @@ function commandLine() {
             description: 'Run in development mode',
             default: false
         })
+        .option('api', {
+            type: 'string',
+            description: 'Open client with api ws. Example: --api 8080'
+        })
         .option('size', {
             type: 'array',
             description: 'Open client with custom window size. Example: --size 900 800',
