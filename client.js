@@ -74,8 +74,8 @@ class Client {
     createWindow(type, url) {
         let window;
         let options = {
-            'width': settings.getSync()[type].width,
-            'height': settings.getSync()[type].height,
+            'width': this.arg.size ? this.arg.size[0] : settings.getSync()[type].width,
+            'height': this.arg.size ? this.arg.size[1] : settings.getSync()[type].height,
             'x': settings.getSync()[type].x,
             'y': settings.getSync()[type].y,
             'webPreferences': {
@@ -87,6 +87,11 @@ class Client {
                 'devTools': this.arg.dev
             }
         };
+
+
+        if (this.arg.size) {
+            delete this.arg.size;
+        }
 
         window = new BrowserWindow(options);
 

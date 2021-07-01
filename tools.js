@@ -18,7 +18,7 @@ function commandLine() {
         })
         .option('url', {
             type: "string",
-            description: "test"
+            description: "Define url that the client will load when opening"
         })
         .option('dosid', {
             alias: 'sid',
@@ -30,6 +30,10 @@ function commandLine() {
             type: 'boolean',
             description: 'Run in development mode',
             default: false
+        })
+        .option('size', {
+            type: 'array',
+            description: 'Open client with custom window size. Example: --size 900 800',
         })
         .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
         .argv;
