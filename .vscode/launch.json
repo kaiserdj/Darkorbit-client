@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Depurar el Proceso Principal",
+        "name": "Dev",
         "type": "node",
         "request": "launch",
         "cwd": "${workspaceFolder}",
@@ -11,6 +11,18 @@
           "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
         },
         "args" : [".", "--d"],
+        "outputCapture": "std"
+      },
+      {
+        "name": "Api",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+        "windows": {
+          "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+        },
+        "args" : [".", "--d", "--api", "8080", "--dosid", "a2cc6499228e37b80808e44be3ea762a", "--url", "https://es1.darkorbit.com/indexInternal.es?action=internalMapRevolution"],
         "outputCapture": "std"
       }
     ]
