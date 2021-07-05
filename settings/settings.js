@@ -6,13 +6,13 @@ class Settings {
         this.client = client;
         this.window;
 
-        this.client.menuTray.insert(this.client.arg.dev ? 3 : 4, new MenuItem({
+        this.client.menuTray.insert(3, new MenuItem({
             label: "Settings",
             type: "normal",
             click: () => this.open()
         }));
 
-        this.client.menuTray.insert(this.client.arg.dev ? 4 : 5, new MenuItem({
+        this.client.menuTray.insert(4, new MenuItem({
             type: "separator"
         }));
 
