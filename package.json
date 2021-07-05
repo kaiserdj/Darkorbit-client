@@ -10,12 +10,11 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --d",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --publish always",
     "postinstall": "electron-builder install-app-deps",
     "build": "electron-builder --publish=always",
     "release": "electron-builder --publish always",
-    "test-build": "electron-builder"
+    "local-build": "electron-builder",
+    "pack": "electron-builder --dir",
   },
   "author": "Kaiserdj",
   "license": "ISC",
