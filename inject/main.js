@@ -6,9 +6,9 @@ const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
         contextBridge.exposeInMainWorld("api", api);
-        api.inejctCss(nprogressCss)
-        api.inejctCss("#qc-cmp2-container {display: none;}");
-        api.inejctCss("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
+        api.injectCss(nprogressCss)
+        api.injectCss("#qc-cmp2-container {display: none;}");
+        api.injectCss("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
         nprogress.configure({ showSpinner: false });
         nprogress.start();
         run();
@@ -36,7 +36,7 @@ function run() {
         case /.*\?action=internalMapRevolution.*/.test(url):
             api.getConfig().then((data) => {
                 if (data.Settings.PreventCloseGame) {
-                    api.inejctJs("bpCloseWindow = function() {}");
+                    api.injectJs("bpCloseWindow = function() {}");
                     window.removeEventListener("beforeunload");
                 }
             })
@@ -61,7 +61,7 @@ ipcRenderer.once("customJs", (event, data) => {
             if (data.list[id].enable) {
                 if (customUrlRegex(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
-                        .then(res => api.inejctJs(res))
+                        .then(res => api.injectJs(res))
                 }
             }
         }
@@ -74,7 +74,7 @@ ipcRenderer.once("customCss", (event, data) => {
             if (data.list[id].enable) {
                 if (customUrlRegex(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
-                        .then(res => api.inejctCss(res))
+                        .then(res => api.injectCss(res))
                 }
             }
         }

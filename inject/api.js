@@ -1,14 +1,14 @@
 const { ipcRenderer } = require("electron");
 
 const api = {
-    "inejctJs": async (data) => {
+    "injectJs": async (data) => {
         let script = document.createElement('script');
         script.async = true;
         script.innerHTML = data;
         document.head.appendChild(script);
         return true;
     },
-    "inejctCss": async (data) => {
+    "injectCss": async (data) => {
         const style = document.createElement('style');
         style.textContent = data;
         document.head.append(style);

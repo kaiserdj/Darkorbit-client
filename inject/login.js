@@ -32,7 +32,7 @@ label#eh_mc_checkbox_text {
 }
 `;
 
-require("./api").inejctCss(style);
+require("./api").injectCss(style);
 
 document.getElementsByClassName("eh_mc_table_td")[1].insertAdjacentHTML('afterbegin', '<div align="center" style=""><input id="autoLogin" value="AUTOLOGIN" type="button"></div>');
 
