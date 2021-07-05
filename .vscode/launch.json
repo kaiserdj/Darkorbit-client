@@ -14,6 +14,18 @@
         "outputCapture": "std"
       },
       {
+        "name": "Normal",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+        "windows": {
+          "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+        },
+        "args" : ["."],
+        "outputCapture": "std"
+      },
+      {
         "name": "Api",
         "type": "node",
         "request": "launch",
