@@ -23,7 +23,7 @@
     "electron-builder": "22.10.5"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "electron-alert": "^0.1.14",
     "electron-context-menu": "^3.1.1",
     "electron-process-manager": "github:kaiserdj/electron-process-manager",
