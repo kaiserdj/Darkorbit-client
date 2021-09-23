@@ -14,6 +14,13 @@ class Credentials {
         this.hashMaster;
         this.master;
 
+        this.mb.on("ready", ()=> {
+            if(settings.getSync().master) {
+                this.checkMaster("");
+                this.mb.hideWindow();
+            }
+        });
+
         ipcMain.on('registerMaster', (event, pass) => {
             this.registerMaster(pass);
         });
