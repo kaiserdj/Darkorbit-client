@@ -1,6 +1,4 @@
-<h1 align="center">DarkOrbit Client<a href="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client">
-    <img src="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client/badge" alt="CodeFactor" />
-  </a></h1> 
+<h1 align="center">DarkOrbit Client</h1> 
 
 <p align="center">
   <a href="http://forthebadge.com/" target="_blank">
@@ -12,6 +10,14 @@
 </p>
 
 Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
+<p align="center">
+  <a href="https://github.com/kaiserdj/Darkorbit-client/blob/main/LICENSE" target="_blank">
+    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg"/>
+  </a>
+  <a href="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client">
+    <img src="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client/badge" alt="CodeFactor" />
+  </a>
+</p>
 
 ## Features
 
