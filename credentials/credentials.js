@@ -156,17 +156,19 @@ class Credentials {
     }
 
     config() {
-        this.client.menuTray.insert(2, new MenuItem({
+        this.client.menuTray.insert(3, new MenuItem({
             label: "Login with Dosid",
             type: "normal",
             click: () => this.loginDosid()
         }));
 
-        this.client.menuTray.insert(2, new MenuItem({
+        this.client.menuTray.insert(3, new MenuItem({
             label: "Autologin",
             type: "normal",
             click: () => this.mb.showWindow()
         }));
+
+        this.client.menuTray.insert(3, new MenuItem({type: "separator"}));
 
         let config = {
             tooltip: "Darkorbit Client",

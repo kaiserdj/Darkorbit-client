@@ -57,18 +57,27 @@ function tray(client) {
         },
         {
             label: "Clear Cache",
-            click: () => {
-                const wins = BrowserWindow.getAllWindows();
-
-                wins.forEach(async (win) => {
+            click: async () => {
+                for(let win of BrowserWindow.getAllWindows()) {
                     await win.webContents.session.clearCache();
                     await win.webContents.session.clearStorageData();
                     await win.webContents.session.clearHostResolverCache();
                     await win.webContents.session.clearAuthCache();
-                })
+                }
 
-                client.core.app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+                client.core.app.relaunch();
                 client.core.app.exit(0);
+            }
+        },
+        {
+            label: "Copy SID",
+            click: () => {
+                for(let win of BrowserWindow.getAllWindows()) {
+                    if (new URL(win.webContents.getURL()).hostname.search("darkorbit") != -1) {
+                        win.webContents.executeJavaScript("typeof BpEventStream != 'undefined' ? (alert(`SID : ${BpEventStream.context.sid}\nCopied to clipboard`), navigator.clipboard.writeText(BpEventStream.context.sid)) : ''");
+                        break;
+                    }
+                }
             }
         },
         {
