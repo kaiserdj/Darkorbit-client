@@ -19,6 +19,11 @@ class Core {
             if (!settings.getSync().Settings.HardwareAcceleration) {
                 this.app.disableHardwareAcceleration();
             }
+
+            if (settings.getSync().Settings.NoSandbox) {
+                this.app.commandLine.appendSwitch('--no-sandbox');
+            }
+
             Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: "File", submenu: [{ role: "reload" }, { role: "close" }] }]));
 
             await this.app.whenReady();

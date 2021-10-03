@@ -17,6 +17,15 @@ function run() {
             remote.app.exit(0);
         }
     }
+
+    document.getElementById("NoSandbox").onclick = () => {
+        ipcRenderer.send("SetOptionConfig", "NoSandbox", document.getElementById("NoSandbox").checked);
+        if(confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
+            remote.app.relaunch();
+            remote.app.exit(0);
+        }
+    }
+
     document.getElementById("PreventCloseGame").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "PreventCloseGame", document.getElementById("PreventCloseGame").checked)
     }
@@ -74,6 +83,11 @@ function load(data) {
     if (data.HardwareAcceleration) {
         document.getElementById("HardwareAcceleration").checked = data.HardwareAcceleration;
     }
+
+    if (data.NoSandbox) {
+        document.getElementById("NoSandbox").checked = data.NoSandbox;
+    }
+    
     if (data.PreventCloseGame) {
         document.getElementById("PreventCloseGame").checked = data.PreventCloseGame;
     }
