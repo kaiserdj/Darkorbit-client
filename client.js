@@ -10,22 +10,9 @@ const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
 const DarkDev = require("./darkDev/darkDev");
 const Api = require("./api");
-const defaultSettings = require("./defaultSettings.json");
 
 class Client {
     constructor(core) {
-        settings.configure({
-            atomicSave: true,
-            fileName: 'settings.json',
-            prettify: true
-        });
-
-        if (!settings.getSync().check) {
-            settings.setSync(defaultSettings);
-        } else {
-            tools.checkSettings();
-        }
-
         return (async () => {
             this.core = core;
             this.arg = tools.commandLine();

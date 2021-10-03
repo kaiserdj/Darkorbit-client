@@ -1,6 +1,8 @@
 const { app, Menu } = require('electron');
 const path = require("path");
 const fs = require('fs');
+const settings = require("electron-settings");
+const defaultSettings = require("./defaultSettings.json");
 
 class Core {
     constructor() {
@@ -12,6 +14,7 @@ class Core {
 
             this.ppapi();
 
+            this.settings();
             Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: "File", submenu: [{ role: "reload" }, { role: "close" }] }]));
 
             await this.app.whenReady();
@@ -38,6 +41,31 @@ class Core {
         }
 
         this.app.commandLine.appendSwitch('ppapi-flash-path', this.ppapi_flash_path);
+    }
+
+    settings() {
+        settings.configure({
+            atomicSave: true,
+            fileName: 'settings.json',
+            prettify: true
+        });
+
+        if (!settings.getSync().check) {
+            settings.setSync(defaultSettings);
+        } else {
+            let backup = settings.getSync();
+
+            const isObject = x =>
+                Object(x) === x
+
+            const merge = (left = {}, right = {}) =>
+                Object.entries(right)
+                .reduce((acc, [k, v]) =>
+                    isObject(v) && isObject(left[k]) ? { ...acc, [k]: merge(left[k], v) } : { ...acc, [k]: v }, left
+                )
+
+            settings.setSync(merge(defaultSettings, backup))
+        }
     }
 }
 

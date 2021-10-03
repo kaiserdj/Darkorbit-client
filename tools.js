@@ -6,8 +6,6 @@ const contextmenu = require("electron-context-menu");
 const { openProcessManager } = require('electron-process-manager');
 const axios = require("axios");
 
-const defaultSettings = require("./defaultSettings.json");
-
 function commandLine() {
     return yargs(hideBin(process.argv))
         .usage('Usage: $0 [options]')
@@ -41,21 +39,6 @@ function commandLine() {
         })
         .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
         .argv;
-}
-
-function checkSettings() {
-    let backup = settings.getSync();
-
-    const isObject = x =>
-        Object(x) === x
-
-    const merge = (left = {}, right = {}) =>
-        Object.entries(right)
-        .reduce((acc, [k, v]) =>
-            isObject(v) && isObject(left[k]) ? { ...acc, [k]: merge(left[k], v) } : { ...acc, [k]: v }, left
-        )
-
-    settings.setSync(merge(defaultSettings, backup))
 }
 
 function tray(client) {
@@ -262,7 +245,6 @@ async function getBase64(url) {
 
 module.exports = {
     commandLine,
-    checkSettings,
     tray,
     contextMenu,
     settingsWindow,

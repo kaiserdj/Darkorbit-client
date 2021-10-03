@@ -33,7 +33,7 @@ class DarkDev {
         this.customCss = new CustomCss(this.client, this.window);
 
         ipcMain.on("LoadConfigDarkDev", () => {
-            this.window.webContents.send("SendLoadConfigDarkDev", settings.getSync().DarkDev)
+            this.window.webContents.send("SendLoadConfigDarkDev", settings.getSync().DarkDev);
         })
 
         ipcMain.on('ResourceDownload', (event, opt) => {
