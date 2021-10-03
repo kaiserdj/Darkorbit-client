@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, remote } = require('electron');
 
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
@@ -27,11 +27,15 @@ function run() {
     }
 
     document.getElementById("PreventCloseGame").onclick = () => {
-        ipcRenderer.send("SetOptionConfig", "PreventCloseGame", document.getElementById("PreventCloseGame").checked)
+        ipcRenderer.send("SetOptionConfig", "PreventCloseGame", document.getElementById("PreventCloseGame").checked);
     }
 
     document.getElementById("PreventCloseSessionWindow").onclick = () => {
-        ipcRenderer.send("SetOptionConfig", "PreventCloseSessionWindow", document.getElementById("PreventCloseSessionWindow").checked)
+        ipcRenderer.send("SetOptionConfig", "PreventCloseSessionWindow", document.getElementById("PreventCloseSessionWindow").checked);
+    }
+
+    document.getElementById("DefaultDev").onclick = () => {
+        ipcRenderer.send("SetOptionConfig", "DefaultDev", document.getElementById("DefaultDev").checked);
     }
 
     // Contributors
@@ -94,6 +98,10 @@ function load(data) {
 
     if (data.PreventCloseSessionWindow) {
         document.getElementById("PreventCloseSessionWindow").checked = data.PreventCloseSessionWindow;
+    }
+
+    if (data.DefaultDev) {
+        document.getElementById("DefaultDev").checked = data.DefaultDev;
     }
 }
 

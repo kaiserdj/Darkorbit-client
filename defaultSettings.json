@@ -30,7 +30,8 @@
         "HardwareAcceleration": true,
         "NoSandbox": false,
         "PreventCloseGame": false,
-        "PreventCloseSessionWindow": false
+        "PreventCloseSessionWindow": false,
+        "DefaultDev": false
     },
     "DarkDev": {
         "CustomLoad": {

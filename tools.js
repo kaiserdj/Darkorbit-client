@@ -27,7 +27,7 @@ function commandLine() {
             alias: 'd',
             type: 'boolean',
             description: 'Run in development mode',
-            default: false
+            default: settings.getSync().Settings.DefaultDev
         })
         .option('api', {
             type: 'string',
