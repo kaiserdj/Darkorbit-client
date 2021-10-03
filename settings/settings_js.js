@@ -28,7 +28,7 @@ function run() {
 
                 if (upperCases) {
                     for (let letter of upperCases) {
-                        title = title.replaceAll(letter, ` ${letter}`)
+                        title = title.replaceAll(letter, ` ${letter}`);
                     }
                 }
                 elemEmote += `<li class="list-inline-item"><a href="javascript:void(0)" class="rounded" title="${title.charAt(0).toUpperCase() + title.slice(1)}">${emojiKey[emote]}</a></li>`;
@@ -74,7 +74,7 @@ function load(data) {
 }
 
 ipcRenderer.on("SendLoadSettings", (event, data) => {
-    load(data)
+    load(data);
 });
 
 let emojiKey = {

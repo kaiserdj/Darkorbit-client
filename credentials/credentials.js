@@ -49,7 +49,7 @@ class Credentials {
                             settings.setSync(backup);
 
                             this.load("register");
-                        })
+                        });
 
                     return;
                 }

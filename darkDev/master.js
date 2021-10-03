@@ -11,29 +11,29 @@ function run() {
     if (window.location.search) {
         let urlParams = new URLSearchParams(window.location.search);
         let tab = urlParams.get('tab');
-        changeTab(tab)
+        changeTab(tab);
     }
 
     ipcRenderer.send("LoadConfigDarkDev", true);
 
     /* Custom Load */
     document.getElementById("EnableCustomLoad").onclick = () => {
-        ipcRenderer.send("SetEnableCustomLoad", document.getElementById("EnableCustomLoad").checked)
+        ipcRenderer.send("SetEnableCustomLoad", document.getElementById("EnableCustomLoad").checked);
     }
 
     /* Custom Load modal */
 
     document.getElementById("LocalFileEnable").onclick = () => {
         if (document.getElementById("LocalFileEnable").checked) {
-            document.getElementById("LocalFile").removeAttribute("disabled")
-            document.getElementById("ActionUrlLoad").setAttribute("disabled", "")
-            document.getElementById("ActionUrlLoad").removeAttribute("required")
-            document.getElementById("LocalFile").setAttribute("required", "")
+            document.getElementById("LocalFile").removeAttribute("disabled");
+            document.getElementById("ActionUrlLoad").setAttribute("disabled", "");
+            document.getElementById("ActionUrlLoad").removeAttribute("required");
+            document.getElementById("LocalFile").setAttribute("required", "");
         } else {
-            document.getElementById("ActionUrlLoad").removeAttribute("disabled")
-            document.getElementById("LocalFile").setAttribute("disabled", "")
-            document.getElementById("LocalFile").removeAttribute("required")
-            document.getElementById("ActionUrlLoad").setAttribute("required", "")
+            document.getElementById("ActionUrlLoad").removeAttribute("disabled");
+            document.getElementById("LocalFile").setAttribute("disabled", "");
+            document.getElementById("LocalFile").removeAttribute("required");
+            document.getElementById("ActionUrlLoad").setAttribute("required", "");
         }
     }
 
@@ -55,7 +55,7 @@ function run() {
 
     /* Custom Js */
     document.getElementById("EnableCustomJs").onclick = () => {
-        ipcRenderer.send("SetEnableCustomJs", document.getElementById("EnableCustomJs").checked)
+        ipcRenderer.send("SetEnableCustomJs", document.getElementById("EnableCustomJs").checked);
     }
 
     /* Custom Js modal */
@@ -76,7 +76,7 @@ function run() {
 
     /* Custom Css */
     document.getElementById("EnableCustomCss").onclick = () => {
-        ipcRenderer.send("SetEnableCustomCss", document.getElementById("EnableCustomCss").checked)
+        ipcRenderer.send("SetEnableCustomCss", document.getElementById("EnableCustomCss").checked);
     }
 
     /* Custom Css modal */
@@ -99,9 +99,9 @@ function run() {
 
     document.getElementById("CustomServer").onclick = () => {
         if (document.getElementById("CustomServer").checked) {
-            document.getElementById("server").removeAttribute("disabled")
+            document.getElementById("server").removeAttribute("disabled");
         } else {
-            document.getElementById("server").setAttribute("disabled", "")
+            document.getElementById("server").setAttribute("disabled", "");
         }
     }
 

@@ -67,7 +67,7 @@ autoUpdater.on('update-downloaded', async () => {
 
 async function checkForUpdates() {
     await autoUpdater.checkForUpdates();
-    
+
     return updater;
 }
 

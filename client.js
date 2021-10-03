@@ -182,23 +182,23 @@ class Client {
             }
 
             if (this.arg.dev && input.control && input.shift && input.code === "KeyI" && new URL(focus().webContents.getURL()).search === "?action=internalMapRevolution") {
-                event.preventDefault()
-                focus().webContents.toggleDevTools()
+                event.preventDefault();
+                focus().webContents.toggleDevTools();
             }
             if (input.control && input.code === "F5") {
-                event.preventDefault()
-                focus().reload()
+                event.preventDefault();
+                focus().reload();
             }
             if (input.control && input.code === "Numpad0") {
-                event.preventDefault()
+                event.preventDefault();
                 focus().webContents.zoomLevel = 0;
             }
             if (input.control && input.key === "+") {
-                event.preventDefault()
+                event.preventDefault();
                 focus().webContents.zoomLevel += 0.5;
             }
             if (input.control && input.key === "-") {
-                event.preventDefault()
+                event.preventDefault();
                 focus().webContents.zoomLevel -= 0.5;
             }
         })
@@ -220,10 +220,10 @@ class Client {
             }
             e.preventDefault();
             if (new URL(url).search === "?action=internalMapRevolution") {
-                client.createWindow("game", url)
+                client.createWindow("game", url);
             } else if (new URL(url).host.split(".")[1] === "darkorbit") {
                 if (new URL(url).host.split(".")[0].search("board") !== -1 || new URL(url).search === "?action=portal.redirectToBoard") {
-                    client.createWindow("board", url)
+                    client.createWindow("board", url);
                 } else if (new URL(url).search.split("&")[0] === "?action=internalPaymentProxy") {
                     client.createWindow("shop", url);
                 } else {
@@ -266,7 +266,7 @@ class Client {
 
             let statusDevTools = win.webContents.isDevToolsOpened();
             if (!statusDevTools) {
-                win.webContents.openDevTools()
+                win.webContents.openDevTools();
             }
 
             if (!win.webContents.debugger.isAttached()) {
@@ -277,7 +277,7 @@ class Client {
                 win.webContents.debugger.sendCommand("Fetch.enable", { patterns: [] });
                 win.webContents.debugger.removeAllListeners("message");
                 if (!statusDevTools) {
-                    win.webContents.closeDevTools()
+                    win.webContents.closeDevTools();
                 }
                 return;
             }
@@ -348,7 +348,7 @@ class Client {
 
             win.webContents.on("dom-ready", () => {
                 if (settings.getSync().DarkDev.CustomJs.enable) {
-                    win.webContents.send("customJs", settings.getSync().DarkDev.CustomJs)
+                    win.webContents.send("customJs", settings.getSync().DarkDev.CustomJs);
                 }
             })
         }
@@ -368,7 +368,7 @@ class Client {
 
             win.webContents.on("dom-ready", () => {
                 if (settings.getSync().DarkDev.CustomCss.enable) {
-                    win.webContents.send("customCss", settings.getSync().DarkDev.CustomCss)
+                    win.webContents.send("customCss", settings.getSync().DarkDev.CustomCss);
                 }
             })
         }

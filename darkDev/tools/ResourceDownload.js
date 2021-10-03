@@ -10,7 +10,7 @@ class ResourceDownload {
         this.domain = this.opt.customServer ? `https://${this.opt.server}.darkorbit.com` : "https://darkorbit-22.bpsecure.com";
         this.listFiles = { files: [] };
 
-        this.console(`Defined settings: ${JSON.stringify(this.opt)}`)
+        this.console(`Defined settings: ${JSON.stringify(this.opt)}`);
 
         this.console(`Selected domain: ${this.domain}`);
 
@@ -105,11 +105,11 @@ class ResourceDownload {
 
                 item.setSavePath(pathfile);
 
-                this.console(`Downloading: ${file.path}`)
+                this.console(`Downloading: ${file.path}`);
 
                 item.on('updated', (event, state) => {
                     if (state === 'interrupted') {
-                        this.console(`Download failed: ${state}`)
+                        this.console(`Download failed: ${state}`);
                         return reject(state);
                     }
                 })
@@ -119,7 +119,7 @@ class ResourceDownload {
                         this.console("Download completed");
                         return resolve(true);
                     } else {
-                        this.console(`Download failed: ${state}`)
+                        this.console(`Download failed: ${state}`);
                         return reject(state);
                     }
                 })
@@ -133,11 +133,11 @@ class ResourceDownload {
 
     md5(path) {
         return new Promise((resolve, reject) => {
-            const hash = crypto.createHash('md5')
-            const rs = fs.createReadStream(path)
-            rs.on('error', reject)
-            rs.on('data', chunk => hash.update(chunk))
-            rs.on('end', () => resolve(hash.digest('hex')))
+            const hash = crypto.createHash('md5');
+            const rs = fs.createReadStream(path);
+            rs.on('error', reject);
+            rs.on('data', chunk => hash.update(chunk));
+            rs.on('end', () => resolve(hash.digest('hex')));
         })
     }
 }

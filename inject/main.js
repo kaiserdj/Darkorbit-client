@@ -6,7 +6,7 @@ const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
         contextBridge.exposeInMainWorld("api", api);
-        api.injectCss(nprogressCss)
+        api.injectCss(nprogressCss);
         api.injectCss("#qc-cmp2-container {display: none;}");
         api.injectCss("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
         nprogress.configure({ showSpinner: false });
@@ -61,7 +61,7 @@ ipcRenderer.once("customJs", (event, data) => {
             if (data.list[id].enable) {
                 if (customUrlRegex(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
-                        .then(res => api.injectJs(res))
+                        .then(res => api.injectJs(res));
                 }
             }
         }
@@ -74,7 +74,7 @@ ipcRenderer.once("customCss", (event, data) => {
             if (data.list[id].enable) {
                 if (customUrlRegex(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
-                        .then(res => api.injectCss(res))
+                        .then(res => api.injectCss(res));
                 }
             }
         }
