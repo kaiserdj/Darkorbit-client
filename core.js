@@ -15,6 +15,10 @@ class Core {
             this.ppapi();
 
             this.settings();
+
+            if (!settings.getSync().Settings.HardwareAcceleration) {
+                this.app.disableHardwareAcceleration();
+            }
             Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: "File", submenu: [{ role: "reload" }, { role: "close" }] }]));
 
             await this.app.whenReady();

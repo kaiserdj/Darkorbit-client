@@ -27,6 +27,7 @@
         "height": 700
     },
     "Settings": {
+        "HardwareAcceleration": true,
         "PreventCloseGame": false,
         "PreventCloseSessionWindow": false
     },

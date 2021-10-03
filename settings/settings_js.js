@@ -10,6 +10,13 @@ function run() {
     ipcRenderer.send("LoadSettings", true);
 
     // Settings
+    document.getElementById("HardwareAcceleration").onclick = () => {
+        ipcRenderer.send("SetOptionConfig", "HardwareAcceleration", document.getElementById("HardwareAcceleration").checked);
+        if(confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
+            remote.app.relaunch();
+            remote.app.exit(0);
+        }
+    }
     document.getElementById("PreventCloseGame").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "PreventCloseGame", document.getElementById("PreventCloseGame").checked)
     }
@@ -64,6 +71,9 @@ function run() {
 }
 
 function load(data) {
+    if (data.HardwareAcceleration) {
+        document.getElementById("HardwareAcceleration").checked = data.HardwareAcceleration;
+    }
     if (data.PreventCloseGame) {
         document.getElementById("PreventCloseGame").checked = data.PreventCloseGame;
     }
