@@ -233,6 +233,13 @@ class Client {
             }
         });
 
+        window.webContents.on('render-process-gone', function (event, detailed) {
+            if (detailed.reason == "crashed"){
+                app.relaunch();
+                app.exit(0);
+            }
+        });
+
         return window;
     }
 
