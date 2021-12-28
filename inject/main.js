@@ -1,4 +1,6 @@
 const { ipcRenderer, contextBridge } = require("electron");
+const path = require("path");
+const fs = require('fs');
 const api = require("./api");
 const nprogress = require("../libs/nprogress/nprogress");
 const nprogressCss = require("../libs/nprogress/nprogressCss.js");
@@ -24,7 +26,7 @@ window.addEventListener("beforeunload", () => {
     nprogress.start();
 });
 
-function run() {
+async function run() {
     let url = this.location.href;
 
     switch (true) {
@@ -34,7 +36,67 @@ function run() {
             require("./login");
             break;
         case /.*\?action=internalMapRevolution.*/.test(url):
-            api.getConfig().then((data) => {
+            api.getConfig().then(async (data) => {
+                if (data.Settings.Packet) {
+                    const WebSocket = require('ws');
+
+                    const wss = new WebSocket.Server({ port: 44569 });
+
+                    wss.on('connection', ws => {
+                        ws.on('message', message => {
+                            let event = new CustomEvent("Packet", {
+                                detail: {
+                                    packet: JSON.parse(message.toString())
+                                }
+                            });
+                            window.dispatchEvent(event);
+                        });
+                    });
+
+                    for (;;) {
+                        if (document.readyState == "complete") {
+                            console.log(document.readyState);
+                            await new Promise(r => setTimeout(r, 5000));
+
+                            console.log('Start packet_dumper');
+
+                            let packet_dumper;
+                            if (process.platform == 'win32') {
+                                packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), '../darkDev/packet_dumper.py');
+                                if (!fs.existsSync(packet_dumper)) {
+                                    packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
+                                }
+                            } else if (process.platform == 'linux') {
+                                packet_dumper = path.join(process.resourcesPath.split("/")[1] === "tmp" ? process.resourcesPath : await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
+                            } else if (process.platform == 'darwin') {
+                                packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), `../darkDev/packet_dumper.py`);
+                                if (!fs.existsSync(packet_dumper)) {
+                                    packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
+                                }
+                            }
+
+                            let python = require('child_process').spawn('python', [packet_dumper]);
+
+                            python.stdout.on('data', data => {
+                                console.log(data.toString());
+                            });
+
+                            python.stderr.on('data', data => {
+                                console.error(`stderr: ${data}`);
+                            });
+
+                            python.on('close', code => {
+                                console.log(`child process exited with code ${code}`);
+                            });
+
+                            break;
+                        } else {
+                            console.log(document.readyState);
+                            await new Promise(r => setTimeout(r, 50));
+                        }
+                    }
+                }
+
                 if (data.Settings.PreventCloseGame) {
                     api.injectJs("bpCloseWindow = function() {}");
                     window.removeEventListener("beforeunload");

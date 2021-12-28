@@ -37,6 +37,9 @@ function run() {
     document.getElementById("DefaultDev").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "DefaultDev", document.getElementById("DefaultDev").checked);
     }
+    document.getElementById("Packet").onclick = () => {
+        ipcRenderer.send("SetOptionConfig", "Packet", document.getElementById("Packet").checked);
+    }
 
     // Contributors
     ipcRenderer.invoke("get", "https://raw.githubusercontent.com/kaiserdj/Darkorbit-client/main/.all-contributorsrc").then(data => {
@@ -102,6 +105,10 @@ function load(data) {
 
     if (data.DefaultDev) {
         document.getElementById("DefaultDev").checked = data.DefaultDev;
+    }
+
+    if (data.Packet) {
+        document.getElementById("Packet").checked = data.Packet;
     }
 }
 

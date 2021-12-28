@@ -31,7 +31,8 @@
         "NoSandbox": false,
         "PreventCloseGame": false,
         "PreventCloseSessionWindow": false,
-        "DefaultDev": false
+        "DefaultDev": false,
+        "Packet": false
     },
     "DarkDev": {
         "CustomLoad": {

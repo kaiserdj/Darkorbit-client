@@ -62,6 +62,14 @@ class Client {
                 this.setCustomCss();
             })
 
+            if (this.arg.api) {
+                global.api = this.arg.api;
+                global.dev = this.arg.dev;
+                ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
+                ipcMain.handle("getAppMetrics", async () => this.core.app.getAppMetrics());
+            }
+            ipcMain.handle("getAppPath", async () => this.core.app.getAppPath());
+
             return this;
         })()
     }
@@ -82,13 +90,6 @@ class Client {
                 'devTools': this.arg.dev
             }
         };
-
-        if (this.arg.api) {
-            global.api = this.arg.api;
-            global.dev = this.arg.dev;
-            ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
-            ipcMain.handle("getAppMetrics", async (event) => this.core.app.getAppMetrics());
-        }
 
         if (this.arg.size) {
             delete this.arg.size;
@@ -235,8 +236,8 @@ class Client {
 
         window.webContents.on('render-process-gone', function (event, detailed) {
             if (detailed.reason == "crashed"){
-                app.relaunch();
-                app.exit(0);
+                this.core.app.relaunch();
+                this.core.app.exit(0);
             }
         });
 

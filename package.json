@@ -40,7 +40,10 @@
   "build": {
     "appId": "com.DarkOrbitClient.Kaiserdj",
     "productName": "DarkOrbit Client",
-    "extraResources": "./flash/**",
+    "extraResources": [
+      "./flash/**",
+      "./darkDev/packet_dumper.py"
+    ],
     "directories": {
       "buildResources": "assets",
       "output": "dist"
