@@ -129,3 +129,9 @@ From now on I will continue to develop utilities for the client, not only as a c
 ## Disclaimer
 
 This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Bigpoint or any of its subsidiaries or its affiliates. The official Bigpoint website can be found at https://www.bigpoint.net. "Bigpoint" as well as related names, marks, emblems and images are registered trademarks of their respective owners.
+
+## License
+
+Copyright © Kaiserdj
+
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details.
