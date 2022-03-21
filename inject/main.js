@@ -56,7 +56,7 @@ async function run() {
                     for (;;) {
                         if (document.readyState == "complete") {
                             console.log(document.readyState);
-                            await new Promise(r => setTimeout(r, 5000));
+                            await new Promise(r => setTimeout(r, data.Settings.PacketTimeout));
 
                             console.log('Start packet_dumper');
 

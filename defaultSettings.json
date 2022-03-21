@@ -32,7 +32,8 @@
         "PreventCloseGame": false,
         "PreventCloseSessionWindow": false,
         "DefaultDev": false,
-        "Packet": false
+        "Packet": false,
+        "PacketTimeout": 15000
     },
     "DarkDev": {
         "CustomLoad": {

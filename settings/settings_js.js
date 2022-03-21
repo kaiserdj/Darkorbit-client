@@ -41,6 +41,10 @@ function run() {
         ipcRenderer.send("SetOptionConfig", "Packet", document.getElementById("Packet").checked);
     }
 
+    document.getElementById("PacketTimeout").onchange = () => {
+        ipcRenderer.send("SetOptionConfig", "PacketTimeout", document.getElementById("PacketTimeout").value);
+    }
+
     // Contributors
     ipcRenderer.invoke("get", "https://raw.githubusercontent.com/kaiserdj/Darkorbit-client/main/.all-contributorsrc").then(data => {
         for (let contributor of data.contributors) {
@@ -110,6 +114,8 @@ function load(data) {
     if (data.Packet) {
         document.getElementById("Packet").checked = data.Packet;
     }
+
+    document.getElementById("PacketTimeout").value = data.PacketTimeout; 
 }
 
 ipcRenderer.on("SendLoadSettings", (event, data) => {
