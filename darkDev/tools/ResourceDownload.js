@@ -29,7 +29,7 @@ class ResourceDownload {
             await this.downloader(file);
         }
 
-        fs.writeFileSync(path.join(this.opt.folder, "listFiles.json").normalize(), this.listFiles);
+        fs.writeFileSync(path.join(this.opt.folder, "listExtraFiles.json").normalize(), JSON.stringify(this.listFiles, null, 2), 'utf-8');
 
         this.console(" ");
         this.console("Work done :D");
@@ -47,7 +47,7 @@ class ResourceDownload {
             await this.readFileColection(xml);
         }
 
-        fs.writeFileSync(path.join(this.opt.folder, "listFiles.json"), JSON.stringify(this.listFiles, null, 2), 'utf-8');
+        fs.writeFileSync(path.join(this.opt.folder, "listXmlColectionsFiles.json"), JSON.stringify(this.listFiles, null, 2), 'utf-8');
     }
 
     async readFileColection(xml) {
@@ -99,10 +99,6 @@ class ResourceDownload {
 
         return new Promise((resolve, reject) => {
             this.window.webContents.session.once('will-download', (event, item, webContents) => {
-                if (!fs.existsSync(file.location)) {
-                    fs.mkdirSync(file.location, { recursive: true });
-                }
-
                 item.setSavePath(pathfile);
 
                 this.console(`Downloading: ${file.path}`);
