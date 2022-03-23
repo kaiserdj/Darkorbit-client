@@ -116,6 +116,12 @@ class Client {
             }
         }
 
+        if (process.argv[1]) {
+            if (process.argv[1].includes("darkorbit-client://") && (process.argv[1].includes("dosid") || process.argv[1].includes("sid"))) {
+                this.arg.dosid = process.argv[1].split("darkorbit-client://")[1];
+            }
+        }
+
         if (this.arg.dosid) {
             let check;
             try {

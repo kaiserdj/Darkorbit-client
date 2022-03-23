@@ -48,8 +48,15 @@
       "buildResources": "assets",
       "output": "dist"
     },
+    "protocols": {
+      "name": "darkorbit-client",
+      "schemes": [
+          "darkorbit-client"
+      ]
+    },
     "mac": {
-      "category": "public.app-category.games"
+      "category": "public.app-category.games",
+      "extendInfo": "darkorbit-client"
     },
     "linux": {
       "target": [

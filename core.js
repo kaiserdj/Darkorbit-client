@@ -24,6 +24,8 @@ class Core {
                 this.app.commandLine.appendSwitch('--no-sandbox');
             }
 
+            this.app.setAsDefaultProtocolClient('darkorbit-client');
+
             Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: "File", submenu: [{ role: "reload" }, { role: "close" }] }]));
 
             await this.app.whenReady();
