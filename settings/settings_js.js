@@ -37,6 +37,11 @@ function run() {
     document.getElementById("DefaultDev").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "DefaultDev", document.getElementById("DefaultDev").checked);
     }
+
+    document.getElementById("BackgroundThrottling").onclick = () => {
+        ipcRenderer.send("SetOptionConfig", "BackgroundThrottling", document.getElementById("BackgroundThrottling").checked);
+    }
+
     document.getElementById("Packet").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "Packet", document.getElementById("Packet").checked);
     }
@@ -109,6 +114,10 @@ function load(data) {
 
     if (data.DefaultDev) {
         document.getElementById("DefaultDev").checked = data.DefaultDev;
+    }
+
+    if (data.BackgroundThrottling) {
+        document.getElementById("BackgroundThrottling").checked = data.BackgroundThrottling;
     }
 
     if (data.Packet) {

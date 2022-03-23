@@ -104,6 +104,8 @@ class Client {
             window.webContents.openDevTools();
         }
 
+        window.webContents.setBackgroundThrottling(settings.getSync().Settings.BackgroundThrottling);
+
         this.setCustomLoad();
         this.setCustomJs();
         this.setCustomCss();
@@ -241,8 +243,8 @@ class Client {
             }
         });
 
-        window.webContents.on('render-process-gone', function (event, detailed) {
-            if (detailed.reason == "crashed"){
+        window.webContents.on('render-process-gone', function(event, detailed) {
+            if (detailed.reason == "crashed") {
                 this.core.app.relaunch();
                 this.core.app.exit(0);
             }
