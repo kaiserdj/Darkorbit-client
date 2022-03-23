@@ -87,7 +87,8 @@ class Client {
                 'nodeIntegration': true,
                 'enableRemoteModule': true,
                 'plugins': true,
-                'devTools': this.arg.dev
+                'devTools': this.arg.dev,
+                'offscreen': this.arg.offscreen
             }
         };
 

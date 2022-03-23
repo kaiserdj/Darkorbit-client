@@ -37,6 +37,11 @@ function commandLine() {
             type: 'array',
             description: 'Open client with custom window size. Example: --size 900 800',
         })
+        .option('offscreen', {
+            type: 'boolean',
+            description: 'Run in offscreen mode',
+            default: false
+        })
         .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
         .argv;
 }
