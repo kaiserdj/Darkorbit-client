@@ -7,7 +7,7 @@ let id;
 
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: remote.getGlobal('api') });
+const wss = new WebSocket.WebSocketServer({ port: remote.getGlobal('api') });
 
 wss.on('connection', ws => {
     ws.binaryType = 'arraybuffer';

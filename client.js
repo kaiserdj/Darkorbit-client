@@ -22,6 +22,10 @@ class Client {
                 console.log("api");
                 console.log("Arguments:");
                 console.log(this.arg);
+                global.api = this.arg.api;
+                global.dev = this.arg.dev;
+                ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
+                ipcMain.handle("getAppMetrics", async () => this.core.app.getAppMetrics());
                 this.createWindow("api");
                 return this;
             }
@@ -62,12 +66,6 @@ class Client {
                 this.setCustomCss();
             })
 
-            if (this.arg.api) {
-                global.api = this.arg.api;
-                global.dev = this.arg.dev;
-                ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
-                ipcMain.handle("getAppMetrics", async () => this.core.app.getAppMetrics());
-            }
             ipcMain.handle("getAppPath", async () => this.core.app.getAppPath());
 
             return this;
