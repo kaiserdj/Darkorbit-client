@@ -1,4 +1,4 @@
-#Version https://github.com/Alph4rd/darkorbit_packet_dumper/commit/76f46eaa51454d98ebda49b481bbe2d41bb93198
+#Version https://github.com/Alph4rd/darkorbit_packet_dumper/commit/12823aa12383a7d7d702786dafaa9d25036822db
 import argparse
 import psutil
 import frida
@@ -12,8 +12,8 @@ from websocket import create_connection
 ws = create_connection("ws://localhost:44569")
 
 avm_script ='''
-const packet_sender_id  = 27007;
-const packet_handler_id = 27014;
+const packet_sender_id  = 27058;
+const packet_handler_id = 27065;
 var patterns = { 
     darkbot : "ff ff 01 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00"
 };
@@ -679,7 +679,7 @@ def main():
         print("[!] Failed to find process.")
         return
 
-    print(f"[+] Found process{pid}.")
+    print(f"[+] Found process {pid}.")
 
     try:
         session = frida.attach(pid)
@@ -694,7 +694,7 @@ def main():
 
     script.load()
 
-    input('[!] Press <Enter> to stop.')
+    input()
 
     session.detach()
 

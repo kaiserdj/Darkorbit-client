@@ -40,7 +40,7 @@ async function run() {
                 if (data.Settings.Packet) {
                     const WebSocket = require('ws');
 
-                    const wss = new WebSocket.Server({ port: 44569 });
+                    const wss = new WebSocket.WebSocketServer({ port: 44569 });
 
                     wss.on('connection', ws => {
                         ws.on('message', message => {
@@ -55,7 +55,6 @@ async function run() {
 
                     for (;;) {
                         if (document.readyState == "complete") {
-                            console.log(document.readyState);
                             await new Promise(r => setTimeout(r, data.Settings.PacketTimeout));
 
                             console.log('Start packet_dumper');
@@ -91,7 +90,6 @@ async function run() {
 
                             break;
                         } else {
-                            console.log(document.readyState);
                             await new Promise(r => setTimeout(r, 50));
                         }
                     }
