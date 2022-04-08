@@ -35,6 +35,14 @@ class Core {
             await this.app.whenReady();
             this.appReady = true;
 
+            // https://github.com/advisories/GHSA-3p22-ghq8-v749
+            this.app.on('web-contents-created', (event, webContents) => {
+                webContents.on('select-bluetooth-device', (event, devices, callback) => {
+                  event.preventDefault();
+                  callback('');
+                });
+              });
+
             return this;
         })()
     }
