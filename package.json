@@ -23,19 +23,19 @@
     "electron-builder": "22.10.5"
   },
   "dependencies": {
-    "axios": "0.26.1",
+    "axios": "0.27.2",
     "electron-alert": "^0.1.20",
-    "electron-context-menu": "^3.1.2",
+    "electron-context-menu": "^3.3.0",
     "electron-process-manager": "github:kaiserdj/electron-process-manager",
     "electron-progressbar": "^2.0.1",
     "electron-settings": "^4.0.2",
-    "electron-updater": "5.0.0",
-    "menubar": "^9.1.2",
+    "electron-updater": "5.0.5",
+    "menubar": "^9.2.1",
     "open": "^8.4.0",
-    "sweetalert2": "^11.4.6",
-    "ws": "^8.5.0",
+    "sweetalert2": "^11.4.23",
+    "ws": "^8.8.1",
     "xml2js": "^0.4.23",
-    "yargs": "^17.4.0"
+    "yargs": "^17.5.1"
   },
   "build": {
     "appId": "com.DarkOrbitClient.Kaiserdj",
