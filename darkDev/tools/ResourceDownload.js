@@ -74,7 +74,11 @@ class ResourceDownload {
                     return obj.id === file.location;
                 })[0].path;
 
-                file.location = `spacemap/${file.location}`;
+                if (xml.split("/")[0] =="spacemap"){
+                    file.location = `spacemap/${file.location}`;
+                } else {
+                    file.location = `${xml.split('/xml/')[0]}/${file.location}`;
+                }
             }
 
             file.path = `${file.location}${file.name}.${file.type}`;
