@@ -1,4 +1,4 @@
-#Version https://github.com/Alph4rd/darkorbit_packet_dumper/commit/f567266670da2410fe376807d19696676652599b
+#Version https://github.com/Alph4rd/darkorbit_packet_dumper/commit/e3f0bb2ea74149526f466ed64d436a857b6493fa
 import argparse
 import psutil
 import frida
@@ -12,8 +12,8 @@ from websocket import create_connection
 ws = create_connection("ws://localhost:44569")
 
 avm_script ='''
-const packet_sender_id  = 27117;
-const packet_handler_id = 27124;
+const packet_sender_id  = 27119;
+const packet_handler_id = 27126;
 var patterns = { 
     darkbot : "ff ff 01 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00"
 };
