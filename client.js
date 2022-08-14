@@ -228,6 +228,8 @@ class Client {
                         } else {
                             return window.close();
                         }
+                    }else if (new URL(url).pathname.split("/")[1] === "p"){
+                        return client.createWindow("board", url);
                     } else if (new URL(url).host.split(".")[1] === "darkorbit") {
                         return window.loadURL(url, { userAgent: client.useragent });
                     }
