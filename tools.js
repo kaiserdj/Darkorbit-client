@@ -202,15 +202,16 @@ function contextMenu(dev) {
                 visible: dev
             }
         ],
-        showLookUpSelection: false,
-        showCopyImage: false,
-        showCopyImageAddress: false,
-        showSaveImage: false,
-        showSaveImageAs: false,
-        showSaveLinkAs: false,
+        showSelectAll: dev,
+        showLookUpSelection: dev,
+        showCopyImage: dev,
+        showCopyImageAddress: dev,
+        showSaveImage: dev,
+        showSaveImageAs: dev,
+        showSaveLinkAs: dev,
+        showServices: dev,
+        showSearchWithGoogle: dev,
         showInspectElement: false,
-        showServices: false,
-        showSearchWithGoogle: false
     });
 }
 
