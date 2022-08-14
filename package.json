@@ -20,19 +20,19 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "11.5.0",
-    "electron-builder": "22.10.5"
+    "electron-builder": "22.14.2"
   },
   "dependencies": {
     "axios": "0.27.2",
     "electron-alert": "^0.1.20",
-    "electron-context-menu": "^3.3.0",
+    "electron-context-menu": "^3.4.0",
     "electron-process-manager": "github:kaiserdj/electron-process-manager",
     "electron-progressbar": "^2.0.1",
     "electron-settings": "^4.0.2",
-    "electron-updater": "5.0.5",
+    "electron-updater": "5.2.1",
     "menubar": "^9.2.1",
     "open": "^8.4.0",
-    "sweetalert2": "^11.4.23",
+    "sweetalert2": "^11.4.26",
     "ws": "^8.8.1",
     "xml2js": "^0.4.23",
     "yargs": "^17.5.1"
@@ -56,7 +56,14 @@
     },
     "mac": {
       "category": "public.app-category.games",
-      "extendInfo": "darkorbit-client"
+      "extendInfo": "darkorbit-client",
+      "target": {
+        "target": "default",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      }
     },
     "linux": {
       "target": [
