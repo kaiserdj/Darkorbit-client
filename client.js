@@ -14,6 +14,7 @@ const Api = require("./api");
 class Client {
     constructor(core) {
         return (async () => {
+            update();
             this.core = core;
             this.arg = tools.commandLine();
             this.useragent = await useragent();
@@ -36,10 +37,6 @@ class Client {
             this.credentials = new Credentials(this);
             this.api = new Api();
             this.darkDev;
-
-            if (await update()) {
-                return this;
-            }
 
             if (this.arg.dev) {
                 this.darkDev = new DarkDev(this);
