@@ -22,9 +22,9 @@ body {
     word-wrap: break-word;
     background-color: #fff;
     background-clip: border-box;
-    border: 0 solid rgba(0, 0, 0, .125);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
-    border-radius: .25rem;
+    border: 0 solid rgba(0, 0, 0, 0.125);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 0.25rem;
 }
 
 .card-body {
@@ -38,8 +38,8 @@ body {
     margin-left: -8px;
 }
 
-.gutters-sm>.col,
-.gutters-sm>[class*=col-] {
+.gutters-sm > .col,
+.gutters-sm > [class*="col-"] {
     padding-right: 8px;
     padding-left: 8px;
 }
@@ -137,7 +137,6 @@ body {
 }
 
 @media (max-width: 768px) {
-
     .team-list img,
     .team-list .content {
         width: 100%;
@@ -203,7 +202,6 @@ body {
 }
 
 @keyframes spin {
-
     0%,
     10% {
         transform: rotate(-10deg) perspective(400px);
@@ -251,7 +249,7 @@ body {
     text-align: center;
     margin-left: 1em;
     border-width: 0 0 2px;
-    border-color: rgba(0, 0, 0, .1);
+    border-color: rgba(0, 0, 0, 0.1);
     transition: border-color 0.3s;
     cursor: text;
 }
@@ -288,10 +286,42 @@ body {
     border-color: #6f7cba;
 }
 
+.ltc .coin-face {
+    background: shade(#b5b5b5, 35%);
+}
+
+.ltc .coin-face:nth-child(1),
+.ltc .coin-face:nth-child(5) {
+    background: #b5b5b5;
+}
+
+.ltc .coin-address:hover,
+.ltc .coin-address:focus {
+    border-color: #b5b5b5;
+}
+
+.xrp .coin-face {
+    background: shade(#23292f, 35%);
+}
+
+.xrp .coin-face:nth-child(1),
+.xrp .coin-face:nth-child(5) {
+    background: #23292f;
+}
+
+.xrp .coin-address:hover,
+.xrp .coin-address:focus {
+    border-color: #23292f;
+}
+
 .donate-crypto-box:nth-child(1) .coin {
     animation-delay: 0.2s;
 }
 
 .donate-crypto-box:nth-child(2) .coin {
     animation-delay: 0.4s;
+}
+
+.donate-crypto-box:nth-child(3) .coin {
+    animation-delay: 0.6s;
 }
