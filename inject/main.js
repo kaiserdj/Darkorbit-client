@@ -9,7 +9,6 @@ document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
         contextBridge.exposeInMainWorld("api", api);
         api.injectCss(nprogressCss);
-        api.injectCss("#qc-cmp2-container {display: none;}");
         api.injectCss("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
         nprogress.configure({ showSpinner: false });
         nprogress.start();
