@@ -28,6 +28,8 @@ class DarkDev {
             type: "separator"
         }));
 
+        this.client.rebuildTrayMenu();
+
         this.customLoad = new CustomLoad(this.client, this.window);
         this.customJs = new CustomJs(this.client, this.window);
         this.customCss = new CustomCss(this.client, this.window);

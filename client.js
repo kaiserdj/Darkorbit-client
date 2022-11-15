@@ -389,6 +389,12 @@ class Client {
             }
         }
     }
+
+    rebuildTrayMenu() {
+        // This function should be called after any modifications to the tray menu. 
+        // It's needed for the tray menu to behave correctly on Linux/Mac.
+        this.tray.setContextMenu(this.menuTray);
+    }
 }
 
 module.exports = Client;

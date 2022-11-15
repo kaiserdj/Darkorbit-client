@@ -6,6 +6,8 @@ class Settings {
         this.client = client;
         this.window;
 
+        console.log(this.client.menuTray)
+
         this.client.menuTray.insert(4, new MenuItem({
             label: "Settings",
             type: "normal",
@@ -15,6 +17,8 @@ class Settings {
         this.client.menuTray.insert(5, new MenuItem({
             type: "separator"
         }));
+
+        this.client.tray.rebuildTrayMenu();
 
         ipcMain.on("LoadSettings", () => {
             this.window.webContents.send("SendLoadSettings", settings.getSync().Settings)
