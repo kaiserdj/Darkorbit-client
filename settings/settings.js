@@ -6,8 +6,6 @@ class Settings {
         this.client = client;
         this.window;
 
-        console.log(this.client.menuTray)
-
         this.client.menuTray.insert(4, new MenuItem({
             label: "Settings",
             type: "normal",
