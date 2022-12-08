@@ -79,7 +79,7 @@ function tray(client) {
             click: () => {
                 for(let win of BrowserWindow.getAllWindows()) {
                     if (new URL(win.webContents.getURL()).hostname.search("darkorbit") != -1) {
-                        win.webContents.executeJavaScript("typeof BpEventStream != 'undefined' ? (alert(`SID : ${BpEventStream.context.sid}\nCopied to clipboard`), BpEventStream.context.sid) : 'alert(`SID not detected`), null'")
+                        win.webContents.executeJavaScript("typeof BpEventStream != 'undefined' ? (alert(`SID : ${BpEventStream.context.sid}\nCopied to clipboard`), BpEventStream.context.sid) : alert(`SID not detected`), null")
                             .then( (result) => {
                                 if (result) {
                                     const {clipboard} = require('electron');
