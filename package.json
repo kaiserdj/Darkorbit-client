@@ -1,76 +1,76 @@
 {
-  "name": "darkorbit-client",
-  "version": "2.7.3",
-  "description": "Open source darkorbit client",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kaiserdj/Darkorbit-client.git"
-  },
-  "scripts": {
-    "start": "electron .",
-    "dev": "electron . --d",
-    "postinstall": "electron-builder install-app-deps",
-    "build": "electron-builder --publish=always",
-    "release": "electron-builder --publish always",
-    "local-build": "electron-builder",
-    "pack": "electron-builder --dir"
-  },
-  "author": "Kaiserdj",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "11.5.0",
-    "electron-builder": "22.10.5"
-  },
-  "dependencies": {
-    "axios": "0.27.2",
-    "electron-alert": "^0.1.20",
-    "electron-context-menu": "^3.5.0",
-    "electron-process-manager": "github:kaiserdj/electron-process-manager",
-    "electron-progressbar": "^2.0.1",
-    "electron-settings": "^4.0.2",
-    "electron-updater": "5.2.1",
-    "menubar": "^9.2.2",
-    "open": "^8.4.0",
-    "sweetalert2": "^11.4.33",
-    "ws": "^8.8.1",
-    "xml2js": "^0.4.23",
-    "yargs": "^17.5.1"
-  },
-  "build": {
-    "appId": "com.DarkOrbitClient.Kaiserdj",
-    "productName": "DarkOrbit Client",
-    "extraResources": [
-      "./flash/**",
-      "./darkDev/packet_dumper.py"
-    ],
-    "directories": {
-      "buildResources": "assets",
-      "output": "dist"
+    "name": "darkorbit-client",
+    "version": "2.7.3",
+    "description": "Open source darkorbit client",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaiserdj/Darkorbit-client.git"
     },
-    "protocols": {
-      "name": "darkorbit-client",
-      "schemes": [
-          "darkorbit-client"
-      ]
+    "scripts": {
+        "start": "electron .",
+        "dev": "electron . --d",
+        "postinstall": "electron-builder install-app-deps",
+        "build": "electron-builder --publish=always",
+        "release": "electron-builder --publish always",
+        "local-build": "electron-builder",
+        "pack": "electron-builder --dir"
     },
-    "mac": {
-      "category": "public.app-category.games",
-      "extendInfo": "darkorbit-client"
+    "author": "Kaiserdj",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "11.5.0",
+        "electron-builder": "22.10.5"
     },
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "category": "Game"
+    "dependencies": {
+        "axios": "1.3.4",
+        "electron-alert": "^0.1.20",
+        "electron-context-menu": "^3.6.1",
+        "electron-process-manager": "github:kaiserdj/electron-process-manager",
+        "electron-progressbar": "^2.0.1",
+        "electron-settings": "^4.0.2",
+        "electron-updater": "5.2.1",
+        "menubar": "^9.3.0",
+        "open": "^8.4.2",
+        "sweetalert2": "^11.7.3",
+        "ws": "^8.13.0",
+        "xml2js": "^0.4.23",
+        "yargs": "^17.7.1"
     },
-    "publish": [
-      {
-        "provider": "github",
-        "releaseType": "release",
-        "owner": "kaiserdj",
-        "repo": "Darkorbit-client"
-      }
-    ]
-  }
+    "build": {
+        "appId": "com.DarkOrbitClient.Kaiserdj",
+        "productName": "DarkOrbit Client",
+        "extraResources": [
+            "./flash/**",
+            "./darkDev/packet_dumper.py"
+        ],
+        "directories": {
+            "buildResources": "assets",
+            "output": "dist"
+        },
+        "protocols": {
+            "name": "darkorbit-client",
+            "schemes": [
+                "darkorbit-client"
+            ]
+        },
+        "mac": {
+            "category": "public.app-category.games",
+            "extendInfo": "darkorbit-client"
+        },
+        "linux": {
+            "target": [
+                "AppImage"
+            ],
+            "category": "Game"
+        },
+        "publish": [
+            {
+                "provider": "github",
+                "releaseType": "release",
+                "owner": "kaiserdj",
+                "repo": "Darkorbit-client"
+            }
+        ]
+    }
 }
