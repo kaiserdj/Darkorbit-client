@@ -16,6 +16,8 @@ class Settings {
             type: "separator"
         }));
 
+        this.client.rebuildTrayMenu();
+
         ipcMain.on("LoadSettings", () => {
             this.window.webContents.send("SendLoadSettings", settings.getSync().Settings)
         })

@@ -389,6 +389,10 @@ class Client {
             }
         }
     }
+
+    rebuildTrayMenu() {
+        this.tray.setContextMenu(this.menuTray);
+    }
 }
 
 module.exports = Client;

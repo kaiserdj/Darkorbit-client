@@ -170,6 +170,8 @@ class Credentials {
 
         this.client.menuTray.insert(3, new MenuItem({type: "separator"}));
 
+        this.client.rebuildTrayMenu();
+
         let config = {
             tooltip: "Darkorbit Client",
             tray: this.client.tray,
