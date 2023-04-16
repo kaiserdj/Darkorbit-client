@@ -228,11 +228,6 @@ class Credentials {
                 break;
         }
 
-        this.mb.setOption("browserWindow", {
-            "x": this.mb.window.getBounds().x,
-            "y": this.mb.window.getBounds().y
-        });
-
         this.mb.showWindow();
     }
 
