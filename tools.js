@@ -76,20 +76,32 @@ function tray(client) {
         },
         {
             label: "Copy SID",
-            click: () => {
-                for(let win of BrowserWindow.getAllWindows()) {
-                    if (new URL(win.webContents.getURL()).hostname.search("darkorbit") != -1) {
-                        win.webContents.executeJavaScript("(typeof SID != 'undefined' && typeof SID == 'string') ? " +
-                            "(alert(`SID : ${SID.replace('dosid=', '')}\nCopied to clipboard`), SID.replace('dosid=', '')) : " +
-                            "(alert(`SID not detected`), null)")
-                            .then( (result) => {
-                                if (result) {
-                                    const {clipboard} = require('electron');
-                                    clipboard.writeText(result);
-                                }
-                            });
-                        break;
+            click: async () => {
+                let sidNotFound = true;
+                for ( let win of BrowserWindow.getAllWindows() ) {
+                    let hostname = new URL(win.webContents.getURL()).hostname;
+                    if ( hostname.search("darkorbit") != -1 && hostname.search("www.darkorbit.com") == -1 ) {
+                        let cookie = await  win.webContents.session.cookies.get({name:'dosid', domain: hostname});
+
+                        if ( cookie[0] && cookie[0].value ) {
+                            let SID = cookie[0].value;
+                            const {clipboard} = require('electron');
+                            clipboard.writeText(SID);
+                            win.webContents.executeJavaScript("alert(`SID: " + SID +"\nCopied to clipboard` )")
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                            sidNotFound = false;
+                            break;
+                        }
                     }
+                }
+                if ( sidNotFound ) {
+                    let win = BrowserWindow.getAllWindows()[0];
+                    win.webContents.executeJavaScript("alert(`SID not detected`)")
+                        .catch(error => {
+                            console.error(error);
+                        });
                 }
             }
         },
