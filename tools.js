@@ -80,7 +80,7 @@ function tray(client) {
                 let sidNotFound = true;
                 for ( let win of BrowserWindow.getAllWindows() ) {
                     let hostname = new URL(win.webContents.getURL()).hostname;
-                    if ( hostname.search("darkorbit") != -1 && hostname.search("www.darkorbit.com") == -1 ) {
+                    if ( hostname.search("darkorbit") != -1 && hostname.search("www\.darkorbit\.com") == -1 ) {
                         let cookie = await  win.webContents.session.cookies.get({name:'dosid', domain: hostname});
 
                         if ( cookie[0] && cookie[0].value ) {
