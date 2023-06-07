@@ -2,6 +2,7 @@ const { dialog, ipcMain, BrowserWindow, MenuItem } = require('electron');
 const { menubar } = require('menubar');
 const settings = require("electron-settings");
 const Alert = require("electron-alert");
+const Positioner = require('electron-positioner');
 
 const crypt = require("./crypt");
 
@@ -227,13 +228,15 @@ class Credentials {
 
                 break;
         }
-
-        this.mb.setOption("browserWindow", {
-            "x": this.mb.window.getBounds().x,
-            "y": this.mb.window.getBounds().y
-        });
-
+        
+        // Workarround https://github.com/maxogden/menubar/issues/435
+        var positioner = new Positioner(this.mb.window)
+        
         this.mb.showWindow();
+
+        if(this.mb.getOption("windowPosition") == "trayBottomCenter" && process.platform == "win32") {
+            positioner.move('bottomRight');
+        }
     }
 
     registerMaster(input) {
