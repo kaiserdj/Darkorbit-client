@@ -97,8 +97,8 @@ function tray(client) {
                     }
                 }
                 if ( sidNotFound ) {
-                    let win = BrowserWindow.getFocusedWindow();
-                    win.webContents.executeJavaScript("alert(`SID.. not detected,\n NOT LOGED IN ???`)")
+                    let win = BrowserWindow.getAllWindows()[0];
+                    win.webContents.executeJavaScript("alert(`SID not detected`)")
                         .catch(error => {
                             console.error(error);
                         });
