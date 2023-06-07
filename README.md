@@ -103,7 +103,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     </tr>
     <tr>
       <td align="center" valign="top" width="20%"><a href="https://github.com/EMREREKILLERRZ"><img src="https://avatars.githubusercontent.com/u/90413379?v=4?s=100" width="100px;" alt="EMREREKILLERRZ"/><br /><sub><b>EMREREKILLERRZ</b></sub></a><br /><a href="#financial-EMREREKILLERRZ" title="Financial">💵</a></td>
-      <td align="center" valign="top" width="20%"><a href="https://github.com/bogdandudu"><img src="https://avatars.githubusercontent.com/u/20356046?v=4?s=100" width="100px;" alt="bogdandudu"/><br /><sub><b>bogdandudu</b></sub></a><br /><a href="https://github.com/kaiserdj/Darkorbit-client/issues?q=author%3Abogdandudu" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="20%"><a href="https://github.com/bogdandudu"><img src="https://avatars.githubusercontent.com/u/20356046?v=4?s=100" width="100px;" alt="bogdandudu"/><br /><sub><b>bogdandudu</b></sub></a><br /><a href="https://github.com/kaiserdj/Darkorbit-client/issues?q=author%3Abogdandudu" title="Bug reports">🐛</a> <a href="https://github.com/kaiserdj/Darkorbit-client/commits?author=bogdandudu" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
