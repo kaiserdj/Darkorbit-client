@@ -22,8 +22,6 @@ jobs:
         with:
           node-version: 16
 
-      - run: npm ci
-
       - name: Build/release Electron app
       # uses: samuelmeuli/action-electron-builder@v1  //Changed to a forked because it is outdated
         uses: coparse-inc/action-electron-builder@v1.0.0
