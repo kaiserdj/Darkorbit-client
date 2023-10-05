@@ -19,7 +19,7 @@
     "author": "Kaiserdj",
     "license": "ISC",
     "devDependencies": {
-        "electron": "11.5.0",
+        "electron": "22.3.25",
         "electron-builder": "^24.4.0"
     },
     "dependencies": {
