@@ -20,7 +20,7 @@
     "license": "ISC",
     "devDependencies": {
         "electron": "11.5.0",
-        "electron-builder": "^24.4.0"
+        "electron-builder": "^24.13.3"
     },
     "dependencies": {
         "axios": "1.7.2",
@@ -28,12 +28,12 @@
         "electron-context-menu": "^3.6.1",
         "electron-positioner": "^4.1.0",
         "electron-process-manager": "github:kaiserdj/electron-process-manager",
-        "electron-progressbar": "^2.1.0",
+        "electron-progressbar": "^2.2.1",
         "electron-settings": "^4.0.2",
         "electron-updater": "^6.1.0",
         "menubar": "^9.5.0",
         "open": "8.4.2",
-        "sweetalert2": "^11.6.13",
+        "sweetalert2": "^11.6.14",
         "ws": "^8.17.1",
         "xml2js": "^0.6.0",
         "yargs": "^17.7.2"
