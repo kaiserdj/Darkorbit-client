@@ -31,9 +31,9 @@
         "electron-progressbar": "^2.1.0",
         "electron-settings": "^4.0.2",
         "electron-updater": "^6.1.0",
-        "menubar": "^9.3.0",
+        "menubar": "^9.5.0",
         "open": "8.4.2",
-        "sweetalert2": "^11.7.11",
+        "sweetalert2": "^11.12.1",
         "ws": "^8.13.0",
         "xml2js": "^0.6.0",
         "yargs": "^17.7.2"
