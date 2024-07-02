@@ -1,6 +1,6 @@
 {
     "name": "darkorbit-client",
-    "version": "2.8.0",
+    "version": "2.8.3",
     "description": "Open source darkorbit client",
     "main": "index.js",
     "repository": {
@@ -30,7 +30,7 @@
         "electron-process-manager": "github:kaiserdj/electron-process-manager",
         "electron-progressbar": "^2.2.1",
         "electron-settings": "^4.0.4",
-        "electron-updater": "^6.1.0",
+        "electron-updater": "^6.2.1",
         "menubar": "^9.5.0",
         "open": "8.4.2",
         "sweetalert2": "^11.6.14",
