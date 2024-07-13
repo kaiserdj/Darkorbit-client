@@ -1,4 +1,4 @@
-const { BrowserWindow, MenuItem, ipcMain } = require('electron');
+const {BrowserWindow, MenuItem, ipcMain} = require('electron');
 const settings = require("electron-settings");
 
 class Settings {

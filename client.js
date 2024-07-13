@@ -1,4 +1,4 @@
-const { BrowserWindow, ipcMain, dialog } = require('electron');
+const {BrowserWindow, ipcMain, dialog} = require('electron');
 const settings = require("electron-settings");
 const fs = require("fs");
 const path = require("path");
@@ -137,31 +137,31 @@ class Client {
                 let baseUrl = new URL(this.arg.dosid).origin;
 
                 if (sid !== null && baseUrl !== null) {
-                    let cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+                    let cookie = {url: baseUrl, name: 'dosid', value: sid[2]};
                     window.webContents.session.cookies.set(cookie);
-                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
+                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, {userAgent: this.useragent});
                 }
             } else {
                 if (this.arg.url) {
                     let baseUrl = new URL(this.arg.url).origin;
-                    let cookie = { url: baseUrl, name: 'dosid', value: this.arg.dosid };
+                    let cookie = {url: baseUrl, name: 'dosid', value: this.arg.dosid};
                     window.webContents.session.cookies.set(cookie);
-                    window.loadURL(this.arg.url, { userAgent: this.useragent });
+                    window.loadURL(this.arg.url, {userAgent: this.useragent});
 
                     delete this.arg.url
                 } else {
                     dialog.showErrorBox("Load SID", `You also need the url parameter to be able to load the sid`);
-                    window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
+                    window.loadURL(`https://www.darkorbit.com/`, {userAgent: this.useragent});
                 }
             }
 
             delete this.arg.dosid;
         } else if (this.arg.url) {
-            window.loadURL(this.arg.url, { userAgent: this.useragent });
+            window.loadURL(this.arg.url, {userAgent: this.useragent});
         } else if (url) {
-            window.loadURL(url, { userAgent: this.useragent });
+            window.loadURL(url, {userAgent: this.useragent});
         } else {
-            window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
+            window.loadURL(`https://www.darkorbit.com/`, {userAgent: this.useragent});
         }
 
         tools.settingsWindow(window, type);
@@ -206,7 +206,7 @@ class Client {
         })
 
         let client = this;
-        window.webContents.on('new-window', async function(e, url) {
+        window.webContents.on('new-window', async function (e, url) {
             if (type === "game" || type === "shop") {
                 return;
             }
@@ -221,14 +221,14 @@ class Client {
                 } else {
                     if (new URL(url).search.split("&")[0] === "?action=externalLogout") {
                         if (settings.getSync().Settings.PreventCloseSessionWindow) {
-                            return window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
+                            return window.loadURL(`https://www.darkorbit.com/`, {userAgent: this.useragent});
                         } else {
                             return window.close();
                         }
-                    }else if (new URL(url).pathname.split("/")[1] === "p"){
+                    } else if (new URL(url).pathname.split("/")[1] === "p") {
                         return client.createWindow("board", url);
                     } else if (new URL(url).host.split(".")[1] === "darkorbit") {
-                        return window.loadURL(url, { userAgent: client.useragent });
+                        return window.loadURL(url, {userAgent: client.useragent});
                     }
                     client.createWindow("client", url);
                 }
@@ -240,7 +240,7 @@ class Client {
             }
         });
 
-        window.webContents.on('render-process-gone', function(event, detailed) {
+        window.webContents.on('render-process-gone', function (event, detailed) {
             if (detailed.reason == "crashed") {
                 this.core.app.relaunch();
                 this.core.app.exit(0);
@@ -275,7 +275,7 @@ class Client {
             }
 
             if (!customLoad.enable) {
-                win.webContents.debugger.sendCommand("Fetch.enable", { patterns: [] });
+                win.webContents.debugger.sendCommand("Fetch.enable", {patterns: []});
                 win.webContents.debugger.removeAllListeners("message");
                 if (!statusDevTools) {
                     win.webContents.closeDevTools();
@@ -287,11 +287,11 @@ class Client {
 
             for (let id in customLoad.list) {
                 if (customLoad.list[id].enable) {
-                    patterns.push({ urlPattern: customLoad.list[id].match });
+                    patterns.push({urlPattern: customLoad.list[id].match});
                 }
             }
 
-            win.webContents.debugger.sendCommand("Fetch.enable", { patterns });
+            win.webContents.debugger.sendCommand("Fetch.enable", {patterns});
 
             win.webContents.debugger.removeAllListeners("message");
 
@@ -315,7 +315,7 @@ class Client {
                         let body;
 
                         if (customLoad.list[id].LocalFileEnable) {
-                            body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), { encoding: "base64" });
+                            body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), {encoding: "base64"});
                         } else {
                             body = await tools.getBase64(customLoad.list[id].actionUrl);
                         }
@@ -330,7 +330,7 @@ class Client {
                     }
                 }
                 dialog.showErrorBox("Injecting custom load", `Error when injecting custom load in the url: ${params.request.url}`);
-                win.webContents.debugger.sendCommand("Fetch.continueRequest", { requestId: params.requestId });
+                win.webContents.debugger.sendCommand("Fetch.continueRequest", {requestId: params.requestId});
             })
         }
     }

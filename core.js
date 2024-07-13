@@ -1,4 +1,4 @@
-const { app, Menu } = require('electron');
+const {app, Menu} = require('electron');
 const path = require("path");
 const fs = require('fs');
 const settings = require("electron-settings");
@@ -30,7 +30,10 @@ class Core {
 
             this.app.setAsDefaultProtocolClient('darkorbit-client');
 
-            Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: "File", submenu: [{ role: "reload" }, { role: "close" }] }]));
+            Menu.setApplicationMenu(Menu.buildFromTemplate([{
+                label: "File",
+                submenu: [{role: "reload"}, {role: "close"}]
+            }]));
 
             await this.app.whenReady();
             this.appReady = true;
@@ -38,10 +41,10 @@ class Core {
             // https://github.com/advisories/GHSA-3p22-ghq8-v749
             this.app.on('web-contents-created', (event, webContents) => {
                 webContents.on('select-bluetooth-device', (event, devices, callback) => {
-                  event.preventDefault();
-                  callback('');
+                    event.preventDefault();
+                    callback('');
                 });
-              });
+            });
 
             return this;
         })()
@@ -83,9 +86,9 @@ class Core {
 
             const merge = (left = {}, right = {}) =>
                 Object.entries(right)
-                .reduce((acc, [k, v]) =>
-                    isObject(v) && isObject(left[k]) ? { ...acc, [k]: merge(left[k], v) } : { ...acc, [k]: v }, left
-                )
+                    .reduce((acc, [k, v]) =>
+                        isObject(v) && isObject(left[k]) ? {...acc, [k]: merge(left[k], v)} : {...acc, [k]: v}, left
+                    )
 
             settings.setSync(merge(defaultSettings, backup))
         }

@@ -1,4 +1,4 @@
-const { ipcMain } = require("electron");
+const {ipcMain} = require("electron");
 const settings = require("electron-settings");
 
 class CustomCss {

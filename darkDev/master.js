@@ -1,5 +1,5 @@
-const { ipcRenderer } = require('electron');
-const { dialog } = require('electron').remote;
+const {ipcRenderer} = require('electron');
+const {dialog} = require('electron').remote;
 
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
@@ -113,13 +113,13 @@ function run() {
             active = true;
         }
         let xmlColections = document.getElementById("xmlColections").getElementsByTagName("input");
-                for (let elem of xmlColections) {
-                    if(active) {
-                        elem.checked = false;
-                    } else {
-                        elem.checked = true;
-                    }
-                }
+        for (let elem of xmlColections) {
+            if (active) {
+                elem.checked = false;
+            } else {
+                elem.checked = true;
+            }
+        }
     }
 
     document.getElementById("ResourceDownloadButton").onclick = (sub) => {
@@ -153,9 +153,22 @@ function run() {
                 let server = document.getElementById("server").value;
                 let folder = data.filePaths[0];
                 if (customServer) {
-                    ipcRenderer.send("ResourceDownload", { listXmlColections, listExtraFiles, checkHash, customServer, server, folder });
+                    ipcRenderer.send("ResourceDownload", {
+                        listXmlColections,
+                        listExtraFiles,
+                        checkHash,
+                        customServer,
+                        server,
+                        folder
+                    });
                 } else {
-                    ipcRenderer.send("ResourceDownload", { listXmlColections, listExtraFiles, checkHash, customServer, folder });
+                    ipcRenderer.send("ResourceDownload", {
+                        listXmlColections,
+                        listExtraFiles,
+                        checkHash,
+                        customServer,
+                        folder
+                    });
                 }
             }
         })
@@ -163,7 +176,7 @@ function run() {
 
     document.getElementById("SaveConsoleDownloadCButton").onclick = () => {
         let console = document.getElementById('Console').value;
-        var textFileAsBlob = new Blob([console], { type: 'text/plain' });
+        var textFileAsBlob = new Blob([console], {type: 'text/plain'});
         var fileNameToSaveAs = "Log.txt";
 
         var downloadLink = document.createElement("a");
@@ -190,7 +203,7 @@ function load(data) {
             <tr>
                 <td class="idCustomLoadItem">${elem.id}</td>
                 <th scope="row">
-                    <div class="form-check form-switch"><input class="form-check-input enableCustomLoadItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
+                    <div class="form-check form-switch"><input class="form-check-input enableCustomLoadItem" type="checkbox" ${elem.enable ? "checked" : ""}></div>
                 </th>
                 <td>${elem.match}</td>
                 <td>&nbsp;<input class="form-check-input" type="checkbox" value="" id="flexCheckCheckedDisabled" ${elem.LocalFileEnable ? "checked" : ""} disabled></td>
@@ -208,7 +221,7 @@ function load(data) {
             let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomLoadItem")[0].innerText;
             let enable = event.target.checked;
 
-            ipcRenderer.send('enableCustomLoadItem', { id, enable });
+            ipcRenderer.send('enableCustomLoadItem', {id, enable});
         }));
 
         const removeCustomLoadItem = document.querySelectorAll('.removeCustomLoadItem');
@@ -238,7 +251,7 @@ function load(data) {
             <tr>
                 <td class="idCustomJsItem">${elem.id}</td>
                 <th scope="row">
-                    <div class="form-check form-switch"><input class="form-check-input enableCustomJsItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
+                    <div class="form-check form-switch"><input class="form-check-input enableCustomJsItem" type="checkbox" ${elem.enable ? "checked" : ""}></div>
                 </th>
                 <td>${elem.match}</td>
                 <td>${elem.actionUrl}</td>
@@ -255,7 +268,7 @@ function load(data) {
             let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomJsItem")[0].innerText;
             let enable = event.target.checked;
 
-            ipcRenderer.send('enableCustomJsItem', { id, enable });
+            ipcRenderer.send('enableCustomJsItem', {id, enable});
         }));
 
         const removeCustomJsItem = document.querySelectorAll('.removeCustomJsItem');
@@ -285,7 +298,7 @@ function load(data) {
             <tr>
                 <td class="idCustomCssItem">${elem.id}</td>
                 <th scope="row">
-                    <div class="form-check form-switch"><input class="form-check-input enableCustomCssItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
+                    <div class="form-check form-switch"><input class="form-check-input enableCustomCssItem" type="checkbox" ${elem.enable ? "checked" : ""}></div>
                 </th>
                 <td>${elem.match}</td>
                 <td>${elem.actionUrl}</td>
@@ -302,7 +315,7 @@ function load(data) {
             let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomCssItem")[0].innerText;
             let enable = event.target.checked;
 
-            ipcRenderer.send('enableCustomCssItem', { id, enable });
+            ipcRenderer.send('enableCustomCssItem', {id, enable});
         }));
 
         const removeCustomCssItem = document.querySelectorAll('.removeCustomCssItem');

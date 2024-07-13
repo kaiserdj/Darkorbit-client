@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron/main');
+const {ipcMain} = require('electron/main');
 const settings = require("electron-settings");
 const tools = require("./tools");
 

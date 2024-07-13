@@ -1,52 +1,52 @@
 {
-    "check": true,
-    "autoClose": true,
-    "hideMasterRegister": false,
-    "client": {
-        "width": 1000,
-        "height": 723
+  "check": true,
+  "autoClose": true,
+  "hideMasterRegister": false,
+  "client": {
+    "width": 1000,
+    "height": 723
+  },
+  "game": {
+    "width": 1016,
+    "height": 700
+  },
+  "shop": {
+    "width": 1020,
+    "height": 590
+  },
+  "board": {
+    "width": 1000,
+    "height": 723
+  },
+  "config": {
+    "width": 1000,
+    "height": 723
+  },
+  "api": {
+    "width": 1016,
+    "height": 700
+  },
+  "Settings": {
+    "HardwareAcceleration": true,
+    "NoSandbox": false,
+    "PreventCloseGame": false,
+    "PreventCloseSessionWindow": false,
+    "DefaultDev": false,
+    "Packet": false,
+    "PacketTimeout": 15000
+  },
+  "DarkDev": {
+    "CustomLoad": {
+      "enable": false,
+      "list": {}
     },
-    "game": {
-        "width": 1016,
-        "height": 700
+    "CustomJs": {
+      "enable": false,
+      "list": {}
     },
-    "shop": {
-        "width": 1020,
-        "height": 590
-    },
-    "board": {
-        "width": 1000,
-        "height": 723
-    },
-    "config": {
-        "width": 1000,
-        "height": 723
-    },
-    "api": {
-        "width": 1016,
-        "height": 700
-    },
-    "Settings": {
-        "HardwareAcceleration": true,
-        "NoSandbox": false,
-        "PreventCloseGame": false,
-        "PreventCloseSessionWindow": false,
-        "DefaultDev": false,
-        "Packet": false,
-        "PacketTimeout": 15000
-    },
-    "DarkDev": {
-        "CustomLoad": {
-            "enable": false,
-            "list": {}
-        },
-        "CustomJs": {
-            "enable": false,
-            "list": {}
-        },
-        "CustomCss": {
-            "enable": false,
-            "list": {}
-        }
+    "CustomCss": {
+      "enable": false,
+      "list": {}
     }
+  }
 }
