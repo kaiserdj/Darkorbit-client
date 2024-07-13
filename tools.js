@@ -1,9 +1,9 @@
-const { BrowserWindow, nativeTheme, Tray, Menu } = require("electron");
+const {BrowserWindow, nativeTheme, Tray, Menu} = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
+const {hideBin} = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
-const { openProcessManager } = require('electron-process-manager');
+const {openProcessManager} = require('electron-process-manager');
 const axios = require("axios");
 
 function commandLine() {
@@ -49,21 +49,21 @@ function commandLine() {
 function tray(client) {
     let tray = new Tray(`${__dirname}/tray.png`);
     client.menuTray = Menu.buildFromTemplate([{
-            label: "Auto-close",
-            type: "checkbox",
-            checked: settings.getSync().autoClose ? true : false,
-            click: () => {
-                let backup = settings.getSync();
+        label: "Auto-close",
+        type: "checkbox",
+        checked: settings.getSync().autoClose ? true : false,
+        click: () => {
+            let backup = settings.getSync();
 
-                backup.autoClose = !backup.autoClose;
+            backup.autoClose = !backup.autoClose;
 
-                settings.setSync(backup);
-            }
-        },
+            settings.setSync(backup);
+        }
+    },
         {
             label: "Clear Cache",
             click: async () => {
-                for(let win of BrowserWindow.getAllWindows()) {
+                for (let win of BrowserWindow.getAllWindows()) {
                     await win.webContents.session.clearCache();
                     await win.webContents.session.clearStorageData();
                     await win.webContents.session.clearHostResolverCache();
@@ -78,16 +78,16 @@ function tray(client) {
             label: "Copy SID",
             click: async () => {
                 let sidNotFound = true;
-                for ( let win of BrowserWindow.getAllWindows() ) {
+                for (let win of BrowserWindow.getAllWindows()) {
                     let hostname = new URL(win.webContents.getURL()).hostname;
-                    if ( hostname.search("darkorbit") != -1 && hostname.search("www\.darkorbit\.com") == -1 ) {
-                        let cookie = await  win.webContents.session.cookies.get({name:'dosid', domain: hostname});
+                    if (hostname.search("darkorbit") != -1 && hostname.search("www\.darkorbit\.com") == -1) {
+                        let cookie = await win.webContents.session.cookies.get({name: 'dosid', domain: hostname});
 
-                        if ( cookie[0] && cookie[0].value ) {
+                        if (cookie[0] && cookie[0].value) {
                             let SID = cookie[0].value;
                             const {clipboard} = require('electron');
                             clipboard.writeText(SID);
-                            win.webContents.executeJavaScript("alert(`SID: " + SID +"\nCopied to clipboard` )")
+                            win.webContents.executeJavaScript("alert(`SID: " + SID + "\nCopied to clipboard` )")
                                 .catch(error => {
                                     console.error(error);
                                 });
@@ -96,7 +96,7 @@ function tray(client) {
                         }
                     }
                 }
-                if ( sidNotFound ) {
+                if (sidNotFound) {
                     let win = BrowserWindow.getAllWindows()[0];
                     win.webContents.executeJavaScript("alert(`SID not detected`)")
                         .catch(error => {
@@ -134,16 +134,16 @@ function contextMenu(dev) {
                     } else {
                         return false;
                     }
-                    default:
-                        return true;
+                default:
+                    return true;
             }
         },
         prepend: (defaultActions, params, browserWindow) => [{
-                label: 'Back',
-                icon: `${__dirname}/contextMenu/back${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
-                enabled: browserWindow.webContents.canGoBack(),
-                click: (menu, win) => win.webContents.goBack()
-            },
+            label: 'Back',
+            icon: `${__dirname}/contextMenu/back${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
+            enabled: browserWindow.webContents.canGoBack(),
+            click: (menu, win) => win.webContents.goBack()
+        },
             {
                 label: 'Forward',
                 icon: `${__dirname}/contextMenu/forward${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
@@ -168,7 +168,7 @@ function contextMenu(dev) {
                 visible: browserWindow.isFullScreen(),
                 click: (menu, win) => win.setFullScreen(false)
             },
-            { type: 'separator' },
+            {type: 'separator'},
             {
                 role: 'resetzoom',
                 label: 'Normal zoom',
@@ -275,7 +275,7 @@ async function get(url) {
 
 async function getBase64(url) {
     return new Promise((resolve, reject) => {
-        axios.get(url, { responseType: 'arraybuffer' })
+        axios.get(url, {responseType: 'arraybuffer'})
             .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
             .catch(error => reject(error));
     });

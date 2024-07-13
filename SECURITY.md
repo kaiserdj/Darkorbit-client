@@ -5,7 +5,7 @@
 Currently, the project versions are compatible with security updates.
 
 | Version | Supported          |
-| ------- | ------------------ |
+|---------|--------------------|
 | 1.x.x   | :x:                |
 | 2.x.x   | :white_check_mark: |
 

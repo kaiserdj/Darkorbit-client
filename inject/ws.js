@@ -1,13 +1,15 @@
-const { ipcRenderer, remote } = require("electron");
+const {ipcRenderer, remote} = require("electron");
 
 let dev = remote.getGlobal("dev");
 
 let id;
-(async () => { id = await ipcRenderer.invoke("getIdBrowser").then(data => data) })();
+(async () => {
+    id = await ipcRenderer.invoke("getIdBrowser").then(data => data)
+})();
 
 const WebSocket = require('ws');
 
-const wss = new WebSocket.WebSocketServer({ port: remote.getGlobal('api') });
+const wss = new WebSocket.WebSocketServer({port: remote.getGlobal('api')});
 
 wss.on('connection', ws => {
     ws.binaryType = 'arraybuffer';

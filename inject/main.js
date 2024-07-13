@@ -1,4 +1,4 @@
-const { ipcRenderer, contextBridge } = require("electron");
+const {ipcRenderer, contextBridge} = require("electron");
 const path = require("path");
 const fs = require('fs');
 const api = require("./api");
@@ -10,7 +10,7 @@ document.onreadystatechange = () => {
         contextBridge.exposeInMainWorld("api", api);
         api.injectCss(nprogressCss);
         api.injectCss("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
-        nprogress.configure({ showSpinner: false });
+        nprogress.configure({showSpinner: false});
         nprogress.start();
         run();
     } else {
@@ -21,7 +21,7 @@ document.onreadystatechange = () => {
 }
 
 window.addEventListener("beforeunload", () => {
-    nprogress.configure({ showSpinner: false, minimum: 0.01 });
+    nprogress.configure({showSpinner: false, minimum: 0.01});
     nprogress.start();
 });
 
@@ -39,7 +39,7 @@ async function run() {
                 if (data.Settings.Packet) {
                     const WebSocket = require('ws');
 
-                    const wss = new WebSocket.WebSocketServer({ port: 44569 });
+                    const wss = new WebSocket.WebSocketServer({port: 44569});
 
                     wss.on('connection', ws => {
                         ws.on('message', message => {
@@ -52,7 +52,7 @@ async function run() {
                         });
                     });
 
-                    for (;;) {
+                    for (; ;) {
                         if (document.readyState == "complete") {
                             await new Promise(r => setTimeout(r, data.Settings.PacketTimeout));
 

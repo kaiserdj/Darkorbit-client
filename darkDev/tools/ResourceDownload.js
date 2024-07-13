@@ -8,7 +8,7 @@ class ResourceDownload {
         this.window = window;
         this.opt = opt;
         this.domain = this.opt.customServer ? `https://${this.opt.server}.darkorbit.com` : "https://darkorbit-22.bpsecure.com";
-        this.listFiles = { files: [] };
+        this.listFiles = {files: []};
 
         this.console(`Defined settings: ${JSON.stringify(this.opt)}`);
 
@@ -70,11 +70,11 @@ class ResourceDownload {
                 let directorys = xml.split("/");
                 file.location = directorys.slice(0, directorys.length - 1).join("/") + "/" + file.location + "/";
             } else {
-                file.location = locations.filter(function(obj) {
+                file.location = locations.filter(function (obj) {
                     return obj.id === file.location;
                 })[0].path;
 
-                if (xml.split("/")[0] =="spacemap"){
+                if (xml.split("/")[0] == "spacemap") {
                     file.location = `spacemap/${file.location}`;
                 } else {
                     file.location = `${xml.split('/xml/')[0]}/${file.location}`;

@@ -1,5 +1,5 @@
-const { dialog, ipcMain, BrowserWindow, MenuItem } = require('electron');
-const { menubar } = require('menubar');
+const {dialog, ipcMain, BrowserWindow, MenuItem} = require('electron');
+const {menubar} = require('menubar');
 const settings = require("electron-settings");
 const Alert = require("electron-alert");
 const Positioner = require('electron-positioner');
@@ -15,8 +15,8 @@ class Credentials {
         this.hashMaster;
         this.master;
 
-        this.mb.on("ready", ()=> {
-            if(settings.getSync().master) {
+        this.mb.on("ready", () => {
+            if (settings.getSync().master) {
                 this.checkMaster("");
                 this.mb.hideWindow();
             }
@@ -84,7 +84,7 @@ class Credentials {
             let backup = settings.getSync();
 
             if ("accounts" in backup) {
-                backup.accounts = crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts });
+                backup.accounts = crypt.decrypt({"iv": this.hashMaster, "content": backup.accounts});
             } else {
                 backup.accounts = [];
             }
@@ -105,7 +105,7 @@ class Credentials {
         ipcMain.on('editUser', (event, id) => {
             let backup = settings.getSync();
 
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+            backup.accounts = JSON.parse(crypt.decrypt({"iv": this.hashMaster, "content": backup.accounts}));
 
             let account = backup.accounts.find(o => o.id == id);
 
@@ -131,7 +131,7 @@ class Credentials {
 
             let backup = settings.getSync();
 
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+            backup.accounts = JSON.parse(crypt.decrypt({"iv": this.hashMaster, "content": backup.accounts}));
 
             let account = backup.accounts.find(o => o.id == data);
 
@@ -228,13 +228,13 @@ class Credentials {
 
                 break;
         }
-        
+
         // Workarround https://github.com/maxogden/menubar/issues/435
         var positioner = new Positioner(this.mb.window)
-        
+
         this.mb.showWindow();
 
-        if(this.mb.getOption("windowPosition") == "trayBottomCenter" && process.platform == "win32") {
+        if (this.mb.getOption("windowPosition") == "trayBottomCenter" && process.platform == "win32") {
             positioner.move('bottomRight');
         }
     }
@@ -291,7 +291,7 @@ class Credentials {
         let backup = settings.getSync();
 
         if ("accounts" in backup) {
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+            backup.accounts = JSON.parse(crypt.decrypt({"iv": this.hashMaster, "content": backup.accounts}));
         } else {
             backup.accounts = [];
         }
@@ -316,7 +316,7 @@ class Credentials {
     editAccount(input) {
         let backup = settings.getSync();
 
-        backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+        backup.accounts = JSON.parse(crypt.decrypt({"iv": this.hashMaster, "content": backup.accounts}));
 
         let accountIndex = backup.accounts.findIndex(x => x.id == input[0]);
 
@@ -334,7 +334,7 @@ class Credentials {
     deleteAccount(id) {
         let backup = settings.getSync();
 
-        backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+        backup.accounts = JSON.parse(crypt.decrypt({"iv": this.hashMaster, "content": backup.accounts}));
 
         let newAccounts = [];
 
@@ -375,10 +375,10 @@ class Credentials {
                 let baseUrl = new URL(dosid.value).origin;
 
                 if (sid !== null && baseUrl !== null) {
-                    const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+                    const cookie = {url: baseUrl, name: 'dosid', value: sid[2]};
                     let window = this.client.createWindow("client");
                     window.webContents.session.cookies.set(cookie);
-                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
+                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, {userAgent: this.useragent});
                 }
             }
         });

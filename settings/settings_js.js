@@ -1,4 +1,4 @@
-const { ipcRenderer, remote } = require('electron');
+const {ipcRenderer, remote} = require('electron');
 
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
@@ -12,7 +12,7 @@ function run() {
     // Settings
     document.getElementById("HardwareAcceleration").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "HardwareAcceleration", document.getElementById("HardwareAcceleration").checked);
-        if(confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
+        if (confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
             remote.app.relaunch();
             remote.app.exit(0);
         }
@@ -20,7 +20,7 @@ function run() {
 
     document.getElementById("NoSandbox").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "NoSandbox", document.getElementById("NoSandbox").checked);
-        if(confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
+        if (confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
             remote.app.relaunch();
             remote.app.exit(0);
         }
@@ -68,7 +68,7 @@ function run() {
 
             let elem = `
             <div class="col-lg-3 col-md-4 col-6 mt-4 pt-2">
-                <div class="mt-4 pt-2" onclick='window.open(${"`"+contributor.profile+"`"})'>
+                <div class="mt-4 pt-2" onclick='window.open(${"`" + contributor.profile + "`"})'>
                     <div class="team position-relative d-block text-center">
                         <div class="image position-relative d-block overflow-hidden">
                             <img src="${contributor.avatar_url}" class="img-fluid rounded" alt="${contributor.name}" width="200" height="200">
@@ -103,7 +103,7 @@ function load(data) {
     if (data.NoSandbox) {
         document.getElementById("NoSandbox").checked = data.NoSandbox;
     }
-    
+
     if (data.PreventCloseGame) {
         document.getElementById("PreventCloseGame").checked = data.PreventCloseGame;
     }
@@ -124,7 +124,7 @@ function load(data) {
         document.getElementById("Packet").checked = data.Packet;
     }
 
-    document.getElementById("PacketTimeout").value = data.PacketTimeout; 
+    document.getElementById("PacketTimeout").value = data.PacketTimeout;
 }
 
 ipcRenderer.on("SendLoadSettings", (event, data) => {

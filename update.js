@@ -1,5 +1,5 @@
-const { dialog } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const {dialog} = require('electron');
+const {autoUpdater} = require('electron-updater');
 const ProgressBar = require('electron-progressbar');
 
 autoUpdater.autoDownload = false;
