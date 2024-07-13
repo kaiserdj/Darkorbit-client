@@ -9,7 +9,6 @@
     <title>DarkDev</title>
 
     <script src="../libs/bootstrap/bootstrap.min.js"></script>
-
     <link href="../libs/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="./style.css" rel="stylesheet">
 </head>
@@ -21,7 +20,7 @@
             <div class="card">
                 <div class="card-body">
                     <nav class="nav flex-column nav-pills nav-gap-y-1">
-                        <a href="#customLoad" class="nav-item nav-link has-icon nav-link-faded active"
+                        <a href="#nav-customLoad" class="nav-item nav-link has-icon nav-link-faded active"
                            id="nav-customLoad-tab" data-bs-toggle="tab" data-bs-target="#nav-customLoad" role="tab"
                            aria-controls="nav-customLoad" aria-selected="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -30,7 +29,7 @@
                             </svg>
                             Custom load
                         </a>
-                        <a href="#customJs" class="nav-item nav-link has-icon nav-link-faded" id="nav-customJs-tab"
+                        <a href="#nav-customJs" class="nav-item nav-link has-icon nav-link-faded" id="nav-customJs-tab"
                            data-bs-toggle="tab" data-bs-target="#nav-customJs" role="tab" aria-controls="nav-customJs"
                            aria-selected="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -39,7 +38,7 @@
                             </svg>
                             Custom js
                         </a>
-                        <a href="#customCss" class="nav-item nav-link has-icon nav-link-faded" id="nav-customCss-tab"
+                        <a href="#nav-customCss" class="nav-item nav-link has-icon nav-link-faded" id="nav-customCss-tab"
                            data-bs-toggle="tab" data-bs-target="#nav-customCss" role="tab" aria-controls="nav-customCss"
                            aria-selected="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -48,7 +47,7 @@
                             </svg>
                             Custom css
                         </a>
-                        <a href="#ResourceDownload" class="nav-item nav-link has-icon nav-link-faded"
+                        <a href="#nav-ResourceDownload" class="nav-item nav-link has-icon nav-link-faded"
                            id="nav-ResourceDownload-tab" data-bs-toggle="tab" data-bs-target="#nav-ResourceDownload"
                            role="tab" aria-controls="nav-ResourceDownload" aria-selected="false">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -65,9 +64,9 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header border-bottom mb-3 d-flex d-md-none">
-                    <ul class="nav nav-tabs card-header-tabs nav-gap-x-1" role="tablist" role="tablist">
+                    <ul class="nav nav-tabs card-header-tabs nav-gap-x-1" role="tablist">
                         <li class="nav-item">
-                            <a href="#customLoad" class="nav-link has-icon active" id="nav-customLoad-tab-mini"
+                            <a href="#nav-customLoad" class="nav-link has-icon active" id="nav-customLoad-tab-mini"
                                data-bs-toggle="tab" data-bs-target="#nav-customLoad" type="button" role="tab"
                                aria-controls="nav-customLoad" aria-selected="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -77,7 +76,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#customJs" class="nav-link has-icon" id="nav-customJs-tab-mini"
+                            <a href="#nav-customJs" class="nav-link has-icon" id="nav-customJs-tab-mini"
                                data-bs-toggle="tab" data-bs-target="#nav-customJs" type="button" role="tab"
                                aria-controls="nav-customJs" aria-selected="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -87,7 +86,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#customCss" class="nav-link has-icon" id="nav-customCss-tab-mini"
+                            <a href="#nav-customCss" class="nav-link has-icon" id="nav-customCss-tab-mini"
                                data-bs-toggle="tab" data-bs-target="#nav-customCss" type="button" role="tab"
                                aria-controls="nav-customCss" aria-selected="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -97,7 +96,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#ResourceDownload" class="nav-link has-icon" id="nav-ResourceDownload-tab-mini"
+                            <a href="#nav-ResourceDownload" class="nav-link has-icon" id="nav-ResourceDownload-tab-mini"
                                data-bs-toggle="tab" data-bs-target="#nav-ResourceDownload" type="button" role="tab"
                                aria-controls="nav-ResourceDownload" aria-selected="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -613,10 +612,10 @@
                         <div id="subResourceDownload" style="display: none;">
                             <div class="mb-3">
                                 <label for="Console" class="form-label">Console</label>
-                                <textarea class="form-control" id="Console" rows="10" disabled></textarea>
+                                <textarea class="form-control" id="Console" rows="10" aria-labelledby="ConsoleLabel" disabled></textarea>
+                                <label id="ConsoleLabel" class="form-label">Console output log</label>
                             </div>
-                            <button id="SaveConsoleDownloadCButton" class="btn btn-primary" type="button">Save log
-                            </button>
+                            <button id="SaveConsoleDownloadCButton" class="btn btn-primary" type="button">Save log</button>
                         </div>
                     </div>
                 </div>
