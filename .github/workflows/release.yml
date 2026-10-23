@@ -152,11 +152,20 @@ jobs:
 
       # electron-builder uploads the installers and the latest*.yml update files into the draft.
       - name: Build and upload
-        run: npx electron-builder ${{ matrix.args }} --publish always
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_LINK: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_LINK || matrix.os == 'windows-latest' && secrets.WIN_CSC_LINK || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_KEY_PASSWORD || matrix.os == 'windows-latest' && secrets.WIN_CSC_KEY_PASSWORD || '' }}
+          BUILD_ARGS: ${{ matrix.args }}
+          SIGNING_CERT: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_LINK || matrix.os == 'windows-latest' && secrets.WIN_CSC_LINK || '' }}
+          SIGNING_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_KEY_PASSWORD || matrix.os == 'windows-latest' && secrets.WIN_CSC_KEY_PASSWORD || '' }}
+        run: |
+          # electron-builder reads an empty CSC_LINK as a file path, so only export it when a certificate exists.
+          if [ -n "$SIGNING_CERT" ]; then
+            export CSC_LINK="$SIGNING_CERT" CSC_KEY_PASSWORD="$SIGNING_PASSWORD"
+          else
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          npx electron-builder $BUILD_ARGS --publish always
 
   publish:
     name: Publish release
