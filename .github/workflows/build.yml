@@ -2,8 +2,43 @@ name: Build/release
 
 on: push
 
+# Read-only by default; only the tagged release job may write releases.
+permissions:
+  contents: read
+
 jobs:
+  build:
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      - name: Build Electron app
+      # uses: samuelmeuli/action-electron-builder@v1  //Changed to a forked because it is outdated
+        uses: coparse-inc/action-electron-builder@29a7606c7d726b5b0f4dc2f334026f58bea0e1bb # v1.0.0
+        with:
+          github_token: ${{ secrets.github_token }}
+          release: false
+          # The npm "build" script publishes; electron-builder is run by the action itself.
+          skip_build: true
+          args: --publish never
+          max_attempts: 3
+
   release:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ${{ matrix.os }}
 
     permissions:
@@ -15,22 +50,22 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 16
+          node-version: 22
 
       - name: Build/release Electron app
-      # uses: samuelmeuli/action-electron-builder@v1  //Changed to a forked because it is outdated
-        uses: coparse-inc/action-electron-builder@v1.0.0
+        uses: coparse-inc/action-electron-builder@29a7606c7d726b5b0f4dc2f334026f58bea0e1bb # v1.0.0
         with:
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.github_token }}
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          release: true
+          skip_build: true
           # Number of attempts, if error appears
           max_attempts: 3

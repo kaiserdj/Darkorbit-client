@@ -133,6 +133,15 @@ class Core {
             delete merged.Settings.NoSandbox;
             settings.setSync(merged)
         }
+
+        // The settings file holds the encrypted credentials; keep it private to the current user.
+        if (process.platform !== "win32") {
+            try {
+                fs.chmodSync(settings.file(), 0o600);
+            } catch (e) {
+                console.error(e);
+            }
+        }
     }
 }
 

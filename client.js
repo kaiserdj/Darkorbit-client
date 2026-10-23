@@ -52,7 +52,8 @@ class Client {
             if (this.arg.dev) {
                 this.darkDev = new DarkDev(this);
                 console.log("Settings:");
-                console.log(settings.getSync());
+                let { master, salt, accounts, ...visibleSettings } = settings.getSync();
+                console.log(visibleSettings);
                 console.log("Arguments:");
                 console.log(this.arg);
                 console.log(`Ppapi flash: ${this.core.ppapi_flash_path}`);

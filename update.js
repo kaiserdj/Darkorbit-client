@@ -5,15 +5,16 @@ const ProgressBar = require('electron-progressbar');
 autoUpdater.autoDownload = false;
 autoUpdater.setFeedURL({
     "provider": 'github',
-    "owner": "kaiserdj",
-    "repo": "Darkorbit-client"
+    "owner": "emrementese",
+    "repo": "darkorbit-client-secure"
 });
 
 let updater = false;
 let progressBar;
 
 autoUpdater.on('error', (error) => {
-    dialog.showErrorBox('Error: ', error == null ? "unknown" : (error.stack || error).toString());
+    console.error(error);
+    dialog.showErrorBox('Update error', error == null ? "unknown" : (error.message || String(error)));
 });
 
 autoUpdater.on('update-available', async (data) => {
@@ -21,7 +22,7 @@ autoUpdater.on('update-available', async (data) => {
         type: 'info',
         title: `Updates found: ${data.version}`,
         message: 'Updates found, do you want to update now?',
-        detail: data.releaseNotes.replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
+        detail: String(data.releaseNotes || "").replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
         buttons: ['Yes', 'No']
     });
 

@@ -43,7 +43,7 @@ function commandLine() {
             description: 'Run in offscreen mode',
             default: false
         })
-        .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
+        .epilog('for more information visit https://github.com/emrementese/darkorbit-client-secure')
         .argv;
 }
 
