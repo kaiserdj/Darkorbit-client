@@ -7,7 +7,11 @@ Currently, the project versions are compatible with security updates.
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.x.x   | :x:                |
-| 2.x.x   | :white_check_mark: |
+| 2.x.x   | :x:                |
+| 3.x.x   | :white_check_mark: |
+
+Version 2.8.0 and earlier allow web pages to run code on the computer and store saved passwords
+with a key built into the client. Update to 3.x and change passwords saved with an older version.
 
 ## Reporting a Vulnerability
 

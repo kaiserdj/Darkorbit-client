@@ -64,7 +64,7 @@ function run() {
     // About us
     document.getElementById("Github").onclick = (sub) => {
         sub.preventDefault();
-        ipcRenderer.send("openExternal", "https://github.com/kaiserdj/Darkorbit-client");
+        ipcRenderer.send("openExternal", "https://github.com/emrementese/darkorbit-client-secure");
     }
 }
 

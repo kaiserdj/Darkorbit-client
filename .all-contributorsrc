@@ -98,8 +98,8 @@
     }
   ],
   "contributorsPerLine": 5,
-  "projectName": "Darkorbit-client",
-  "projectOwner": "kaiserdj",
+  "projectName": "darkorbit-client-secure",
+  "projectOwner": "emrementese",
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": true,

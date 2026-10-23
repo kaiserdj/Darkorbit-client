@@ -10,12 +10,14 @@
 </p>
 
 Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
+
+This is a security hardened fork of [kaiserdj/Darkorbit-client](https://github.com/kaiserdj/Darkorbit-client). Version 3.0.0 fixes vulnerabilities of 2.8.0 and earlier that let web pages run code on the computer and let saved passwords be decrypted without the master password; see [SECURITY.md](SECURITY.md).
 <p align="center">
-  <a href="https://github.com/kaiserdj/Darkorbit-client/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg"/>
+  <a href="https://github.com/emrementese/darkorbit-client-secure/blob/main/LICENSE" target="_blank">
+    <img src="https://img.shields.io/badge/License-AGPLv3-blue.svg"/>
   </a>
-  <a href="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client">
-    <img src="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client/badge" alt="CodeFactor" />
+  <a href="https://github.com/emrementese/darkorbit-client-secure/actions/workflows/ci.yml">
+    <img src="https://github.com/emrementese/darkorbit-client-secure/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </a>
 </p>
 
@@ -38,7 +40,7 @@ Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
 
 Download
 -------
-🔽 The latest release is always available here: https://github.com/kaiserdj/Darkorbit-client/releases/latest
+🔽 The latest release is always available here: https://github.com/emrementese/darkorbit-client-secure/releases/latest
  
 ## Development
 Building Darkorbit client is really simple
@@ -50,8 +52,8 @@ Building Darkorbit client is really simple
 Clone this project
 
 ```bash
-> git clone https://github.com/kaiserdj/Darkorbit-client.git
-> cd Darkorbit-client
+> git clone https://github.com/emrementese/darkorbit-client-secure.git
+> cd darkorbit-client-secure
 ```
 
 Install the dependencies:
@@ -89,15 +91,19 @@ On Apple Silicon Macs the bundled Flash plugin only runs in the x64 build of Ele
 
 Unit tests and lint run in CI on every push; builds and releases only start when they pass.
 
+### Releasing
+
+Bump `version` in `package.json` (for example `npm version 3.1.0 --no-git-tag-version`) and push it to `main`. The [Release workflow](.github/workflows/release.yml) tests, builds macOS, Windows and Linux into a draft release and publishes it when every platform succeeded. It can also be started from the Actions tab.
+
 ## Contributing
 
-For bugs, questions, and discussions please use the [Github Issues](https://github.com/kaiserdj/Darkorbit-client/issues)
+For bugs, questions, and discussions please use the [Github Issues](https://github.com/emrementese/darkorbit-client-secure/issues). Please report security issues privately as described in [SECURITY.md](SECURITY.md).
 
 Pull requests are welcome! If you see something you'd like to add, please do. For drastic changes, please open an issue first.
 
 ## Donating
 
-You can support the maintainer of this project through the link below
+You can support the original author of this project through the link below
 
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/kaiserdj/)
 
