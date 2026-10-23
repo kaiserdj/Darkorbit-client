@@ -84,6 +84,17 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "emrementese",
+      "name": "Emre MENTEŞE",
+      "avatar_url": "https://avatars.githubusercontent.com/u/76906642?v=4",
+      "profile": "https://github.com/emrementese",
+      "contributions": [
+        "code",
+        "security",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 5,
