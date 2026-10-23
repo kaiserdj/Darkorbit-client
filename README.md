@@ -79,6 +79,16 @@ On Apple Silicon Macs the bundled Flash plugin only runs in the x64 build of Ele
 > npm dev
 ```
 
+##### Tests
+
+```bash
+> npm run lint       # ESLint
+> npm test           # unit tests (Electron is mocked, runs anywhere)
+> npm run test:e2e   # end-to-end tests on the real client (opens windows, needs a display)
+```
+
+Unit tests and lint run in CI on every push; builds and releases only start when they pass.
+
 ## Contributing
 
 For bugs, questions, and discussions please use the [Github Issues](https://github.com/kaiserdj/Darkorbit-client/issues)

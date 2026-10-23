@@ -409,8 +409,11 @@ class Credentials {
     registerAccount(input) {
         let accounts = this.readAccounts();
 
+        // Ids are timestamps; two accounts saved in the same millisecond must still differ.
+        let id = Math.max(Date.now(), ...accounts.map(account => Number(account.id) + 1));
+
         accounts.push({
-            id: new Date().valueOf(),
+            id,
             username: String(input[0]),
             password: String(input[1])
         });

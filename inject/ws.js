@@ -44,7 +44,7 @@ function handleMessage(ws, message, config) {
     }
 
     switch (data.getInt16(0)) {
-        case 1:
+        case 1: {
             log("getVersion");
             log(config.version);
 
@@ -58,6 +58,7 @@ function handleMessage(ws, message, config) {
             ws.send(buffer);
 
             break;
+        }
         case 2:
             log("getPid");
             ipcRenderer.invoke("getAppMetrics").then(data => {
