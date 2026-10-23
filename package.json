@@ -24,22 +24,22 @@
     "license": "SEE LICENSE IN LICENSE",
     "devDependencies": {
         "electron": "11.5.0",
-        "electron-builder": "^24.4.0",
-        "eslint": "^9.39.5"
+        "electron-builder": "^26.15.3",
+        "eslint": "^10.13.0"
     },
     "dependencies": {
         "axios": "1.20.0",
         "electron-context-menu": "^3.6.1",
         "electron-positioner": "^4.1.0",
         "electron-process-manager": "github:kaiserdj/electron-process-manager",
-        "electron-progressbar": "^2.1.0",
+        "electron-progressbar": "^2.2.1",
         "electron-settings": "^4.0.4",
         "electron-updater": "^6.8.9",
-        "menubar": "^9.3.0",
+        "menubar": "^9.5.3",
         "sweetalert2": "11.4.8",
         "ws": "^8.22.0",
-        "xml2js": "^0.6.0",
-        "yargs": "^17.7.2"
+        "xml2js": "^0.6.2",
+        "yargs": "^17.7.3"
     },
     "build": {
         "appId": "com.DarkOrbitClient.Kaiserdj",
