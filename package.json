@@ -48,7 +48,10 @@
             "**/*",
             "!scripts/**",
             "!test/**",
-            "!eslint.config.js"
+            "!eslint.config.js",
+            "!.context/**",
+            "!.vscode/**",
+            "!dist/**"
         ],
         "extraResources": [
             "./flash/**",
@@ -91,7 +94,7 @@
         "publish": [
             {
                 "provider": "github",
-                "releaseType": "release",
+                "releaseType": "draft",
                 "owner": "emrementese",
                 "repo": "darkorbit-client-secure"
             }
