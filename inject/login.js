@@ -34,22 +34,40 @@ label#eh_mc_checkbox_text {
 
 require("./api").injectCss(style);
 
-document.getElementsByClassName("eh_mc_table_td")[1].insertAdjacentHTML('afterbegin', '<div align="center" style=""><input id="autoLogin" value="AUTOLOGIN" type="button"></div>');
+// Some DarkOrbit pages match the login urls but have no login form.
+let formCell = document.getElementsByClassName("eh_mc_table_td")[1];
 
-document.getElementById("autoLogin").addEventListener("click", () => {
-	ipcRenderer.send("autoLogin");
-});
+if (formCell) {
+    formCell.insertAdjacentHTML('afterbegin', '<div align="center" style=""><input id="autoLogin" value="AUTOLOGIN" type="button"></div>');
+}
+
+// The cookie consent layer stops click propagation during capture, so listen before it on window.
+window.addEventListener("click", (event) => {
+    if (event.target && event.target.id === "autoLogin") {
+        ipcRenderer.send("autoLogin");
+    }
+}, true);
 
 ipcRenderer.on("login", (event, data) => {
-    document.getElementById("bgcdw_login_form_username").click();
-    document.getElementById("bgcdw_login_form_username").value = data[0];
+    let username = document.getElementById("bgcdw_login_form_username");
+    let password = document.getElementById("bgcdw_login_form_password");
 
-    document.getElementById("bgcdw_login_form_password").click();
-    document.getElementById("bgcdw_login_form_password").value = data[1];
+    if (!username || !password) {
+        return;
+    }
+
+    username.click();
+    username.value = data[0];
+
+    password.click();
+    password.value = data[1];
 
     if (document.querySelectorAll('iframe[title="reCAPTCHA"]').length != 0) {
         alert("Por favor, complete el captcha");
     } else {
-        document.querySelector("input.bgcdw_login_form_login[type=submit]").click();
+        let submit = document.querySelector("input.bgcdw_login_form_login[type=submit]");
+        if (submit) {
+            submit.click();
+        }
     }
 });

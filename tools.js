@@ -244,22 +244,36 @@ function settingsWindow(window, type) {
         settings.setSync(backup);
     });
 
-    window.on('resize', () => {
+    // resize/move fire continuously while dragging; store the final bounds once.
+    let saveBounds = null;
+    const save = () => {
+        clearTimeout(saveBounds);
+        saveBounds = null;
+
+        if (window.isDestroyed() || window.isMaximized() || window.isMinimized() || window.isFullScreen()) {
+            return;
+        }
+
         let backup = settings.getSync();
-        let size = window.getSize();
-        backup[type].width = size[0];
-        backup[type].height = size[1];
+        let bounds = window.getBounds();
+        backup[type].width = bounds.width;
+        backup[type].height = bounds.height;
+        backup[type].x = bounds.x;
+        backup[type].y = bounds.y;
 
         settings.setSync(backup);
-    })
+    };
+    const scheduleSave = () => {
+        clearTimeout(saveBounds);
+        saveBounds = setTimeout(save, 500);
+    };
 
-    window.on('move', (data) => {
-        let backup = settings.getSync();
-        let pos = data.sender.getBounds();
-        backup[type].x = pos.x;
-        backup[type].y = pos.y;
-
-        settings.setSync(backup);
+    window.on('resize', scheduleSave);
+    window.on('move', scheduleSave);
+    window.on('close', () => {
+        if (saveBounds !== null) {
+            save();
+        }
     });
 }
 

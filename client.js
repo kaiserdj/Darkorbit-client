@@ -23,6 +23,8 @@ class Client {
             this.arg = tools.commandLine();
             this.useragent = await useragent();
             this.windowTypes = new Map();
+            this.customJsHooked = new Set();
+            this.customCssHooked = new Set();
 
             // Deep links are parsed once at startup; later windows must not reuse them.
             let deepLink = process.argv.find(arg => typeof arg === "string" && arg.startsWith(DEEP_LINK_PREFIX));
@@ -63,17 +65,14 @@ class Client {
 
             tools.contextMenu(this.arg.dev);
 
+            // createWindow consumes --login/--dosid, so decide about the master register window first.
+            let autoStart = typeof this.arg.login !== "undefined" || typeof this.arg.dosid !== "undefined";
+
             this.createWindow("client");
 
-            if (!settings.getSync().master && typeof this.arg.login === "undefined" && typeof this.arg.sid === "undefined" && !settings.getSync().hideMasterRegister) {
-                this.credentials.mb.showWindow();
+            if (!settings.getSync().master && !autoStart && !settings.getSync().hideMasterRegister) {
+                this.credentials.showWhenReady();
             }
-
-            this.core.app.on("browser-window-created", () => {
-                this.setCustomLoad();
-                this.setCustomJs();
-                this.setCustomCss();
-            })
 
             ipcMain.handle("getAppPath", async () => this.core.app.getAppPath());
 
@@ -144,7 +143,7 @@ class Client {
         } else if (url) {
             this.loadTrustedUrl(window, url);
         } else {
-            window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+            this.loadPage(window, DEFAULT_URL);
         }
 
         tools.settingsWindow(window, type);
@@ -156,7 +155,7 @@ class Client {
                 return;
             }
 
-            if (this.arg.dev && input.control && input.shift && input.code === "KeyI" && new URL(focus().webContents.getURL()).search === "?action=internalMapRevolution") {
+            if (this.arg.dev && input.control && input.shift && input.code === "KeyI" && parseUrl(focus().webContents.getURL())?.search === "?action=internalMapRevolution") {
                 event.preventDefault();
                 focus().webContents.toggleDevTools();
             }
@@ -178,14 +177,16 @@ class Client {
             }
         })
 
-        window.on("close", (closeWin) => {
-            if (this.arg.dev) {
-                closeWin.sender.webContents.debugger.detach();
+        window.on("close", () => {
+            if (this.arg.dev && window.webContents.debugger.isAttached()) {
+                window.webContents.debugger.detach();
             }
         })
 
         window.on("closed", () => {
             this.windowTypes.delete(webContentsId);
+            this.customJsHooked.delete(webContentsId);
+            this.customCssHooked.delete(webContentsId);
             this.autoclose();
         })
 
@@ -242,12 +243,21 @@ class Client {
         });
     }
 
+    // Navigations replaced by redirects or a new load reject with ERR_ABORTED; that is expected.
+    loadPage(window, url) {
+        return window.loadURL(url, { userAgent: this.useragent }).catch(error => {
+            if (error.code !== "ERR_ABORTED") {
+                console.error(error);
+            }
+        });
+    }
+
     loadTrustedUrl(window, url) {
         if (isTrustedUrl(url)) {
-            window.loadURL(url, { userAgent: this.useragent });
+            this.loadPage(window, url);
         } else {
             dialog.showErrorBox("Load url", `Only https DarkOrbit urls can be loaded: ${url}`);
-            window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+            this.loadPage(window, DEFAULT_URL);
         }
     }
 
@@ -273,13 +283,13 @@ class Client {
             if (sid !== null || url) {
                 dialog.showErrorBox("Load SID", `Only https DarkOrbit urls can be used to load a sid`);
             }
-            window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+            this.loadPage(window, DEFAULT_URL);
             return;
         }
 
         window.webContents.session.cookies.set(cookie)
             .catch(error => console.error(error))
-            .then(() => window.loadURL(target, { userAgent: this.useragent }));
+            .then(() => this.loadPage(window, target));
     }
 
     handleNewWindow(event, webContents, url) {
@@ -324,7 +334,7 @@ class Client {
 
         if (action === "?action=externalLogout") {
             if (settings.getSync().Settings.PreventCloseSessionWindow) {
-                return window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+                return this.loadPage(window, DEFAULT_URL);
             }
             return window.close();
         }
@@ -333,7 +343,7 @@ class Client {
             return this.createWindow("board", url);
         }
 
-        return window.loadURL(url, { userAgent: this.useragent });
+        return this.loadPage(window, url);
     }
 
     createPopupWindow(url) {
@@ -355,9 +365,17 @@ class Client {
         popup.on("closed", () => this.windowTypes.delete(webContentsId));
 
         popup.setMenuBarVisibility(false);
-        popup.loadURL(url, { userAgent: this.useragent });
+        this.loadPage(popup, url);
 
         return popup;
+    }
+
+    // DarkDev tools only apply to the game client windows, never to local pages or payment popups.
+    customWindows() {
+        return BrowserWindow.getAllWindows().filter(win => {
+            let type = this.windowTypes.get(win.webContents.id);
+            return type && type !== "popup" && type !== "api";
+        });
     }
 
     setCustomLoad() {
@@ -368,13 +386,7 @@ class Client {
         let backup = settings.getSync();
         let customLoad = backup.DarkDev.CustomLoad;
 
-        let windows = BrowserWindow.getAllWindows();
-
-        for (let win of windows) {
-            if (win.webContents.getURL().split(":")[0] === "file") {
-                return;
-            }
-
+        for (let win of this.customWindows()) {
             let statusDevTools = win.webContents.isDevToolsOpened();
             if (!statusDevTools) {
                 win.webContents.openDevTools();
@@ -385,12 +397,12 @@ class Client {
             }
 
             if (!customLoad.enable) {
-                win.webContents.debugger.sendCommand("Fetch.enable", { patterns: [] });
+                win.webContents.debugger.sendCommand("Fetch.disable").catch(error => console.error(error));
                 win.webContents.debugger.removeAllListeners("message");
                 if (!statusDevTools) {
                     win.webContents.closeDevTools();
                 }
-                return;
+                continue;
             }
 
             let patterns = [];
@@ -401,7 +413,7 @@ class Client {
                 }
             }
 
-            win.webContents.debugger.sendCommand("Fetch.enable", { patterns });
+            win.webContents.debugger.sendCommand("Fetch.enable", { patterns }).catch(error => console.error(error));
 
             win.webContents.debugger.removeAllListeners("message");
 
@@ -435,13 +447,13 @@ class Client {
                             responseCode: 200,
                             requestId: params.requestId,
                             body
-                        });
+                        }).catch(error => console.error(error));
 
                         return;
                     }
                 }
                 dialog.showErrorBox("Injecting custom load", `Error when injecting custom load in the url: ${params.request.url}`);
-                win.webContents.debugger.sendCommand("Fetch.continueRequest", { requestId: params.requestId });
+                win.webContents.debugger.sendCommand("Fetch.continueRequest", { requestId: params.requestId }).catch(error => console.error(error));
             })
         }
     }
@@ -451,12 +463,12 @@ class Client {
             return;
         }
 
-        let windows = BrowserWindow.getAllWindows();
-
-        for (let win of windows) {
-            if (win.webContents.getURL().split(":")[0] === "file") {
-                return;
+        for (let win of this.customWindows()) {
+            // The listener reads the current settings, so one per window is enough.
+            if (this.customJsHooked.has(win.webContents.id)) {
+                continue;
             }
+            this.customJsHooked.add(win.webContents.id);
 
             win.webContents.on("dom-ready", () => {
                 if (settings.getSync().DarkDev.CustomJs.enable) {
@@ -471,12 +483,12 @@ class Client {
             return;
         }
 
-        let windows = BrowserWindow.getAllWindows();
-
-        for (let win of windows) {
-            if (win.webContents.getURL().split(":")[0] === "file") {
-                return;
+        for (let win of this.customWindows()) {
+            // The listener reads the current settings, so one per window is enough.
+            if (this.customCssHooked.has(win.webContents.id)) {
+                continue;
             }
+            this.customCssHooked.add(win.webContents.id);
 
             win.webContents.on("dom-ready", () => {
                 if (settings.getSync().DarkDev.CustomCss.enable) {

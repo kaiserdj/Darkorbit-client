@@ -1,4 +1,4 @@
-const { dialog, ipcMain, BrowserWindow, MenuItem } = require('electron');
+const { dialog, ipcMain, BrowserWindow, MenuItem, session } = require('electron');
 const { menubar } = require('menubar');
 const settings = require("electron-settings");
 const Alert = require("electron-alert");
@@ -15,8 +15,10 @@ class Credentials {
         this.check = false;
         this.key = null;
         this.editingId = null;
+        this.ready = false;
 
         this.mb.on("ready", ()=> {
+            this.ready = true;
             if(settings.getSync().master) {
                 this.checkMaster("");
                 this.mb.hideWindow();
@@ -151,11 +153,9 @@ class Credentials {
 
             let credentials = [account.username, account.password];
 
-            if (this.window && !this.window.isDestroyed()) {
-                let current = parseUrl(this.window.webContents.getURL());
-                if (current !== null && current.origin === "https://www.darkorbit.com") {
-                    return this.window.webContents.send("login", credentials);
-                }
+            // The window that asked for autologin still shows a DarkOrbit login form.
+            if (this.window && !this.window.isDestroyed() && isDarkorbitUrl(this.window.webContents.getURL())) {
+                return this.window.webContents.send("login", credentials);
             }
 
             let window = this.client.createWindow("client");
@@ -216,10 +216,19 @@ class Credentials {
         return config;
     }
 
+    showWhenReady() {
+        if (this.ready) {
+            this.mb.showWindow();
+        } else {
+            this.mb.once("ready", () => this.mb.showWindow());
+        }
+    }
+
     load(type) {
         switch (type) {
             case "login":
-                this.mb.window.loadURL("./credentials/html/masterLogin.html");
+                this.mb.window.setSize(380, 370);
+                this.mb.window.loadFile("./credentials/html/masterLogin.html");
 
                 break;
             case "register":
@@ -428,10 +437,10 @@ class Credentials {
 
                 let baseUrl = parseUrl(dosid.value).origin;
                 const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
-                let window = this.client.createWindow("client");
-                window.webContents.session.cookies.set(cookie)
+                // Client windows share the default session, so the cookie is set before the window loads.
+                session.defaultSession.cookies.set(cookie)
                     .catch(error => console.error(error))
-                    .then(() => window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.client.useragent }));
+                    .then(() => this.client.createWindow("client", `${baseUrl}/indexInternal.es?action=internalStart`));
             }
         });
     }

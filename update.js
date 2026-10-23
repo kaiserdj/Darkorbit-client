@@ -49,7 +49,9 @@ autoUpdater.on('update-available', async (data) => {
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-    progressBar.value = parseInt(progressObj.percent);
+    if (progressBar) {
+        progressBar.value = parseInt(progressObj.percent);
+    }
 });
 
 autoUpdater.on('update-not-available', () => {
@@ -57,7 +59,9 @@ autoUpdater.on('update-not-available', () => {
 });
 
 autoUpdater.on('update-downloaded', async () => {
-    progressBar.close();
+    if (progressBar) {
+        progressBar.close();
+    }
     await dialog.showMessageBoxSync({
         title: 'Install updates',
         message: 'Downloaded updates, the application will close to update ...'
@@ -67,7 +71,12 @@ autoUpdater.on('update-downloaded', async () => {
 });
 
 async function checkForUpdates() {
-    await autoUpdater.checkForUpdates();
+    try {
+        await autoUpdater.checkForUpdates();
+    } catch (error) {
+        // The 'error' event already reported it.
+        console.error(error);
+    }
 
     return updater;
 }

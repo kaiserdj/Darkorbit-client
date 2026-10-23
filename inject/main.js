@@ -20,10 +20,12 @@ document.onreadystatechange = () => {
     }
 }
 
-window.addEventListener("beforeunload", () => {
+function showUnloadProgress() {
     nprogress.configure({ showSpinner: false, minimum: 0.01 });
     nprogress.start();
-});
+}
+
+window.addEventListener("beforeunload", showUnloadProgress);
 
 function isLoginPage(href) {
     if (!isDarkorbitUrl(href)) {
@@ -123,7 +125,7 @@ async function run() {
 
                 if (data.Settings.PreventCloseGame) {
                     api.injectJs("bpCloseWindow = function() {}");
-                    window.removeEventListener("beforeunload");
+                    window.removeEventListener("beforeunload", showUnloadProgress);
                 }
             })
             break;

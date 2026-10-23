@@ -266,8 +266,10 @@ function load(data) {
 }
 
 function changeTab(tab) {
-    document.getElementById(tab).click();
-    document.getElementById(`${tab}-mini`);
+    let element = document.getElementById(tab);
+    if (element) {
+        element.click();
+    }
 }
 
 ipcRenderer.on("consoleDownload", (event, data) => {
