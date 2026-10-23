@@ -8,16 +8,24 @@
         "url": "https://github.com/emrementese/darkorbit-client-secure.git"
     },
     "scripts": {
+        "build:preload": "esbuild inject/preload.js --bundle --platform=browser --format=cjs --target=chrome87 --external:electron --outfile=inject/dist/preload.js --log-level=warning",
+        "prestart": "npm run build:preload",
         "start": "electron .",
+        "predev": "npm run build:preload",
         "dev": "electron . --d",
         "test": "node --test \"test/unit/**/*.test.js\"",
+        "pretest:e2e": "npm run build:preload",
         "test:e2e": "node --test --test-concurrency=1 \"test/e2e/**/*.test.js\"",
         "lint": "eslint .",
-        "postinstall": "node scripts/electron-x64-mac.js && electron-builder install-app-deps",
+        "postinstall": "node scripts/electron-x64-mac.js && npm run build:preload && electron-builder install-app-deps",
         "electron:x64": "node scripts/electron-x64-mac.js --force",
+        "prebuild": "npm run build:preload",
         "build": "electron-builder --publish=always",
+        "prerelease": "npm run build:preload",
         "release": "electron-builder --publish always",
+        "prelocal-build": "npm run build:preload",
         "local-build": "electron-builder",
+        "prepack": "npm run build:preload",
         "pack": "electron-builder --dir"
     },
     "author": "Kaiserdj",
@@ -25,6 +33,7 @@
     "devDependencies": {
         "electron": "11.5.0",
         "electron-builder": "^26.15.3",
+        "esbuild": "^0.24.2",
         "eslint": "^10.13.0"
     },
     "dependencies": {

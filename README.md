@@ -81,6 +81,11 @@ On Apple Silicon Macs the bundled Flash plugin only runs in the x64 build of Ele
 > npm dev
 ```
 
+The DarkOrbit windows run in a sandboxed renderer, so their preload is bundled into
+`inject/dist/preload.js` by `npm run build:preload`. `npm install`, `npm start`, `npm run dev` and the
+build scripts run it automatically; the preload may only `require("electron")` at runtime
+(Node work such as the packet logger and `--api` lives in the main process).
+
 ##### Tests
 
 ```bash

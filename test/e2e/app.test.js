@@ -121,6 +121,15 @@ describe("DarkOrbit pages", { timeout: 60000 }, () => {
         assert.equal(await app.evaluate("www.darkorbit.com", "typeof require"), "undefined");
     });
 
+    it("run without Node in the preload world (sandboxed renderer)", async (t) => {
+        if (!online) {
+            return t.skip("darkorbit.com not reachable");
+        }
+        // With Node integration the preload world exposed require/process/Buffer as globals.
+        let globals = await app.evaluate("www.darkorbit.com", `JSON.stringify([typeof require, typeof process, typeof Buffer, typeof global])`, { isolated: true });
+        assert.deepEqual(JSON.parse(globals), ["undefined", "undefined", "undefined", "undefined"]);
+    });
+
     it("show the AUTOLOGIN button on the login page", async (t) => {
         if (!online) {
             return t.skip("darkorbit.com not reachable");

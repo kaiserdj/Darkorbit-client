@@ -17,3 +17,6 @@ Thumbs.db
 npm-debug.log*
 .env
 .env.*
+
+# Bundled preload, built by "npm run build:preload"
+inject/dist/

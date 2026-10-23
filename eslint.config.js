@@ -56,7 +56,7 @@ const rules = {
 
 module.exports = [
     {
-        ignores: ["node_modules/**", "dist/**", "flash/**", "libs/**", ".context/**"]
+        ignores: ["node_modules/**", "dist/**", "flash/**", "libs/**", ".context/**", "inject/dist/**"]
     },
     {
         files: ["**/*.js"],

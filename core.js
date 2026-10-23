@@ -63,7 +63,8 @@ class Core {
                 webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) => {
                     event.preventDefault();
                     if (this.newWindowHandler) {
-                        this.newWindowHandler(event, webContents, url, loadOptionsFor(referrer, postBody));
+                        // options.webContents exists for window.open() from sandboxed pages (native window open).
+                        this.newWindowHandler(event, webContents, url, loadOptionsFor(referrer, postBody), options && options.webContents);
                     } else {
                         openExternalSafe(url);
                     }

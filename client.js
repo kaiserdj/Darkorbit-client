@@ -1,4 +1,4 @@
-const { BrowserWindow, ipcMain, dialog } = require('electron');
+const { BrowserWindow, dialog } = require('electron');
 const settings = require("electron-settings");
 const fs = require("fs");
 const path = require("path");
@@ -9,13 +9,20 @@ const useragent = require("./useragent");
 const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
 const Api = require("./api");
+const ApiServer = require("./apiServer");
+const PacketService = require("./packet");
 const { parseUrl, isTrustedUrl, isDarkorbitUrl, isLoginPage, openExternalSafe, matchesGlob } = require("./security");
 
 const DEFAULT_URL = "https://www.darkorbit.com/";
 const DEEP_LINK_PREFIX = "darkorbit-client://";
 const UPDATE_DELAY = 3000;
-// Windows that may show third party (payment) pages: no preload, no Node and a sandboxed renderer.
-const SANDBOXED_TYPES = ["shop", "popup"];
+// Every client window runs in a sandboxed renderer without Node. DarkOrbit windows get the bundled
+// preload (built by `npm run build:preload`); windows that may show third party payment pages get none.
+const PRELOAD = path.join(__dirname, "inject", "dist", "preload.js");
+const THIRD_PARTY_TYPES = ["shop", "popup"];
+// window.open() from these pages keeps a live reference to the new window. Electron ties such a
+// window to its opener, so other pages (e.g. the start page opening the game) open independent windows.
+const OPENER_KEEPS_WINDOW = ["game", "shop", "popup"];
 
 class Client {
     constructor(core) {
@@ -33,18 +40,20 @@ class Client {
                 this.arg.dosid = deepLink.slice(DEEP_LINK_PREFIX.length);
             }
 
-            this.core.newWindowHandler = (event, webContents, url) => this.handleNewWindow(event, webContents, url);
-            this.core.navigationPolicy = (webContents, url) => SANDBOXED_TYPES.includes(this.windowTypes.get(webContents.id)) && parseUrl(url)?.protocol === "https:";
+            this.core.newWindowHandler = (event, webContents, url, loadOptions, guest) => this.handleNewWindow(event, webContents, url, loadOptions, guest);
+            this.core.navigationPolicy = (webContents, url) => THIRD_PARTY_TYPES.includes(this.windowTypes.get(webContents.id)) && parseUrl(url)?.protocol === "https:";
 
             if (this.arg.api) {
                 console.log("api");
                 console.log("Arguments:");
                 console.log(this.arg);
-                this.apiHandlers();
-                this.createWindow("api");
+                let window = this.createWindow("api");
+                this.apiServer = new ApiServer(this.core.app, window, Number(this.arg.api), { dev: this.arg.dev });
                 setTimeout(update, UPDATE_DELAY);
                 return this;
             }
+
+            this.packets = new PacketService(this.core.app);
 
             this.tray = tools.tray(this);
             this.config = new Settings(this);
@@ -79,13 +88,13 @@ class Client {
                 this.credentials.showWhenReady();
             }
 
-            ipcMain.handle("getAppPath", async () => this.core.app.getAppPath());
-
             return this;
         })()
     }
 
-    createWindow(type, url, loadOptions) {
+    // `guest` is the webContents Chromium created for window.open(); using it keeps the opener's
+    // reference alive and lets Chromium load the url itself (including form posts).
+    createWindow(type, url, loadOptions, guest) {
         let window;
         // getSync reads and parses settings.json from disk, so read it once per window.
         let config = settings.getSync();
@@ -95,9 +104,9 @@ class Client {
             'x': config[type].x,
             'y': config[type].y,
             'webPreferences': {
-                'preload': `${__dirname}/inject/${this.arg.api ? "ws" : "main"}.js`,
+                'sandbox': true,
                 'contextIsolation': true,
-                'nodeIntegration': true,
+                'nodeIntegration': false,
                 'enableRemoteModule': false,
                 'plugins': true,
                 'devTools': this.arg.dev,
@@ -105,10 +114,12 @@ class Client {
             }
         };
 
-        if (SANDBOXED_TYPES.includes(type)) {
-            delete options.webPreferences.preload;
-            options.webPreferences.nodeIntegration = false;
-            options.webPreferences.sandbox = true;
+        if (!THIRD_PARTY_TYPES.includes(type) && type !== "api") {
+            options.webPreferences.preload = PRELOAD;
+        }
+
+        if (guest) {
+            options.webContents = guest;
         }
 
         if (this.arg.size) {
@@ -119,6 +130,10 @@ class Client {
 
         let webContentsId = window.webContents.id;
         this.windowTypes.set(webContentsId, type);
+
+        if (this.packets) {
+            window.webContents.on("did-finish-load", () => this.packets.onPageLoaded(window.webContents));
+        }
 
         window.setMenuBarVisibility(false);
 
@@ -144,7 +159,9 @@ class Client {
             delete this.arg.login;
         }
 
-        if (this.arg.dosid) {
+        if (guest) {
+            // Chromium is already navigating the window.open() target.
+        } else if (this.arg.dosid) {
             this.loadDosid(window, this.arg.dosid, this.arg.url);
 
             delete this.arg.dosid;
@@ -216,49 +233,6 @@ class Client {
         return window;
     }
 
-    apiHandlers() {
-        const apiWindow = (event) => {
-            if (this.windowTypes.get(event.sender.id) !== "api") {
-                throw new Error("Untrusted sender");
-            }
-            return BrowserWindow.fromWebContents(event.sender);
-        };
-
-        ipcMain.handle("getApiConfig", async (event) => {
-            apiWindow(event);
-            return { port: Number(this.arg.api), dev: Boolean(this.arg.dev), version: this.core.app.getVersion() };
-        });
-
-        ipcMain.handle("getAppMetrics", async (event) => {
-            apiWindow(event);
-            return this.core.app.getAppMetrics();
-        });
-
-        ipcMain.handle("apiWindow", async (event, action, width, height) => {
-            let window = apiWindow(event);
-
-            switch (action) {
-                case "setSize":
-                    if (Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0) {
-                        window.setSize(width, height);
-                    }
-                    break;
-                case "show":
-                    window.show();
-                    break;
-                case "hide":
-                    window.hide();
-                    break;
-                case "minimize":
-                    window.minimize();
-                    break;
-                case "restore":
-                    window.restore();
-                    break;
-            }
-        });
-    }
-
     // Navigations replaced by redirects or a new load reject with ERR_ABORTED; that is expected.
     loadPage(window, url, loadOptions) {
         return window.loadURL(url, Object.assign({}, loadOptions, { userAgent: this.useragent })).catch(error => {
@@ -308,19 +282,18 @@ class Client {
             .then(() => this.loadPage(window, target));
     }
 
-    handleNewWindow(event, webContents, url, loadOptions) {
+    handleNewWindow(event, webContents, url, loadOptions, guest) {
         let type = this.windowTypes.get(webContents.id);
-        let guest = this.routeNewWindow(webContents, url, loadOptions);
+        // Electron destroys Chromium's window when it is not used, so the opener then gets no reference.
+        let keep = guest && OPENER_KEEPS_WINDOW.includes(type) ? guest : null;
+        let window = this.routeNewWindow(webContents, url, loadOptions, keep);
 
-        // Game and shop pages keep a window.open() reference to their popups, as before. Electron
-        // ties such a guest to its opener, so other windows (e.g. the game opened from the start
-        // page) stay independent and survive when their opener is closed.
-        if (guest instanceof BrowserWindow && (type === "game" || SANDBOXED_TYPES.includes(type))) {
-            event.newGuest = guest;
+        if (keep && window instanceof BrowserWindow && window.webContents === keep) {
+            event.newGuest = window;
         }
     }
 
-    routeNewWindow(webContents, url, loadOptions) {
+    routeNewWindow(webContents, url, loadOptions, guest) {
         let type = this.windowTypes.get(webContents.id);
         let window = BrowserWindow.fromWebContents(webContents);
         let parsed = parseUrl(url);
@@ -330,33 +303,33 @@ class Client {
         }
 
         if (!isTrustedUrl(url)) {
-            // Payment providers opened from the shop keep working in a sandboxed window.
-            if (SANDBOXED_TYPES.includes(type) && parsed.protocol === "https:") {
-                return this.createPopupWindow(url, loadOptions);
+            // Payment providers opened from the shop keep working in a window without preload.
+            if (THIRD_PARTY_TYPES.includes(type) && parsed.protocol === "https:") {
+                return this.createPopupWindow(url, loadOptions, guest);
             }
             return openExternalSafe(url);
         }
 
         if (parsed.search === "?action=internalMapRevolution") {
-            return this.createWindow("game", url, loadOptions);
+            return this.createWindow("game", url, loadOptions, guest);
         }
 
         if (!isDarkorbitUrl(url)) {
-            return this.createWindow("config", url, loadOptions);
+            return this.createWindow("config", url, loadOptions, guest);
         }
 
         let action = parsed.search.split("&")[0];
 
         if (parsed.hostname.split(".")[0].includes("board") || parsed.search === "?action=portal.redirectToBoard") {
-            return this.createWindow("board", url, loadOptions);
+            return this.createWindow("board", url, loadOptions, guest);
         }
 
         if (action === "?action=internalPaymentProxy") {
-            return this.createWindow("shop", url, loadOptions);
+            return this.createWindow("shop", url, loadOptions, guest);
         }
 
-        if (type === "game" || SANDBOXED_TYPES.includes(type)) {
-            return this.createWindow("client", url, loadOptions);
+        if (type === "game" || THIRD_PARTY_TYPES.includes(type)) {
+            return this.createWindow("client", url, loadOptions, guest);
         }
 
         if (action === "?action=externalLogout") {
@@ -367,14 +340,14 @@ class Client {
         }
 
         if (parsed.pathname.split("/")[1] === "p") {
-            return this.createWindow("board", url, loadOptions);
+            return this.createWindow("board", url, loadOptions, guest);
         }
 
         return this.loadPage(window, url, loadOptions);
     }
 
-    createPopupWindow(url, loadOptions) {
-        let popup = new BrowserWindow({
+    createPopupWindow(url, loadOptions, guest) {
+        let options = {
             'width': 800,
             'height': 700,
             'webPreferences': {
@@ -385,23 +358,31 @@ class Client {
                 'plugins': false,
                 'devTools': this.arg.dev
             }
-        });
+        };
+
+        if (guest) {
+            options.webContents = guest;
+        }
+
+        let popup = new BrowserWindow(options);
 
         let webContentsId = popup.webContents.id;
         this.windowTypes.set(webContentsId, "popup");
         popup.on("closed", () => this.windowTypes.delete(webContentsId));
 
         popup.setMenuBarVisibility(false);
-        this.loadPage(popup, url, loadOptions);
+        if (!guest) {
+            this.loadPage(popup, url, loadOptions);
+        }
 
         return popup;
     }
 
-    // DarkDev tools only apply to the game client windows, never to local pages or the sandboxed shop/payment windows.
+    // DarkDev tools only apply to the game client windows, never to local pages or the shop/payment windows.
     customWindows() {
         return BrowserWindow.getAllWindows().filter(win => {
             let type = this.windowTypes.get(win.webContents.id);
-            return type && type !== "api" && !SANDBOXED_TYPES.includes(type);
+            return type && type !== "api" && !THIRD_PARTY_TYPES.includes(type);
         });
     }
 

@@ -27,6 +27,7 @@ release and credited in the advisory unless you prefer to stay anonymous.
 ## Known limitations
 
 The client depends on Pepper Flash, which only works with Electron 11. Electron 11
-(Chromium 87) and Flash no longer receive security updates, and on Linux the
-Chromium sandbox has to be disabled for Flash. Only use the client to visit
-DarkOrbit pages.
+(Chromium 87) and Flash no longer receive security updates. To contain them, the
+DarkOrbit, shop and payment windows run in Chromium's sandboxed renderer without
+Node.js on macOS and Windows; on Linux the Chromium sandbox has to be disabled for
+Flash. Only use the client to visit DarkOrbit pages.
