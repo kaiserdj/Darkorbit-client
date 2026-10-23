@@ -10,7 +10,8 @@
     "scripts": {
         "start": "electron .",
         "dev": "electron . --d",
-        "postinstall": "electron-builder install-app-deps",
+        "postinstall": "node scripts/electron-x64-mac.js && electron-builder install-app-deps",
+        "electron:x64": "node scripts/electron-x64-mac.js --force",
         "build": "electron-builder --publish=always",
         "release": "electron-builder --publish always",
         "local-build": "electron-builder",
@@ -39,6 +40,10 @@
     "build": {
         "appId": "com.DarkOrbitClient.Kaiserdj",
         "productName": "DarkOrbit Client",
+        "files": [
+            "**/*",
+            "!scripts/**"
+        ],
         "extraResources": [
             "./flash/**",
             "./darkDev/packet_dumper.py"

@@ -60,6 +60,12 @@ Install the dependencies:
 > npm install
 ```
 
+On Apple Silicon Macs the bundled Flash plugin only runs in the x64 build of Electron (through Rosetta). `npm install` switches Electron to x64 automatically on macOS; if Flash does not load, run:
+
+```bash
+> npm run electron:x64
+```
+
 ### Usage
 ##### Start app
 
