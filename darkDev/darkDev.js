@@ -1,4 +1,4 @@
-const { BrowserWindow, MenuItem, ipcMain } = require('electron');
+const { BrowserWindow, MenuItem, ipcMain, dialog } = require('electron');
 const settings = require("electron-settings");
 
 const CustomLoad = require("./tools/CustomLoad");
@@ -39,8 +39,26 @@ class DarkDev {
         })
 
         ipcMain.on('ResourceDownload', (event, opt) => {
+            if (!this.isDarkDevWindow(event)) {
+                return;
+            }
             this.resourceDownload(opt);
         });
+
+        ipcMain.handle("selectDirectory", async (event, title) => {
+            if (!this.isDarkDevWindow(event)) {
+                return null;
+            }
+            let result = await dialog.showOpenDialog(this.window, {
+                properties: ["openDirectory"],
+                title: String(title)
+            });
+            return result.canceled ? null : result.filePaths[0] || null;
+        });
+    }
+
+    isDarkDevWindow(event) {
+        return Boolean(this.window) && event.sender === this.window.webContents;
     }
 
     async open() {
@@ -54,10 +72,7 @@ class DarkDev {
                 'preload': `${__dirname}/master.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'nodeIntegrationInWorker': true,
-                'enableRemoteModule': true,
-                'webSecurity': false,
-                'plugins': true,
+                'enableRemoteModule': false,
                 'devTools': this.client.arg.dev
             }
         };

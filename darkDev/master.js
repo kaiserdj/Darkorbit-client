@@ -1,5 +1,9 @@
 const { ipcRenderer } = require('electron');
-const { dialog } = require('electron').remote;
+
+const TRASH_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+</svg>`;
 
 document.onreadystatechange = () => {
     if (document.readyState === 'complete') {
@@ -124,11 +128,8 @@ function run() {
 
     document.getElementById("ResourceDownloadButton").onclick = (sub) => {
         sub.preventDefault();
-        dialog.showOpenDialog({
-            properties: ["openDirectory"],
-            title: "Directory where you want to save the resources"
-        }).then((data) => {
-            if (data.filePaths[0]) {
+        ipcRenderer.invoke("selectDirectory", "Directory where you want to save the resources").then((folder) => {
+            if (folder) {
                 document.getElementById("initResourceDownload").style = "display: none";
                 document.getElementById("subResourceDownload").style = "";
 
@@ -151,7 +152,6 @@ function run() {
                 let checkHash = document.getElementById("checkHash").checked;
                 let customServer = document.getElementById("CustomServer").checked;
                 let server = document.getElementById("server").value;
-                let folder = data.filePaths[0];
                 if (customServer) {
                     ipcRenderer.send("ResourceDownload", { listXmlColections, listExtraFiles, checkHash, customServer, server, folder });
                 } else {
@@ -168,154 +168,101 @@ function run() {
 
         var downloadLink = document.createElement("a");
         downloadLink.download = fileNameToSaveAs;
-        downloadLink.innerHTML = "Download Log";
+        downloadLink.textContent = "Download Log";
         downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
 
         downloadLink.click();
     }
 }
 
+function textCell(row, text, className) {
+    let cell = row.insertCell();
+    cell.textContent = String(text);
+    if (className) {
+        cell.className = className;
+    }
+    return cell;
+}
+
+function checkbox(checked, className, disabled) {
+    let input = document.createElement("input");
+    input.className = className ? `form-check-input ${className}` : "form-check-input";
+    input.type = "checkbox";
+    input.checked = Boolean(checked);
+    input.disabled = Boolean(disabled);
+    return input;
+}
+
+function enableSwitchCell(row, checked, className, onChange) {
+    let input = checkbox(checked, className);
+    input.addEventListener("click", () => onChange(input.checked));
+
+    let wrapper = document.createElement("div");
+    wrapper.className = "form-check form-switch";
+    wrapper.appendChild(input);
+
+    let header = document.createElement("th");
+    header.scope = "row";
+    header.appendChild(wrapper);
+    row.appendChild(header);
+}
+
+function removeCell(row, className, onRemove) {
+    let cell = row.insertCell();
+    cell.append("\u00a0");
+    // TRASH_ICON is a static constant, no user data is interpolated.
+    cell.insertAdjacentHTML("beforeend", TRASH_ICON);
+    let icon = cell.querySelector("svg");
+    icon.classList.add(className);
+    icon.addEventListener("click", onRemove);
+}
+
+function renderList(config, tableId, itemName, tab, extraCells) {
+    if (config.enable) {
+        document.getElementById(`Enable${itemName}`).checked = config.enable;
+    }
+
+    if (!config.list) {
+        return;
+    }
+
+    let table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+
+    for (let id in config.list) {
+        let elem = config.list[id];
+        let row = table.insertRow();
+
+        textCell(row, elem.id, `id${itemName}Item`);
+        enableSwitchCell(row, elem.enable, `enable${itemName}Item`, (enable) => {
+            ipcRenderer.send(`enable${itemName}Item`, { id: String(elem.id), enable });
+        });
+        textCell(row, elem.match);
+        extraCells(row, elem);
+        removeCell(row, `remove${itemName}Item`, () => {
+            ipcRenderer.send(`remove${itemName}Item`, String(elem.id));
+
+            window.location.search = `tab=${tab}`;
+        });
+    }
+}
+
 function load(data) {
     /* Custom Load */
-    if (data.CustomLoad.enable) {
-        document.getElementById("EnableCustomLoad").checked = data.CustomLoad.enable;
-    }
-
-    if (data.CustomLoad.list) {
-        for (let id in data.CustomLoad.list) {
-            let elem = data.CustomLoad.list[id];
-            let table = document.getElementById('TableCustomLoad').getElementsByTagName('tbody')[0];
-            let newRow = table.insertRow();
-            newRow.innerHTML = `
-            <tr>
-                <td class="idCustomLoadItem">${elem.id}</td>
-                <th scope="row">
-                    <div class="form-check form-switch"><input class="form-check-input enableCustomLoadItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
-                </th>
-                <td>${elem.match}</td>
-                <td>&nbsp;<input class="form-check-input" type="checkbox" value="" id="flexCheckCheckedDisabled" ${elem.LocalFileEnable ? "checked" : ""} disabled></td>
-                <td>${elem.LocalFileEnable ? elem.LocalFile : elem.actionUrl}</td>
-                <td>&nbsp;
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash removeCustomLoadItem" viewBox="0 0 16 16">
-                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                    </svg>
-                </td>
-            </tr>`;
-        }
-        const enableCustomLoadItem = document.querySelectorAll('.enableCustomLoadItem');
-        enableCustomLoadItem.forEach(el => el.addEventListener('click', (event) => {
-            let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomLoadItem")[0].innerText;
-            let enable = event.target.checked;
-
-            ipcRenderer.send('enableCustomLoadItem', { id, enable });
-        }));
-
-        const removeCustomLoadItem = document.querySelectorAll('.removeCustomLoadItem');
-        removeCustomLoadItem.forEach(el => el.addEventListener('click', (event) => {
-            let elem = event.target.parentNode.parentNode;
-            if (elem.tagName !== "TR") {
-                elem = elem.parentNode;
-            }
-            ipcRenderer.send('removeCustomLoadItem', elem.querySelectorAll(".idCustomLoadItem")[0].innerText);
-
-            window.location.search = 'tab=nav-customLoad-tab';
-        }));
-    }
+    renderList(data.CustomLoad, "TableCustomLoad", "CustomLoad", "nav-customLoad-tab", (row, elem) => {
+        let local = row.insertCell();
+        local.append("\u00a0", checkbox(elem.LocalFileEnable, null, true));
+        textCell(row, elem.LocalFileEnable ? elem.LocalFile : elem.actionUrl);
+    });
 
     /* Custom Js */
-
-    if (data.CustomJs.enable) {
-        document.getElementById("EnableCustomJs").checked = data.CustomJs.enable;
-    }
-
-    if (data.CustomJs.list) {
-        for (let id in data.CustomJs.list) {
-            let elem = data.CustomJs.list[id];
-            let table = document.getElementById('TableCustomJs').getElementsByTagName('tbody')[0];
-            let newRow = table.insertRow();
-            newRow.innerHTML = `
-            <tr>
-                <td class="idCustomJsItem">${elem.id}</td>
-                <th scope="row">
-                    <div class="form-check form-switch"><input class="form-check-input enableCustomJsItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
-                </th>
-                <td>${elem.match}</td>
-                <td>${elem.actionUrl}</td>
-                <td>&nbsp;
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash removeCustomJsItem" viewBox="0 0 16 16">
-                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                    </svg>
-                </td>
-            </tr>`;
-        }
-        const enableCustomJsItem = document.querySelectorAll('.enableCustomJsItem');
-        enableCustomJsItem.forEach(el => el.addEventListener('click', (event) => {
-            let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomJsItem")[0].innerText;
-            let enable = event.target.checked;
-
-            ipcRenderer.send('enableCustomJsItem', { id, enable });
-        }));
-
-        const removeCustomJsItem = document.querySelectorAll('.removeCustomJsItem');
-        removeCustomJsItem.forEach(el => el.addEventListener('click', (event) => {
-            let elem = event.target.parentNode.parentNode;
-            if (elem.tagName !== "TR") {
-                elem = elem.parentNode;
-            }
-            ipcRenderer.send('removeCustomJsItem', elem.querySelectorAll(".idCustomJsItem")[0].innerText);
-
-            window.location.search = 'tab=nav-customJs-tab';
-        }));
-    }
+    renderList(data.CustomJs, "TableCustomJs", "CustomJs", "nav-customJs-tab", (row, elem) => {
+        textCell(row, elem.actionUrl);
+    });
 
     /* Custom Css */
-
-    if (data.CustomCss.enable) {
-        document.getElementById("EnableCustomCss").checked = data.CustomCss.enable;
-    }
-
-    if (data.CustomCss.list) {
-        for (let id in data.CustomCss.list) {
-            let elem = data.CustomCss.list[id];
-            let table = document.getElementById('TableCustomCss').getElementsByTagName('tbody')[0];
-            let newRow = table.insertRow();
-            newRow.innerHTML = `
-            <tr>
-                <td class="idCustomCssItem">${elem.id}</td>
-                <th scope="row">
-                    <div class="form-check form-switch"><input class="form-check-input enableCustomCssItem" type="checkbox" ${elem.enable ? "checked": ""}></div>
-                </th>
-                <td>${elem.match}</td>
-                <td>${elem.actionUrl}</td>
-                <td>&nbsp;
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash removeCustomCssItem" viewBox="0 0 16 16">
-                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                    </svg>
-                </td>
-            </tr>`;
-        }
-        const enableCustomCssItem = document.querySelectorAll('.enableCustomCssItem');
-        enableCustomCssItem.forEach(el => el.addEventListener('click', (event) => {
-            let id = event.target.parentNode.parentNode.parentNode.querySelectorAll(".idCustomCssItem")[0].innerText;
-            let enable = event.target.checked;
-
-            ipcRenderer.send('enableCustomCssItem', { id, enable });
-        }));
-
-        const removeCustomCssItem = document.querySelectorAll('.removeCustomCssItem');
-        removeCustomCssItem.forEach(el => el.addEventListener('click', (event) => {
-            let elem = event.target.parentNode.parentNode;
-            if (elem.tagName !== "TR") {
-                elem = elem.parentNode;
-            }
-            ipcRenderer.send('removeCustomCssItem', elem.querySelectorAll(".idCustomCssItem")[0].innerText);
-
-            window.location.search = 'tab=nav-customCss-tab';
-        }));
-    }
+    renderList(data.CustomCss, "TableCustomCss", "CustomCss", "nav-customCss-tab", (row, elem) => {
+        textCell(row, elem.actionUrl);
+    });
 }
 
 function changeTab(tab) {

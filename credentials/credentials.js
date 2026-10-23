@@ -5,6 +5,7 @@ const Alert = require("electron-alert");
 const Positioner = require('electron-positioner');
 
 const crypt = require("./crypt");
+const { parseUrl, isDarkorbitUrl } = require("../security");
 
 class Credentials {
     constructor(client) {
@@ -26,8 +27,8 @@ class Credentials {
             this.registerMaster(pass);
         });
 
-        ipcMain.on('autoLogin', (event, id) => {
-            this.window = BrowserWindow.fromId(id);
+        ipcMain.on('autoLogin', (event) => {
+            this.window = BrowserWindow.fromWebContents(event.sender);
 
             if (this.check) {
                 this.load("list");
@@ -371,15 +372,19 @@ class Credentials {
 
         alert.fireFrameless(swalOptions, null, true, true).then((dosid) => {
             if (dosid.value) {
-                let sid = dosid.value.match(/[?&](dosid|sid)=([^&]+)/);
-                let baseUrl = new URL(dosid.value).origin;
+                let sid = dosid.value.match(/[?&](dosid|sid)=([^&#]+)/);
 
-                if (sid !== null && baseUrl !== null) {
-                    const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
-                    let window = this.client.createWindow("client");
-                    window.webContents.session.cookies.set(cookie);
-                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
+                if (sid === null || !isDarkorbitUrl(dosid.value)) {
+                    dialog.showErrorBox("Login with Dosid", "Only https DarkOrbit urls with a dosid parameter can be used.");
+                    return;
                 }
+
+                let baseUrl = parseUrl(dosid.value).origin;
+                const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+                let window = this.client.createWindow("client");
+                window.webContents.session.cookies.set(cookie)
+                    .catch(error => console.error(error))
+                    .then(() => window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.client.useragent }));
             }
         });
     }

@@ -1,4 +1,4 @@
-const { ipcRenderer, contextBridge } = require("electron");
+const { ipcRenderer } = require("electron");
 const path = require("path");
 const fs = require('fs');
 const api = require("./api");
@@ -7,7 +7,6 @@ const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
-        contextBridge.exposeInMainWorld("api", api);
         api.injectCss(nprogressCss);
         api.injectCss("#nprogress .bar {background: #7ECE3B !important; height: 3px !important;}");
         nprogress.configure({ showSpinner: false });

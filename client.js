@@ -10,6 +10,10 @@ const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
 const DarkDev = require("./darkDev/darkDev");
 const Api = require("./api");
+const { parseUrl, isTrustedUrl, isDarkorbitUrl, openExternalSafe } = require("./security");
+
+const DEFAULT_URL = "https://www.darkorbit.com/";
+const DEEP_LINK_PREFIX = "darkorbit-client://";
 
 class Client {
     constructor(core) {
@@ -18,6 +22,16 @@ class Client {
             this.core = core;
             this.arg = tools.commandLine();
             this.useragent = await useragent();
+            this.windowTypes = new Map();
+
+            // Deep links are parsed once at startup; later windows must not reuse them.
+            let deepLink = process.argv.find(arg => typeof arg === "string" && arg.startsWith(DEEP_LINK_PREFIX));
+            if (deepLink && /[?&](dosid|sid)=/.test(deepLink)) {
+                this.arg.dosid = deepLink.slice(DEEP_LINK_PREFIX.length);
+            }
+
+            this.core.newWindowHandler = (event, webContents, url) => this.handleNewWindow(event, webContents, url);
+            this.core.navigationPolicy = (webContents) => ["shop", "popup"].includes(this.windowTypes.get(webContents.id));
 
             if (this.arg.api) {
                 console.log("api");
@@ -80,7 +94,7 @@ class Client {
                 'preload': `${__dirname}/inject/${this.arg.api ? "ws" : "main"}.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'enableRemoteModule': true,
+                'enableRemoteModule': type === "api",
                 'plugins': true,
                 'devTools': this.arg.dev,
                 'offscreen': this.arg.offscreen
@@ -92,6 +106,9 @@ class Client {
         }
 
         window = new BrowserWindow(options);
+
+        let webContentsId = window.webContents.id;
+        this.windowTypes.set(webContentsId, type);
 
         window.setMenuBarVisibility(false);
 
@@ -107,61 +124,29 @@ class Client {
 
         if (this.arg.login) {
             if (this.arg.login.length === 2) {
+                let login = this.arg.login;
                 window.webContents.once('did-finish-load', () => {
-                    window.webContents.send("login", this.arg.login)
-                    delete this.arg.login;
+                    if (isDarkorbitUrl(window.webContents.getURL())) {
+                        window.webContents.send("login", login);
+                    }
                 });
             }
-        }
-
-        if (process.argv[1]) {
-            if (process.argv[1].includes("darkorbit-client://") && (process.argv[1].includes("dosid") || process.argv[1].includes("sid"))) {
-                this.arg.dosid = process.argv[1].split("darkorbit-client://")[1];
-            }
+            delete this.arg.login;
         }
 
         if (this.arg.dosid) {
-            let check;
-            try {
-                new URL(this.arg.dosid);
-                let checkSID = this.arg.dosid.search(/(dosid|sid)/);
-                if (checkSID) {
-                    check = true;
-                }
-            } catch (err) {
-                check = false;
-            }
-
-            if (check) {
-                let sid = this.arg.dosid.match(/[?&](dosid|sid)=([^&]+)/);
-                let baseUrl = new URL(this.arg.dosid).origin;
-
-                if (sid !== null && baseUrl !== null) {
-                    let cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
-                    window.webContents.session.cookies.set(cookie);
-                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
-                }
-            } else {
-                if (this.arg.url) {
-                    let baseUrl = new URL(this.arg.url).origin;
-                    let cookie = { url: baseUrl, name: 'dosid', value: this.arg.dosid };
-                    window.webContents.session.cookies.set(cookie);
-                    window.loadURL(this.arg.url, { userAgent: this.useragent });
-
-                    delete this.arg.url
-                } else {
-                    dialog.showErrorBox("Load SID", `You also need the url parameter to be able to load the sid`);
-                    window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
-                }
-            }
+            this.loadDosid(window, this.arg.dosid, this.arg.url);
 
             delete this.arg.dosid;
+            delete this.arg.url;
         } else if (this.arg.url) {
-            window.loadURL(this.arg.url, { userAgent: this.useragent });
+            this.loadTrustedUrl(window, this.arg.url);
+
+            delete this.arg.url;
         } else if (url) {
-            window.loadURL(url, { userAgent: this.useragent });
+            this.loadTrustedUrl(window, url);
         } else {
-            window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
+            window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
         }
 
         tools.settingsWindow(window, type);
@@ -202,45 +187,11 @@ class Client {
         })
 
         window.on("closed", () => {
+            this.windowTypes.delete(webContentsId);
             this.autoclose();
         })
 
-        let client = this;
-        window.webContents.on('new-window', async function(e, url) {
-            if (type === "game" || type === "shop") {
-                return;
-            }
-            e.preventDefault();
-            if (new URL(url).search === "?action=internalMapRevolution") {
-                client.createWindow("game", url);
-            } else if (new URL(url).host.split(".")[1] === "darkorbit") {
-                if (new URL(url).host.split(".")[0].search("board") !== -1 || new URL(url).search === "?action=portal.redirectToBoard") {
-                    client.createWindow("board", url);
-                } else if (new URL(url).search.split("&")[0] === "?action=internalPaymentProxy") {
-                    client.createWindow("shop", url);
-                } else {
-                    if (new URL(url).search.split("&")[0] === "?action=externalLogout") {
-                        if (settings.getSync().Settings.PreventCloseSessionWindow) {
-                            return window.loadURL(`https://www.darkorbit.com/`, { userAgent: this.useragent });
-                        } else {
-                            return window.close();
-                        }
-                    }else if (new URL(url).pathname.split("/")[1] === "p"){
-                        return client.createWindow("board", url);
-                    } else if (new URL(url).host.split(".")[1] === "darkorbit") {
-                        return window.loadURL(url, { userAgent: client.useragent });
-                    }
-                    client.createWindow("client", url);
-                }
-            } else if (new URL(url).host.split(".")[1] === "bpsecure") {
-                client.createWindow("config", url);
-            } else {
-                require('open')(url);
-                return;
-            }
-        });
-
-        window.webContents.on('render-process-gone', function(event, detailed) {
+        window.webContents.on('render-process-gone', (event, detailed) => {
             if (detailed.reason == "crashed") {
                 this.core.app.relaunch();
                 this.core.app.exit(0);
@@ -248,6 +199,124 @@ class Client {
         });
 
         return window;
+    }
+
+    loadTrustedUrl(window, url) {
+        if (isTrustedUrl(url)) {
+            window.loadURL(url, { userAgent: this.useragent });
+        } else {
+            dialog.showErrorBox("Load url", `Only https DarkOrbit urls can be loaded: ${url}`);
+            window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+        }
+    }
+
+    loadDosid(window, dosid, url) {
+        let sid = dosid.match(/[?&](dosid|sid)=([^&#]+)/);
+        let cookie;
+        let target;
+
+        if (sid !== null && isDarkorbitUrl(dosid)) {
+            let baseUrl = new URL(dosid).origin;
+            cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+            target = `${baseUrl}/indexInternal.es?action=internalStart`;
+        } else if (sid === null && parseUrl(dosid) === null) {
+            if (!url) {
+                dialog.showErrorBox("Load SID", `You also need the url parameter to be able to load the sid`);
+            } else if (isDarkorbitUrl(url)) {
+                cookie = { url: new URL(url).origin, name: 'dosid', value: dosid };
+                target = url;
+            }
+        }
+
+        if (!target) {
+            if (sid !== null || url) {
+                dialog.showErrorBox("Load SID", `Only https DarkOrbit urls can be used to load a sid`);
+            }
+            window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+            return;
+        }
+
+        window.webContents.session.cookies.set(cookie)
+            .catch(error => console.error(error))
+            .then(() => window.loadURL(target, { userAgent: this.useragent }));
+    }
+
+    handleNewWindow(event, webContents, url) {
+        let type = this.windowTypes.get(webContents.id);
+        let window = BrowserWindow.fromWebContents(webContents);
+        let parsed = parseUrl(url);
+
+        if (!type || !window || parsed === null) {
+            return openExternalSafe(url);
+        }
+
+        if (!isTrustedUrl(url)) {
+            // Payment providers opened from the shop keep working in a window without preload or Node.
+            if ((type === "shop" || type === "popup") && parsed.protocol === "https:") {
+                event.newGuest = this.createPopupWindow(url);
+                return;
+            }
+            return openExternalSafe(url);
+        }
+
+        if (parsed.search === "?action=internalMapRevolution") {
+            return this.createWindow("game", url);
+        }
+
+        if (!isDarkorbitUrl(url)) {
+            return this.createWindow("config", url);
+        }
+
+        let action = parsed.search.split("&")[0];
+
+        if (parsed.hostname.split(".")[0].includes("board") || parsed.search === "?action=portal.redirectToBoard") {
+            return this.createWindow("board", url);
+        }
+
+        if (action === "?action=internalPaymentProxy") {
+            return this.createWindow("shop", url);
+        }
+
+        if (type === "game" || type === "shop" || type === "popup") {
+            return this.createWindow("client", url);
+        }
+
+        if (action === "?action=externalLogout") {
+            if (settings.getSync().Settings.PreventCloseSessionWindow) {
+                return window.loadURL(DEFAULT_URL, { userAgent: this.useragent });
+            }
+            return window.close();
+        }
+
+        if (parsed.pathname.split("/")[1] === "p") {
+            return this.createWindow("board", url);
+        }
+
+        return window.loadURL(url, { userAgent: this.useragent });
+    }
+
+    createPopupWindow(url) {
+        let popup = new BrowserWindow({
+            'width': 800,
+            'height': 700,
+            'webPreferences': {
+                'contextIsolation': true,
+                'nodeIntegration': false,
+                'enableRemoteModule': false,
+                'sandbox': true,
+                'plugins': false,
+                'devTools': this.arg.dev
+            }
+        });
+
+        let webContentsId = popup.webContents.id;
+        this.windowTypes.set(webContentsId, "popup");
+        popup.on("closed", () => this.windowTypes.delete(webContentsId));
+
+        popup.setMenuBarVisibility(false);
+        popup.loadURL(url, { userAgent: this.useragent });
+
+        return popup;
     }
 
     setCustomLoad() {

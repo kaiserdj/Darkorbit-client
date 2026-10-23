@@ -1,4 +1,4 @@
-const { ipcRenderer, remote } = require("electron");
+const { ipcRenderer } = require("electron");
 
 let style = `
 body {
@@ -37,7 +37,7 @@ require("./api").injectCss(style);
 document.getElementsByClassName("eh_mc_table_td")[1].insertAdjacentHTML('afterbegin', '<div align="center" style=""><input id="autoLogin" value="AUTOLOGIN" type="button"></div>');
 
 document.getElementById("autoLogin").addEventListener("click", () => {
-	ipcRenderer.send("autoLogin", remote.getCurrentWindow().id);
+	ipcRenderer.send("autoLogin");
 });
 
 ipcRenderer.on("login", (event, data) => {

@@ -1,5 +1,6 @@
 const { BrowserWindow, MenuItem, ipcMain } = require('electron');
 const settings = require("electron-settings");
+const { openExternalSafe } = require("../security");
 
 class Settings {
     constructor(client) {
@@ -22,11 +23,30 @@ class Settings {
             this.window.webContents.send("SendLoadSettings", settings.getSync().Settings)
         })
 
+        ipcMain.on("relaunch", (event) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
+            this.client.core.app.relaunch();
+            this.client.core.app.exit(0);
+        });
+
+        ipcMain.on("openExternal", (event, url) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
+            openExternalSafe(url);
+        });
+
         ipcMain.on('SetOptionConfig', (event, opt, data) => {
             let backup = settings.getSync();
             backup.Settings[opt] = data;
             settings.setSync(backup);
         });
+    }
+
+    isSettingsWindow(event) {
+        return Boolean(this.window) && event.sender === this.window.webContents;
     }
 
     open() {
@@ -40,10 +60,7 @@ class Settings {
                 'preload': `${__dirname}/settings_js.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'nodeIntegrationInWorker': true,
-                'enableRemoteModule': true,
-                'webSecurity': false,
-                'plugins': true,
+                'enableRemoteModule': false,
                 'devTools': this.client.arg.dev
             }
         };

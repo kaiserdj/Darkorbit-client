@@ -28,7 +28,6 @@
     },
     "Settings": {
         "HardwareAcceleration": true,
-        "NoSandbox": false,
         "PreventCloseGame": false,
         "PreventCloseSessionWindow": false,
         "DefaultDev": false,

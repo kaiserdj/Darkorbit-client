@@ -1,4 +1,6 @@
-const { ipcRenderer, remote } = require('electron');
+const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
 
 document.onreadystatechange = () => {
     if (document.readyState === 'interactive') {
@@ -13,16 +15,7 @@ function run() {
     document.getElementById("HardwareAcceleration").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "HardwareAcceleration", document.getElementById("HardwareAcceleration").checked);
         if(confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
-            remote.app.relaunch();
-            remote.app.exit(0);
-        }
-    }
-
-    document.getElementById("NoSandbox").onclick = () => {
-        ipcRenderer.send("SetOptionConfig", "NoSandbox", document.getElementById("NoSandbox").checked);
-        if(confirm("For the changes to take effect, the client must be restarted.\nDo you want to restart it now?")) {
-            remote.app.relaunch();
-            remote.app.exit(0);
+            ipcRenderer.send("relaunch");
         }
     }
 
@@ -51,47 +44,87 @@ function run() {
     }
 
     // Contributors
-    ipcRenderer.invoke("get", "https://raw.githubusercontent.com/kaiserdj/Darkorbit-client/main/.all-contributorsrc").then(data => {
-        for (let contributor of data.contributors) {
-            let elemEmote = "";
-            for (let emote of contributor.contributions) {
-                let title = emote;
-                let upperCases = emote.match(/[A-Z]/g);
-
-                if (upperCases) {
-                    for (let letter of upperCases) {
-                        title = title.replaceAll(letter, ` ${letter}`);
-                    }
-                }
-                elemEmote += `<li class="list-inline-item"><a href="javascript:void(0)" class="rounded" title="${title.charAt(0).toUpperCase() + title.slice(1)}">${emojiKey[emote]}</a></li>`;
-            }
-
-            let elem = `
-            <div class="col-lg-3 col-md-4 col-6 mt-4 pt-2">
-                <div class="mt-4 pt-2" onclick='window.open(${"`"+contributor.profile+"`"})'>
-                    <div class="team position-relative d-block text-center">
-                        <div class="image position-relative d-block overflow-hidden">
-                            <img src="${contributor.avatar_url}" class="img-fluid rounded" alt="${contributor.name}" width="200" height="200">
-                            <div class="overlay rounded bg-dark"></div>
-                        </div>
-                        <div class="content py-2 member-position bg-white border-bottom overflow-hidden rounded d-inline-block">
-                            <h4 class="title mb-0">${contributor.name}</h4>
-                            <!--<small class="text-muted">Founder</small>-->
-                        </div>
-                        <ul class="list-unstyled team-social social-icon social mb-0">
-                            ${elemEmote}
-                        </ul>
-                    </div>
-                </div>
-            </div>`;
-            document.getElementById("contributors").insertAdjacentHTML("beforeend", elem);
-        }
-    })
+    renderContributors();
 
     // About us
     document.getElementById("Github").onclick = (sub) => {
         sub.preventDefault();
-        require('open')("https://github.com/kaiserdj/Darkorbit-client");
+        ipcRenderer.send("openExternal", "https://github.com/kaiserdj/Darkorbit-client");
+    }
+}
+
+function readContributors() {
+    try {
+        return JSON.parse(fs.readFileSync(path.join(__dirname, "../.all-contributorsrc"), "utf8")).contributors || [];
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
+
+function renderContributors() {
+    let container = document.getElementById("contributors");
+
+    for (let contributor of readContributors()) {
+        let emotes = document.createElement("ul");
+        emotes.className = "list-unstyled team-social social-icon social mb-0";
+
+        for (let emote of contributor.contributions || []) {
+            let title = String(emote).replace(/[A-Z]/g, letter => ` ${letter}`);
+
+            let link = document.createElement("a");
+            link.href = "#";
+            link.className = "rounded";
+            link.title = title.charAt(0).toUpperCase() + title.slice(1);
+            link.textContent = emojiKey[emote] || "";
+
+            let item = document.createElement("li");
+            item.className = "list-inline-item";
+            item.appendChild(link);
+            emotes.appendChild(item);
+        }
+
+        let img = document.createElement("img");
+        img.className = "img-fluid rounded";
+        img.width = 200;
+        img.height = 200;
+        img.alt = String(contributor.name || "");
+        if (/^https:\/\//.test(contributor.avatar_url)) {
+            img.src = contributor.avatar_url;
+        }
+
+        let overlay = document.createElement("div");
+        overlay.className = "overlay rounded bg-dark";
+
+        let image = document.createElement("div");
+        image.className = "image position-relative d-block overflow-hidden";
+        image.append(img, overlay);
+
+        let name = document.createElement("h4");
+        name.className = "title mb-0";
+        name.textContent = String(contributor.name || "");
+
+        let content = document.createElement("div");
+        content.className = "content py-2 member-position bg-white border-bottom overflow-hidden rounded d-inline-block";
+        content.appendChild(name);
+
+        let team = document.createElement("div");
+        team.className = "team position-relative d-block text-center";
+        team.append(image, content, emotes);
+
+        let card = document.createElement("div");
+        card.className = "mt-4 pt-2";
+        card.appendChild(team);
+        card.addEventListener("click", (event) => {
+            event.preventDefault();
+            ipcRenderer.send("openExternal", String(contributor.profile || ""));
+        });
+
+        let column = document.createElement("div");
+        column.className = "col-lg-3 col-md-4 col-6 mt-4 pt-2";
+        column.appendChild(card);
+
+        container.appendChild(column);
     }
 }
 
@@ -100,10 +133,6 @@ function load(data) {
         document.getElementById("HardwareAcceleration").checked = data.HardwareAcceleration;
     }
 
-    if (data.NoSandbox) {
-        document.getElementById("NoSandbox").checked = data.NoSandbox;
-    }
-    
     if (data.PreventCloseGame) {
         document.getElementById("PreventCloseGame").checked = data.PreventCloseGame;
     }

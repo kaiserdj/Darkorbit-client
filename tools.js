@@ -1,10 +1,11 @@
-const { BrowserWindow, nativeTheme, Tray, Menu } = require("electron");
+const { BrowserWindow, nativeTheme, Tray, Menu, dialog, clipboard } = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
 const { openProcessManager } = require('electron-process-manager');
 const axios = require("axios");
+const { parseUrl, isDarkorbitUrl } = require("./security");
 
 function commandLine() {
     return yargs(hideBin(process.argv))
@@ -79,29 +80,26 @@ function tray(client) {
             click: async () => {
                 let sidNotFound = true;
                 for ( let win of BrowserWindow.getAllWindows() ) {
-                    let hostname = new URL(win.webContents.getURL()).hostname;
-                    if ( hostname.search("darkorbit") != -1 && hostname.search("www\.darkorbit\.com") == -1 ) {
+                    let url = win.webContents.getURL();
+                    if ( !isDarkorbitUrl(url) ) {
+                        continue;
+                    }
+
+                    let hostname = parseUrl(url).hostname;
+                    if ( hostname !== "www.darkorbit.com" ) {
                         let cookie = await  win.webContents.session.cookies.get({name:'dosid', domain: hostname});
 
                         if ( cookie[0] && cookie[0].value ) {
                             let SID = cookie[0].value;
-                            const {clipboard} = require('electron');
                             clipboard.writeText(SID);
-                            win.webContents.executeJavaScript("alert(`SID: " + SID +"\nCopied to clipboard` )")
-                                .catch(error => {
-                                    console.error(error);
-                                });
+                            dialog.showMessageBox(win, { type: "info", title: "Copy SID", message: `SID: ${SID}\nCopied to clipboard` });
                             sidNotFound = false;
                             break;
                         }
                     }
                 }
                 if ( sidNotFound ) {
-                    let win = BrowserWindow.getAllWindows()[0];
-                    win.webContents.executeJavaScript("alert(`SID not detected`)")
-                        .catch(error => {
-                            console.error(error);
-                        });
+                    dialog.showMessageBox({ type: "info", title: "Copy SID", message: "SID not detected" });
                 }
             }
         },
