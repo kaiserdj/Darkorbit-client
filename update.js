@@ -1,78 +1,89 @@
 const { dialog } = require('electron');
-const { autoUpdater } = require('electron-updater');
-const ProgressBar = require('electron-progressbar');
-
-autoUpdater.autoDownload = false;
-autoUpdater.setFeedURL({
-    "provider": 'github',
-    "owner": "emrementese",
-    "repo": "darkorbit-client-secure"
-});
 
 let updater = false;
 let progressBar;
+let autoUpdater = null;
 
-autoUpdater.on('error', (error) => {
-    console.error(error);
-    dialog.showErrorBox('Update error', error == null ? "unknown" : (error.message || String(error)));
-});
+// electron-updater is loaded on first use so it does not slow down startup.
+function init() {
+    if (autoUpdater) {
+        return autoUpdater;
+    }
 
-autoUpdater.on('update-available', async (data) => {
-    let check = await dialog.showMessageBoxSync({
-        type: 'info',
-        title: `Updates found: ${data.version}`,
-        message: 'Updates found, do you want to update now?',
-        detail: String(data.releaseNotes || "").replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
-        buttons: ['Yes', 'No']
+    autoUpdater = require('electron-updater').autoUpdater;
+    const ProgressBar = require('electron-progressbar');
+
+    autoUpdater.autoDownload = false;
+    autoUpdater.setFeedURL({
+        "provider": 'github',
+        "owner": "emrementese",
+        "repo": "darkorbit-client-secure"
     });
 
-    if (check === 0) {
-        updater = true;
-        autoUpdater.downloadUpdate();
+    autoUpdater.on('error', (error) => {
+        console.error(error);
+        dialog.showErrorBox('Update error', error == null ? "unknown" : (error.message || String(error)));
+    });
 
-        progressBar = new ProgressBar({
-            indeterminate: false,
-            title: 'Update in progress',
-            text: 'Preparing to download updates.',
-            detail: 'Downloading ...'
+    autoUpdater.on('update-available', async (data) => {
+        let check = await dialog.showMessageBoxSync({
+            type: 'info',
+            title: `Updates found: ${data.version}`,
+            message: 'Updates found, do you want to update now?',
+            detail: String(data.releaseNotes || "").replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
+            buttons: ['Yes', 'No']
         });
 
-        progressBar
-            .on('progress', (value) => {
-                progressBar.text = 'Downloading updates.';
-                progressBar.detail = `Downloading ... ${value}%`;
-            })
-            .on('completed', () => {
-                progressBar.detail = 'Download complete.';
+        if (check === 0) {
+            updater = true;
+            autoUpdater.downloadUpdate();
+
+            progressBar = new ProgressBar({
+                indeterminate: false,
+                title: 'Update in progress',
+                text: 'Preparing to download updates.',
+                detail: 'Downloading ...'
             });
-    }
-});
 
-autoUpdater.on('download-progress', (progressObj) => {
-    if (progressBar) {
-        progressBar.value = parseInt(progressObj.percent);
-    }
-});
-
-autoUpdater.on('update-not-available', () => {
-    console.log("No update");
-});
-
-autoUpdater.on('update-downloaded', async () => {
-    if (progressBar) {
-        progressBar.close();
-    }
-    await dialog.showMessageBoxSync({
-        title: 'Install updates',
-        message: 'Downloaded updates, the application will close to update ...'
+            progressBar
+                .on('progress', (value) => {
+                    progressBar.text = 'Downloading updates.';
+                    progressBar.detail = `Downloading ... ${value}%`;
+                })
+                .on('completed', () => {
+                    progressBar.detail = 'Download complete.';
+                });
+        }
     });
 
-    autoUpdater.quitAndInstall();
-});
+    autoUpdater.on('download-progress', (progressObj) => {
+        if (progressBar) {
+            progressBar.value = parseInt(progressObj.percent);
+        }
+    });
+
+    autoUpdater.on('update-not-available', () => {
+        console.log("No update");
+    });
+
+    autoUpdater.on('update-downloaded', async () => {
+        if (progressBar) {
+            progressBar.close();
+        }
+        await dialog.showMessageBoxSync({
+            title: 'Install updates',
+            message: 'Downloaded updates, the application will close to update ...'
+        });
+
+        autoUpdater.quitAndInstall();
+    });
+
+    return autoUpdater;
+}
 
 async function checkForUpdates() {
     try {
-        await autoUpdater.checkForUpdates();
+        await init().checkForUpdates();
     } catch (error) {
         // The 'error' event already reported it.
         console.error(error);

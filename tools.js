@@ -3,8 +3,6 @@ const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
-const { openProcessManager } = require('electron-process-manager');
-const axios = require("axios");
 const { parseUrl, isDarkorbitUrl } = require("./security");
 
 function commandLine() {
@@ -64,11 +62,15 @@ function tray(client) {
         {
             label: "Clear Cache",
             click: async () => {
-                for(let win of BrowserWindow.getAllWindows()) {
-                    await win.webContents.session.clearCache();
-                    await win.webContents.session.clearStorageData();
-                    await win.webContents.session.clearHostResolverCache();
-                    await win.webContents.session.clearAuthCache();
+                // All windows share the default session; clear each session only once.
+                let sessions = new Set(BrowserWindow.getAllWindows().map(win => win.webContents.session));
+                for (let session of sessions) {
+                    await Promise.all([
+                        session.clearCache(),
+                        session.clearStorageData(),
+                        session.clearHostResolverCache(),
+                        session.clearAuthCache()
+                    ]);
                 }
 
                 client.core.app.relaunch();
@@ -200,7 +202,7 @@ function contextMenu(dev) {
                 label: 'Process Manager',
                 icon: `${__dirname}/contextMenu/processManager${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: dev,
-                click: () => openProcessManager({
+                click: () => require('electron-process-manager').openProcessManager({
                     defaultSorting: {
                         path: 'pid',
                         how: 'ascending'
@@ -279,7 +281,7 @@ function settingsWindow(window, type) {
 
 async function get(url) {
     return new Promise((resolve, reject) => {
-        axios.get(url)
+        require("axios").get(url)
             .then(response => resolve(response.data))
             .catch(error => reject(error));
     });
@@ -287,7 +289,7 @@ async function get(url) {
 
 async function getBase64(url) {
     return new Promise((resolve, reject) => {
-        axios.get(url, { responseType: 'arraybuffer' })
+        require("axios").get(url, { responseType: 'arraybuffer' })
             .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
             .catch(error => reject(error));
     });

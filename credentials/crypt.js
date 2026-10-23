@@ -1,4 +1,7 @@
 const crypto = require('crypto');
+const { promisify } = require('util');
+
+const scrypt = promisify(crypto.scrypt);
 
 const VERSION = 2;
 const ALGORITHM = 'aes-256-gcm';
@@ -13,8 +16,9 @@ const salt = () => {
     return crypto.randomBytes(16).toString('hex');
 }
 
+// Runs on the libuv thread pool so the main process stays responsive.
 const deriveKey = (password, salt) => {
-    return crypto.scryptSync(String(password), Buffer.from(salt, 'hex'), 32, SCRYPT_OPTIONS);
+    return scrypt(String(password), Buffer.from(salt, 'hex'), 32, SCRYPT_OPTIONS);
 }
 
 const encrypt = (key, text) => {

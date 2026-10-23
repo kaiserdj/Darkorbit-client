@@ -78,49 +78,52 @@ async function run() {
                         });
                     });
 
-                    for (;;) {
-                        if (document.readyState == "complete") {
-                            await new Promise(r => setTimeout(r, data.Settings.PacketTimeout));
+                    // Wait for the page load event instead of polling readyState.
+                    if (document.readyState !== "complete") {
+                        await new Promise(resolve => window.addEventListener("load", resolve, { once: true }));
+                    }
 
-                            console.log('Start packet_dumper');
+                    await new Promise(r => setTimeout(r, data.Settings.PacketTimeout));
 
-                            let packet_dumper;
-                            if (process.platform == 'win32') {
-                                packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), '../darkDev/packet_dumper.py');
-                                if (!fs.existsSync(packet_dumper)) {
-                                    packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
-                                }
-                            } else if (process.platform == 'linux') {
-                                packet_dumper = path.join(process.resourcesPath.split("/")[1] === "tmp" ? process.resourcesPath : await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
-                            } else if (process.platform == 'darwin') {
-                                packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), `../darkDev/packet_dumper.py`);
-                                if (!fs.existsSync(packet_dumper)) {
-                                    packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
-                                }
-                            }
+                    console.log('Start packet_dumper');
 
-                            let interpreter = data.Settings.PythonPath || "python";
-                            let python = require('child_process').spawn(interpreter, [packet_dumper], { cwd: path.dirname(packet_dumper), shell: false });
-
-                            python.on('error', error => console.error(error));
-
-                            python.stdout.on('data', data => {
-                                console.log(data.toString());
-                            });
-
-                            python.stderr.on('data', data => {
-                                console.error(`stderr: ${data}`);
-                            });
-
-                            python.on('close', code => {
-                                console.log(`child process exited with code ${code}`);
-                            });
-
-                            break;
-                        } else {
-                            await new Promise(r => setTimeout(r, 50));
+                    let packet_dumper;
+                    if (process.platform == 'win32') {
+                        packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), '../darkDev/packet_dumper.py');
+                        if (!fs.existsSync(packet_dumper)) {
+                            packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
+                        }
+                    } else if (process.platform == 'linux') {
+                        packet_dumper = path.join(process.resourcesPath.split("/")[1] === "tmp" ? process.resourcesPath : await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
+                    } else if (process.platform == 'darwin') {
+                        packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), `../darkDev/packet_dumper.py`);
+                        if (!fs.existsSync(packet_dumper)) {
+                            packet_dumper = path.join(await ipcRenderer.invoke("getAppPath"), './darkDev/packet_dumper.py');
                         }
                     }
+
+                    let interpreter = data.Settings.PythonPath || "python";
+                    let python = require('child_process').spawn(interpreter, [packet_dumper], { cwd: path.dirname(packet_dumper), shell: false });
+
+                    python.on('error', error => console.error(error));
+
+                    python.stdout.on('data', data => {
+                        console.log(data.toString());
+                    });
+
+                    python.stderr.on('data', data => {
+                        console.error(`stderr: ${data}`);
+                    });
+
+                    python.on('close', code => {
+                        console.log(`child process exited with code ${code}`);
+                    });
+
+                    // Do not leave a packet_dumper running for every game window that was opened.
+                    window.addEventListener("unload", () => {
+                        python.kill();
+                        wss.close();
+                    });
                 }
 
                 if (data.Settings.PreventCloseGame) {

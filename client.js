@@ -8,17 +8,16 @@ const update = require("./update");
 const useragent = require("./useragent");
 const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
-const DarkDev = require("./darkDev/darkDev");
 const Api = require("./api");
 const { parseUrl, isTrustedUrl, isDarkorbitUrl, openExternalSafe, matchesGlob } = require("./security");
 
 const DEFAULT_URL = "https://www.darkorbit.com/";
 const DEEP_LINK_PREFIX = "darkorbit-client://";
+const UPDATE_DELAY = 3000;
 
 class Client {
     constructor(core) {
         return (async () => {
-            update();
             this.core = core;
             this.arg = tools.commandLine();
             this.useragent = await useragent();
@@ -41,6 +40,7 @@ class Client {
                 console.log(this.arg);
                 this.apiHandlers();
                 this.createWindow("api");
+                setTimeout(update, UPDATE_DELAY);
                 return this;
             }
 
@@ -52,6 +52,8 @@ class Client {
             this.darkDev;
 
             if (this.arg.dev) {
+                // DarkDev (and xml2js) is only loaded in developer mode.
+                const DarkDev = require("./darkDev/darkDev");
                 this.darkDev = new DarkDev(this);
                 console.log("Settings:");
                 let { master, salt, accounts, ...visibleSettings } = settings.getSync();
@@ -70,6 +72,9 @@ class Client {
 
             this.createWindow("client");
 
+            // Checked a few seconds after startup so loading the updater does not compete with the first page.
+            setTimeout(update, UPDATE_DELAY);
+
             if (!settings.getSync().master && !autoStart && !settings.getSync().hideMasterRegister) {
                 this.credentials.showWhenReady();
             }
@@ -82,11 +87,13 @@ class Client {
 
     createWindow(type, url) {
         let window;
+        // getSync reads and parses settings.json from disk, so read it once per window.
+        let config = settings.getSync();
         let options = {
-            'width': this.arg.size ? this.arg.size[0] : settings.getSync()[type].width,
-            'height': this.arg.size ? this.arg.size[1] : settings.getSync()[type].height,
-            'x': settings.getSync()[type].x,
-            'y': settings.getSync()[type].y,
+            'width': this.arg.size ? this.arg.size[0] : config[type].width,
+            'height': this.arg.size ? this.arg.size[1] : config[type].height,
+            'x': config[type].x,
+            'y': config[type].y,
             'webPreferences': {
                 'preload': `${__dirname}/inject/${this.arg.api ? "ws" : "main"}.js`,
                 'contextIsolation': true,
@@ -113,7 +120,7 @@ class Client {
             window.webContents.openDevTools();
         }
 
-        window.webContents.setBackgroundThrottling(settings.getSync().Settings.BackgroundThrottling);
+        window.webContents.setBackgroundThrottling(config.Settings.BackgroundThrottling);
 
         this.setCustomLoad();
         this.setCustomJs();
@@ -149,31 +156,34 @@ class Client {
         tools.settingsWindow(window, type);
 
         window.webContents.on('before-input-event', (event, input) => {
-            let focus = () => BrowserWindow.getFocusedWindow();
-
-            if (!focus()) {
+            // Runs for every key press in the game, so leave as early as possible.
+            if (!input.control || input.type !== "keyDown") {
                 return;
             }
 
-            if (this.arg.dev && input.control && input.shift && input.code === "KeyI" && parseUrl(focus().webContents.getURL())?.search === "?action=internalMapRevolution") {
-                event.preventDefault();
-                focus().webContents.toggleDevTools();
+            let focus = BrowserWindow.getFocusedWindow();
+
+            if (!focus) {
+                return;
             }
-            if (input.control && input.code === "F5") {
+
+            if (input.shift && input.code === "KeyI") {
+                if (this.arg.dev && parseUrl(focus.webContents.getURL())?.search === "?action=internalMapRevolution") {
+                    event.preventDefault();
+                    focus.webContents.toggleDevTools();
+                }
+            } else if (input.code === "F5") {
                 event.preventDefault();
-                focus().reload();
-            }
-            if (input.control && input.code === "Numpad0") {
+                focus.reload();
+            } else if (input.code === "Numpad0") {
                 event.preventDefault();
-                focus().webContents.zoomLevel = 0;
-            }
-            if (input.control && input.key === "+") {
+                focus.webContents.zoomLevel = 0;
+            } else if (input.key === "+") {
                 event.preventDefault();
-                focus().webContents.zoomLevel += 0.5;
-            }
-            if (input.control && input.key === "-") {
+                focus.webContents.zoomLevel += 0.5;
+            } else if (input.key === "-") {
                 event.preventDefault();
-                focus().webContents.zoomLevel -= 0.5;
+                focus.webContents.zoomLevel -= 0.5;
             }
         })
 

@@ -1,7 +1,6 @@
 const { dialog, ipcMain, BrowserWindow, MenuItem, session } = require('electron');
 const { menubar } = require('menubar');
 const settings = require("electron-settings");
-const Alert = require("electron-alert");
 const Positioner = require('electron-positioner');
 
 const crypt = require("./crypt");
@@ -15,13 +14,13 @@ class Credentials {
         this.check = false;
         this.key = null;
         this.editingId = null;
+        this.pendingCheck = null;
         this.ready = false;
 
         this.mb.on("ready", ()=> {
             this.ready = true;
             if(settings.getSync().master) {
-                this.checkMaster("");
-                this.mb.hideWindow();
+                this.checkMaster("").then(() => this.mb.hideWindow());
             }
         });
 
@@ -45,7 +44,7 @@ class Credentials {
 
         onCredentials('registerMaster', (event, pass) => {
             if (!settings.getSync().master) {
-                this.registerMaster(pass);
+                this.registerMaster(pass).catch(error => console.error(error));
             }
         });
 
@@ -86,10 +85,9 @@ class Credentials {
             }
         });
 
-        onCredentials('checkMaster', (event, pass) => {
-            this.checkMaster(pass);
-            if (!this.check) {
-                this.mb.window.webContents.send("checkMasterRet", this.check);
+        onCredentials('checkMaster', async (event, pass) => {
+            if (!await this.checkMaster(pass)) {
+                this.mb.window.webContents.send("checkMasterRet", false);
             }
         });
 
@@ -263,49 +261,69 @@ class Credentials {
         }
     }
 
-    registerMaster(input) {
+    async registerMaster(input) {
+        let salt = crypt.salt();
+        let key = await crypt.deriveKey(input, salt);
+
+        // Read after the await so concurrent settings writes are not lost.
         let backup = settings.getSync();
-
-        backup.salt = crypt.salt();
-        this.key = crypt.deriveKey(input, backup.salt);
-        this.check = true;
-
+        backup.salt = salt;
         backup.cryptVersion = crypt.VERSION;
-        backup.master = crypt.createVerifier(this.key);
+        backup.master = crypt.createVerifier(key);
         delete backup.accounts;
 
         settings.setSync(backup);
+
+        this.key = key;
+        this.check = true;
 
         this.load("list");
     }
 
     checkMaster(input) {
         if (this.check === true) {
-            return this.check;
+            return Promise.resolve(true);
         }
 
+        // One attempt at a time; a second submit waits for the running one.
+        if (!this.pendingCheck) {
+            this.pendingCheck = this.verifyMaster(input)
+                .catch(error => {
+                    console.error(error);
+                    return false;
+                })
+                .then(check => {
+                    this.pendingCheck = null;
+                    if (check) {
+                        this.check = true;
+                        this.load("list");
+                    }
+                    return this.check;
+                });
+        }
+
+        return this.pendingCheck;
+    }
+
+    async verifyMaster(input) {
         let backup = settings.getSync();
 
-        if (backup.cryptVersion === crypt.VERSION) {
-            let key = crypt.deriveKey(input, backup.salt);
-
-            if (crypt.checkVerifier(key, backup.master)) {
-                this.key = key;
-                this.check = true;
-            }
-        } else if (this.migrateLegacy(input, backup)) {
-            this.check = true;
+        if (backup.cryptVersion !== crypt.VERSION) {
+            return this.migrateLegacy(input, backup);
         }
 
-        if (this.check) {
-            this.load("list");
+        let key = await crypt.deriveKey(input, backup.salt);
+
+        if (!crypt.checkVerifier(key, backup.master)) {
+            return false;
         }
 
-        return this.check;
+        this.key = key;
+        return true;
     }
 
     // Re-encrypts settings written with the old embedded key once the user proves the master password.
-    migrateLegacy(input, backup) {
+    async migrateLegacy(input, backup) {
         let hashMaster;
 
         try {
@@ -326,15 +344,18 @@ class Credentials {
             }
         }
 
-        backup.salt = crypt.salt();
-        this.key = crypt.deriveKey(input, backup.salt);
+        let salt = crypt.salt();
+        let key = await crypt.deriveKey(input, salt);
 
+        backup = settings.getSync();
+        backup.salt = salt;
         backup.cryptVersion = crypt.VERSION;
-        backup.master = crypt.createVerifier(this.key);
-        backup.accounts = crypt.encryptJson(this.key, accounts);
+        backup.master = crypt.createVerifier(key);
+        backup.accounts = crypt.encryptJson(key, accounts);
 
         settings.setSync(backup);
 
+        this.key = key;
         return true;
     }
 
@@ -350,6 +371,7 @@ class Credentials {
 
         this.check = false;
         this.key = null;
+        this.pendingCheck = null;
 
         this.load("register");
     }
@@ -409,6 +431,7 @@ class Credentials {
     }
 
     loginDosid() {
+        const Alert = require("electron-alert");
         let alert = new Alert();
 
         let swalOptions = {

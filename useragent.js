@@ -1,4 +1,5 @@
 const https = require('https');
+const settings = require("electron-settings");
 
 const url = "https://darkorbit-22-client.bpsecure.com/bpflashclient/windows.x64/repository/Updates.xml";
 const fallbackVersion = "1.6.9";
@@ -23,16 +24,40 @@ const httpsGet = url => {
     });
 };
 
-async function getVersion() {
-    let version = fallbackVersion;
+async function fetchVersion() {
+    let match = (await httpsGet(url)).match(/<Version>([0-9.]+)<\/Version>/);
+    if (!match) {
+        throw new Error("Version not found");
+    }
+    return match[1];
+}
 
-    try {
-        let match = (await httpsGet(url)).match(/<Version>([0-9.]+)<\/Version>/);
-        if (match) {
-            version = match[1];
+function storeVersion(version) {
+    let backup = settings.getSync();
+    if (backup.clientVersion !== version) {
+        backup.clientVersion = version;
+        settings.setSync(backup);
+    }
+    return version;
+}
+
+// The version from the last run is used right away and refreshed in the background,
+// so only the very first start waits for the network.
+async function getVersion() {
+    let refresh = fetchVersion().then(storeVersion);
+    let cached = settings.getSync().clientVersion;
+    let version;
+
+    if (cached) {
+        refresh.catch(error => console.error(`Could not refresh the client version: ${error.message}`));
+        version = cached;
+    } else {
+        try {
+            version = await refresh;
+        } catch (error) {
+            console.error(`Could not read the client version, using ${fallbackVersion}: ${error.message}`);
+            version = fallbackVersion;
         }
-    } catch (error) {
-        console.error(`Could not read the client version, using ${fallbackVersion}: ${error.message}`);
     }
 
     return `BigPointClient/${version}`;
