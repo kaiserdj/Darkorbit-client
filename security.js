@@ -52,6 +52,16 @@ function senderIsTrusted(event) {
     return isTrustedUrl(url) || isLocalFileUrl(url);
 }
 
+// Local tools (python websocket-client and similar) send no Origin or a localhost one; web pages send their own.
+function isLocalWsClient(info) {
+    if (!info.origin) {
+        return true;
+    }
+
+    let parsed = parseUrl(info.origin);
+    return parsed !== null && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
+}
+
 function globToRegExp(match) {
     let pattern = String(match)
         .replace(/[.+?^${}()|[\]\\\/]/g, "\\$&")
@@ -76,6 +86,7 @@ module.exports = {
     isWebUrl,
     openExternalSafe,
     senderIsTrusted,
+    isLocalWsClient,
     globToRegExp,
     matchesGlob
 };

@@ -11,7 +11,6 @@ class Core {
     constructor() {
         return (async () => {
             this.app = app;
-            global.app = app;
             this.appReady = false;
             this.ppapi_flash_path;
             this.newWindowHandler = null;

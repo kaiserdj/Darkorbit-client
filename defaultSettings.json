@@ -33,7 +33,8 @@
         "DefaultDev": false,
         "BackgroundThrottling": false,
         "Packet": false,
-        "PacketTimeout": 15000
+        "PacketTimeout": 15000,
+        "PythonPath": ""
     },
     "DarkDev": {
         "CustomLoad": {

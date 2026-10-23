@@ -10,7 +10,7 @@ const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
 const DarkDev = require("./darkDev/darkDev");
 const Api = require("./api");
-const { parseUrl, isTrustedUrl, isDarkorbitUrl, openExternalSafe } = require("./security");
+const { parseUrl, isTrustedUrl, isDarkorbitUrl, openExternalSafe, matchesGlob } = require("./security");
 
 const DEFAULT_URL = "https://www.darkorbit.com/";
 const DEEP_LINK_PREFIX = "darkorbit-client://";
@@ -37,10 +37,7 @@ class Client {
                 console.log("api");
                 console.log("Arguments:");
                 console.log(this.arg);
-                global.api = this.arg.api;
-                global.dev = this.arg.dev;
-                ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
-                ipcMain.handle("getAppMetrics", async () => this.core.app.getAppMetrics());
+                this.apiHandlers();
                 this.createWindow("api");
                 return this;
             }
@@ -94,7 +91,7 @@ class Client {
                 'preload': `${__dirname}/inject/${this.arg.api ? "ws" : "main"}.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'enableRemoteModule': type === "api",
+                'enableRemoteModule': false,
                 'plugins': true,
                 'devTools': this.arg.dev,
                 'offscreen': this.arg.offscreen
@@ -199,6 +196,49 @@ class Client {
         });
 
         return window;
+    }
+
+    apiHandlers() {
+        const apiWindow = (event) => {
+            if (this.windowTypes.get(event.sender.id) !== "api") {
+                throw new Error("Untrusted sender");
+            }
+            return BrowserWindow.fromWebContents(event.sender);
+        };
+
+        ipcMain.handle("getApiConfig", async (event) => {
+            apiWindow(event);
+            return { port: Number(this.arg.api), dev: Boolean(this.arg.dev), version: this.core.app.getVersion() };
+        });
+
+        ipcMain.handle("getAppMetrics", async (event) => {
+            apiWindow(event);
+            return this.core.app.getAppMetrics();
+        });
+
+        ipcMain.handle("apiWindow", async (event, action, width, height) => {
+            let window = apiWindow(event);
+
+            switch (action) {
+                case "setSize":
+                    if (Number.isInteger(width) && Number.isInteger(height) && width > 0 && height > 0) {
+                        window.setSize(width, height);
+                    }
+                    break;
+                case "show":
+                    window.show();
+                    break;
+                case "hide":
+                    window.hide();
+                    break;
+                case "minimize":
+                    window.minimize();
+                    break;
+                case "restore":
+                    window.restore();
+                    break;
+            }
+        });
     }
 
     loadTrustedUrl(window, url) {
@@ -374,19 +414,20 @@ class Client {
                         continue;
                     }
 
-                    let pattern = customLoad.list[id].match.replaceAll("/", "\\/");
-                    pattern = pattern.replaceAll(".", "\\.");
-                    pattern = pattern.replaceAll("*", ".*");
-                    pattern = pattern.replace(/[+?^${}()|]/g, '\\$&');
-
-                    let check = new RegExp(pattern).test(params.request.url);
-                    if (check) {
+                    if (matchesGlob(customLoad.list[id].match, params.request.url)) {
                         let body;
 
-                        if (customLoad.list[id].LocalFileEnable) {
-                            body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), { encoding: "base64" });
-                        } else {
-                            body = await tools.getBase64(customLoad.list[id].actionUrl);
+                        try {
+                            if (customLoad.list[id].LocalFileEnable) {
+                                body = fs.readFileSync(path.normalize(customLoad.list[id].LocalFile), { encoding: "base64" });
+                            } else if (parseUrl(customLoad.list[id].actionUrl)?.protocol === "https:") {
+                                body = await tools.getBase64(customLoad.list[id].actionUrl);
+                            } else {
+                                throw new Error("Only https urls can be used as source");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            break;
                         }
 
                         win.webContents.debugger.sendCommand("Fetch.fulfillRequest", {

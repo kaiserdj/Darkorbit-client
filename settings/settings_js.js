@@ -43,6 +43,21 @@ function run() {
         ipcRenderer.send("SetOptionConfig", "PacketTimeout", document.getElementById("PacketTimeout").value);
     }
 
+    document.getElementById("PythonPath").onchange = () => {
+        ipcRenderer.send("SetOptionConfig", "PythonPath", document.getElementById("PythonPath").value.trim());
+    }
+
+    // Donation
+    for (let address of document.getElementsByClassName("coin-address")) {
+        address.addEventListener("click", () => {
+            if (address.dataset.url) {
+                ipcRenderer.send("openExternal", address.dataset.url);
+            } else {
+                address.select();
+            }
+        });
+    }
+
     // Contributors
     renderContributors();
 
@@ -153,7 +168,8 @@ function load(data) {
         document.getElementById("Packet").checked = data.Packet;
     }
 
-    document.getElementById("PacketTimeout").value = data.PacketTimeout; 
+    document.getElementById("PacketTimeout").value = data.PacketTimeout;
+    document.getElementById("PythonPath").value = data.PythonPath || "";
 }
 
 ipcRenderer.on("SendLoadSettings", (event, data) => {

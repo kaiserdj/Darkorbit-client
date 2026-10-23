@@ -2,7 +2,7 @@ const { ipcRenderer } = require("electron");
 const path = require("path");
 const fs = require('fs');
 const api = require("./api");
-const { parseUrl, isDarkorbitUrl } = require("../security");
+const { parseUrl, isDarkorbitUrl, matchesGlob, isLocalWsClient } = require("../security");
 const nprogress = require("../libs/nprogress/nprogress");
 const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 
@@ -53,16 +53,26 @@ async function run() {
                 if (data.Settings.Packet) {
                     const WebSocket = require('ws');
 
-                    const wss = new WebSocket.WebSocketServer({ port: 44569 });
+                    // Only the local packet_dumper may connect, never other machines or web pages.
+                    const wss = new WebSocket.WebSocketServer({
+                        host: "127.0.0.1",
+                        port: 44569,
+                        maxPayload: 1024 * 1024,
+                        verifyClient: isLocalWsClient
+                    });
+
+                    wss.on('error', error => console.error(error));
 
                     wss.on('connection', ws => {
                         ws.on('message', message => {
-                            let event = new CustomEvent("Packet", {
-                                detail: {
-                                    packet: JSON.parse(message.toString())
-                                }
-                            });
-                            window.dispatchEvent(event);
+                            let packet;
+                            try {
+                                packet = JSON.parse(message.toString());
+                            } catch (e) {
+                                return;
+                            }
+
+                            window.dispatchEvent(new CustomEvent("Packet", { detail: { packet } }));
                         });
                     });
 
@@ -87,7 +97,10 @@ async function run() {
                                 }
                             }
 
-                            let python = require('child_process').spawn('python', [packet_dumper]);
+                            let interpreter = data.Settings.PythonPath || "python";
+                            let python = require('child_process').spawn(interpreter, [packet_dumper], { cwd: path.dirname(packet_dumper), shell: false });
+
+                            python.on('error', error => console.error(error));
 
                             python.stdout.on('data', data => {
                                 console.log(data.toString());
@@ -119,22 +132,14 @@ async function run() {
     }
 }
 
-function customUrlRegex(match, url) {
-    let pattern = match.replaceAll("/", "\\/");
-    pattern = pattern.replaceAll(".", "\\.");
-    pattern = pattern.replaceAll("*", ".*");
-    pattern = pattern.replace(/[+?^${}()|]/g, '\\$&');
-
-    return new RegExp(pattern).test(url);
-}
-
 ipcRenderer.once("customJs", (event, data) => {
     if (data.enable) {
         for (let id in data.list) {
             if (data.list[id].enable) {
-                if (customUrlRegex(data.list[id].match, document.location.href)) {
+                if (matchesGlob(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
-                        .then(res => api.injectJs(res));
+                        .then(res => api.injectJs(res))
+                        .catch(error => console.error(error));
                 }
             }
         }
@@ -145,9 +150,10 @@ ipcRenderer.once("customCss", (event, data) => {
     if (data.enable) {
         for (let id in data.list) {
             if (data.list[id].enable) {
-                if (customUrlRegex(data.list[id].match, document.location.href)) {
+                if (matchesGlob(data.list[id].match, document.location.href)) {
                     api.get(data.list[id].actionUrl)
-                        .then(res => api.injectCss(res));
+                        .then(res => api.injectCss(res))
+                        .catch(error => console.error(error));
                 }
             }
         }

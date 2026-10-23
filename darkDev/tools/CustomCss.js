@@ -1,5 +1,6 @@
 const { ipcMain } = require("electron");
 const settings = require("electron-settings");
+const { hasItem, sanitizeItem } = require("./validate");
 
 class CustomCss {
     constructor(client, darkDev) {
@@ -40,21 +41,31 @@ class CustomCss {
     }
 
     setEnable(opt) {
-        this.enable = opt;
+        this.enable = Boolean(opt);
         this.setSettings();
     }
 
     newCustomCss(data) {
-        this.list[data.id] = data;
+        let item = sanitizeItem(data, false);
+        if (!item) {
+            return;
+        }
+        this.list[item.id] = item;
         this.setSettings();
     }
 
     setEnableCustomCssItem(data) {
-        this.list[data.id].enable = data.enable;
+        if (!data || !hasItem(this.list, data.id)) {
+            return;
+        }
+        this.list[data.id].enable = Boolean(data.enable);
         this.setSettings();
     }
 
     removeCustomCssItem(id) {
+        if (!hasItem(this.list, id)) {
+            return;
+        }
         delete this.list[id];
         this.setSettings();
     }
