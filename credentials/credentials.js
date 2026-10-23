@@ -10,7 +10,6 @@ class Credentials {
     constructor(client) {
         this.client = client;
         this.mb = menubar(this.config());
-        this.window;
         this.check = false;
         this.key = null;
         this.editingId = null;

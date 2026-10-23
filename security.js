@@ -83,10 +83,8 @@ module.exports = {
     isTrustedUrl,
     isDarkorbitUrl,
     isLocalFileUrl,
-    isWebUrl,
     openExternalSafe,
     senderIsTrusted,
     isLocalWsClient,
-    globToRegExp,
     matchesGlob
 };

@@ -6,7 +6,6 @@ const { openExternalSafe } = require("../security");
 class Settings {
     constructor(client) {
         this.client = client;
-        this.window;
 
         this.client.menuTray.insert(4, new MenuItem({
             label: "Settings",

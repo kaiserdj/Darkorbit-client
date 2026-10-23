@@ -193,10 +193,7 @@ function contextMenu(dev) {
                 label: 'Inspect Element',
                 icon: `${__dirname}/contextMenu/inspectElement${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: dev,
-                click: () => {
-                    browserWindow.isDevToolsOpened()
-                    browserWindow.inspectElement(params.x, params.y)
-                }
+                click: () => browserWindow.inspectElement(params.x, params.y)
             },
             {
                 label: 'Process Manager',

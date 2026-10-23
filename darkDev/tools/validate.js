@@ -63,6 +63,5 @@ function reject(message) {
 
 module.exports = {
     hasItem,
-    isHttpsUrl,
     sanitizeItem
 };

@@ -44,12 +44,10 @@ class Client {
                 return this;
             }
 
-            this.menuTray;
             this.tray = tools.tray(this);
             this.config = new Settings(this);
             this.credentials = new Credentials(this);
             this.api = new Api();
-            this.darkDev;
 
             if (this.arg.dev) {
                 // DarkDev (and xml2js) is only loaded in developer mode.

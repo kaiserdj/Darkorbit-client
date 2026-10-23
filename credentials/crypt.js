@@ -73,8 +73,6 @@ module.exports = {
     VERSION,
     salt,
     deriveKey,
-    encrypt,
-    decrypt,
     encryptJson,
     decryptJson,
     createVerifier,

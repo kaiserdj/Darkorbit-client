@@ -1,6 +1,5 @@
 const { dialog } = require('electron');
 
-let updater = false;
 let progressBar;
 let autoUpdater = null;
 
@@ -35,7 +34,6 @@ function init() {
         });
 
         if (check === 0) {
-            updater = true;
             autoUpdater.downloadUpdate();
 
             progressBar = new ProgressBar({
@@ -88,8 +86,6 @@ async function checkForUpdates() {
         // The 'error' event already reported it.
         console.error(error);
     }
-
-    return updater;
 }
 
 module.exports = checkForUpdates;

@@ -11,8 +11,6 @@ class Core {
     constructor() {
         return (async () => {
             this.app = app;
-            this.appReady = false;
-            this.ppapi_flash_path;
             this.newWindowHandler = null;
             this.navigationPolicy = null;
 
@@ -29,7 +27,6 @@ class Core {
             Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: "File", submenu: [{ role: "reload" }, { role: "close" }] }]));
 
             await this.app.whenReady();
-            this.appReady = true;
 
             session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
                 callback(ALLOWED_PERMISSIONS.includes(permission) && isTrustedUrl(webContents.getURL()));

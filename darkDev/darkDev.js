@@ -1,18 +1,12 @@
 const { BrowserWindow, MenuItem, ipcMain, dialog } = require('electron');
 const settings = require("electron-settings");
 
-const CustomLoad = require("./tools/CustomLoad");
-const CustomJs = require("./tools/CustomJs");
-const CustomCss = require("./tools/CustomCss");
+const CustomList = require("./tools/CustomList");
 const ResourceDownload = require("./tools/ResourceDownload");
 
 class DarkDev {
     constructor(client) {
         this.client = client;
-        this.customLoad;
-        this.customJs;
-        this.customCss;
-        this.window;
 
         if (!this.client.arg.dev) {
             return;
@@ -30,9 +24,9 @@ class DarkDev {
 
         this.client.rebuildTrayMenu();
 
-        this.customLoad = new CustomLoad(this.client, this);
-        this.customJs = new CustomJs(this.client, this);
-        this.customCss = new CustomCss(this.client, this);
+        this.customLoad = new CustomList(this, "CustomLoad", true, () => this.client.setCustomLoad());
+        this.customJs = new CustomList(this, "CustomJs", false, () => this.client.setCustomJs());
+        this.customCss = new CustomList(this, "CustomCss", false, () => this.client.setCustomCss());
 
         ipcMain.on("LoadConfigDarkDev", (event) => {
             if (!this.isDarkDevWindow(event)) {
