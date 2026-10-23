@@ -27,6 +27,19 @@ function isDarkorbitUrl(url) {
     return isHttpsHostIn(url, DARKORBIT_DOMAINS);
 }
 
+// DarkOrbit pages that show the login form (start page, server start pages, login errors).
+function isLoginPage(href) {
+    if (!isDarkorbitUrl(href)) {
+        return false;
+    }
+
+    let url = parseUrl(href);
+
+    return url.hostname === "www.darkorbit.com" ||
+        (url.pathname === "/" && href.includes("?")) ||
+        (/^\/index\.[^./]*$/.test(url.pathname) && url.search.startsWith("?action=externalHome&loginError="));
+}
+
 function isLocalFileUrl(url) {
     let parsed = parseUrl(url);
     return parsed !== null && parsed.protocol === "file:";
@@ -67,7 +80,8 @@ function globToRegExp(match) {
         .replace(/[.+?^${}()|[\]\\\/]/g, "\\$&")
         .replace(/\*/g, ".*");
 
-    return new RegExp(pattern);
+    // Anchored like the DevTools Fetch url patterns: the whole url has to match.
+    return new RegExp(`^${pattern}$`);
 }
 
 function matchesGlob(match, url) {
@@ -82,6 +96,7 @@ module.exports = {
     parseUrl,
     isTrustedUrl,
     isDarkorbitUrl,
+    isLoginPage,
     isLocalFileUrl,
     openExternalSafe,
     senderIsTrusted,

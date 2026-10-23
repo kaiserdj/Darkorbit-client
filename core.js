@@ -7,6 +7,22 @@ const { isTrustedUrl, isLocalFileUrl, parseUrl, openExternalSafe } = require("./
 
 const ALLOWED_PERMISSIONS = ["fullscreen", "pointerLock"];
 
+// Keeps the referrer and the body of target=_blank form posts when a popup is reopened by the client.
+function loadOptionsFor(referrer, postBody) {
+    let options = {};
+
+    if (referrer && referrer.url) {
+        options.httpReferrer = referrer;
+    }
+
+    if (postBody && postBody.data) {
+        options.postData = postBody.data;
+        options.extraHeaders = `content-type: ${postBody.contentType}` + (postBody.boundary ? `; boundary=${postBody.boundary}` : "");
+    }
+
+    return options;
+}
+
 class Core {
     constructor() {
         return (async () => {
@@ -44,10 +60,10 @@ class Core {
                 });
 
                 // Every popup is denied here; client windows get their own routing through newWindowHandler.
-                webContents.on('new-window', (event, url) => {
+                webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures, referrer, postBody) => {
                     event.preventDefault();
                     if (this.newWindowHandler) {
-                        this.newWindowHandler(event, webContents, url);
+                        this.newWindowHandler(event, webContents, url, loadOptionsFor(referrer, postBody));
                     } else {
                         openExternalSafe(url);
                     }
@@ -55,6 +71,14 @@ class Core {
 
                 webContents.on('will-navigate', (event, url) => {
                     if (!this.isNavigationAllowed(webContents, url)) {
+                        event.preventDefault();
+                        openExternalSafe(url);
+                    }
+                });
+
+                // Server redirects skip will-navigate, so the same policy is applied to them.
+                webContents.on('will-redirect', (event, url, isInPlace, isMainFrame) => {
+                    if (isMainFrame && !this.isNavigationAllowed(webContents, url)) {
                         event.preventDefault();
                         openExternalSafe(url);
                     }

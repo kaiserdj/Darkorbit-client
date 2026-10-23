@@ -9,11 +9,13 @@ const useragent = require("./useragent");
 const Settings = require("./settings/settings");
 const Credentials = require("./credentials/credentials");
 const Api = require("./api");
-const { parseUrl, isTrustedUrl, isDarkorbitUrl, openExternalSafe, matchesGlob } = require("./security");
+const { parseUrl, isTrustedUrl, isDarkorbitUrl, isLoginPage, openExternalSafe, matchesGlob } = require("./security");
 
 const DEFAULT_URL = "https://www.darkorbit.com/";
 const DEEP_LINK_PREFIX = "darkorbit-client://";
 const UPDATE_DELAY = 3000;
+// Windows that may show third party (payment) pages: no preload, no Node and a sandboxed renderer.
+const SANDBOXED_TYPES = ["shop", "popup"];
 
 class Client {
     constructor(core) {
@@ -32,7 +34,7 @@ class Client {
             }
 
             this.core.newWindowHandler = (event, webContents, url) => this.handleNewWindow(event, webContents, url);
-            this.core.navigationPolicy = (webContents) => ["shop", "popup"].includes(this.windowTypes.get(webContents.id));
+            this.core.navigationPolicy = (webContents, url) => SANDBOXED_TYPES.includes(this.windowTypes.get(webContents.id)) && parseUrl(url)?.protocol === "https:";
 
             if (this.arg.api) {
                 console.log("api");
@@ -83,7 +85,7 @@ class Client {
         })()
     }
 
-    createWindow(type, url) {
+    createWindow(type, url, loadOptions) {
         let window;
         // getSync reads and parses settings.json from disk, so read it once per window.
         let config = settings.getSync();
@@ -102,6 +104,12 @@ class Client {
                 'offscreen': this.arg.offscreen
             }
         };
+
+        if (SANDBOXED_TYPES.includes(type)) {
+            delete options.webPreferences.preload;
+            options.webPreferences.nodeIntegration = false;
+            options.webPreferences.sandbox = true;
+        }
 
         if (this.arg.size) {
             delete this.arg.size;
@@ -128,7 +136,7 @@ class Client {
             if (this.arg.login.length === 2) {
                 let login = this.arg.login;
                 window.webContents.once('did-finish-load', () => {
-                    if (isDarkorbitUrl(window.webContents.getURL())) {
+                    if (isLoginPage(window.webContents.getURL())) {
                         window.webContents.send("login", login);
                     }
                 });
@@ -146,7 +154,7 @@ class Client {
 
             delete this.arg.url;
         } else if (url) {
-            this.loadTrustedUrl(window, url);
+            this.loadTrustedUrl(window, url, loadOptions);
         } else {
             this.loadPage(window, DEFAULT_URL);
         }
@@ -252,17 +260,17 @@ class Client {
     }
 
     // Navigations replaced by redirects or a new load reject with ERR_ABORTED; that is expected.
-    loadPage(window, url) {
-        return window.loadURL(url, { userAgent: this.useragent }).catch(error => {
+    loadPage(window, url, loadOptions) {
+        return window.loadURL(url, Object.assign({}, loadOptions, { userAgent: this.useragent })).catch(error => {
             if (error.code !== "ERR_ABORTED") {
                 console.error(error);
             }
         });
     }
 
-    loadTrustedUrl(window, url) {
+    loadTrustedUrl(window, url, loadOptions) {
         if (isTrustedUrl(url)) {
-            this.loadPage(window, url);
+            this.loadPage(window, url, loadOptions);
         } else {
             dialog.showErrorBox("Load url", `Only https DarkOrbit urls can be loaded: ${url}`);
             this.loadPage(window, DEFAULT_URL);
@@ -300,7 +308,19 @@ class Client {
             .then(() => this.loadPage(window, target));
     }
 
-    handleNewWindow(event, webContents, url) {
+    handleNewWindow(event, webContents, url, loadOptions) {
+        let type = this.windowTypes.get(webContents.id);
+        let guest = this.routeNewWindow(webContents, url, loadOptions);
+
+        // Game and shop pages keep a window.open() reference to their popups, as before. Electron
+        // ties such a guest to its opener, so other windows (e.g. the game opened from the start
+        // page) stay independent and survive when their opener is closed.
+        if (guest instanceof BrowserWindow && (type === "game" || SANDBOXED_TYPES.includes(type))) {
+            event.newGuest = guest;
+        }
+    }
+
+    routeNewWindow(webContents, url, loadOptions) {
         let type = this.windowTypes.get(webContents.id);
         let window = BrowserWindow.fromWebContents(webContents);
         let parsed = parseUrl(url);
@@ -310,34 +330,33 @@ class Client {
         }
 
         if (!isTrustedUrl(url)) {
-            // Payment providers opened from the shop keep working in a window without preload or Node.
-            if ((type === "shop" || type === "popup") && parsed.protocol === "https:") {
-                event.newGuest = this.createPopupWindow(url);
-                return;
+            // Payment providers opened from the shop keep working in a sandboxed window.
+            if (SANDBOXED_TYPES.includes(type) && parsed.protocol === "https:") {
+                return this.createPopupWindow(url, loadOptions);
             }
             return openExternalSafe(url);
         }
 
         if (parsed.search === "?action=internalMapRevolution") {
-            return this.createWindow("game", url);
+            return this.createWindow("game", url, loadOptions);
         }
 
         if (!isDarkorbitUrl(url)) {
-            return this.createWindow("config", url);
+            return this.createWindow("config", url, loadOptions);
         }
 
         let action = parsed.search.split("&")[0];
 
         if (parsed.hostname.split(".")[0].includes("board") || parsed.search === "?action=portal.redirectToBoard") {
-            return this.createWindow("board", url);
+            return this.createWindow("board", url, loadOptions);
         }
 
         if (action === "?action=internalPaymentProxy") {
-            return this.createWindow("shop", url);
+            return this.createWindow("shop", url, loadOptions);
         }
 
-        if (type === "game" || type === "shop" || type === "popup") {
-            return this.createWindow("client", url);
+        if (type === "game" || SANDBOXED_TYPES.includes(type)) {
+            return this.createWindow("client", url, loadOptions);
         }
 
         if (action === "?action=externalLogout") {
@@ -348,13 +367,13 @@ class Client {
         }
 
         if (parsed.pathname.split("/")[1] === "p") {
-            return this.createWindow("board", url);
+            return this.createWindow("board", url, loadOptions);
         }
 
-        return this.loadPage(window, url);
+        return this.loadPage(window, url, loadOptions);
     }
 
-    createPopupWindow(url) {
+    createPopupWindow(url, loadOptions) {
         let popup = new BrowserWindow({
             'width': 800,
             'height': 700,
@@ -373,16 +392,16 @@ class Client {
         popup.on("closed", () => this.windowTypes.delete(webContentsId));
 
         popup.setMenuBarVisibility(false);
-        this.loadPage(popup, url);
+        this.loadPage(popup, url, loadOptions);
 
         return popup;
     }
 
-    // DarkDev tools only apply to the game client windows, never to local pages or payment popups.
+    // DarkDev tools only apply to the game client windows, never to local pages or the sandboxed shop/payment windows.
     customWindows() {
         return BrowserWindow.getAllWindows().filter(win => {
             let type = this.windowTypes.get(win.webContents.id);
-            return type && type !== "popup" && type !== "api";
+            return type && type !== "api" && !SANDBOXED_TYPES.includes(type);
         });
     }
 

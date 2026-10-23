@@ -2,7 +2,7 @@ const { ipcRenderer } = require("electron");
 const path = require("path");
 const fs = require('fs');
 const api = require("./api");
-const { parseUrl, isDarkorbitUrl, matchesGlob, isLocalWsClient } = require("../security");
+const { isDarkorbitUrl, isLoginPage, matchesGlob, isLocalWsClient } = require("../security");
 const nprogress = require("../libs/nprogress/nprogress");
 const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 
@@ -26,18 +26,6 @@ function showUnloadProgress() {
 }
 
 window.addEventListener("beforeunload", showUnloadProgress);
-
-function isLoginPage(href) {
-    if (!isDarkorbitUrl(href)) {
-        return false;
-    }
-
-    let url = parseUrl(href);
-
-    return url.hostname === "www.darkorbit.com" ||
-        (url.pathname === "/" && href.includes("?")) ||
-        (/^\/index\.[^./]*$/.test(url.pathname) && url.search.startsWith("?action=externalHome&loginError="));
-}
 
 async function run() {
     let url = this.location.href;

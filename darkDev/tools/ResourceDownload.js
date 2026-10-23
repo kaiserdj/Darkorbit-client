@@ -16,6 +16,11 @@ class ResourceDownload {
             return;
         }
 
+        // URL origins are lower case, so compare against a lower case server name.
+        if (this.opt.customServer) {
+            this.opt.server = String(this.opt.server).toLowerCase();
+        }
+
         this.domain = this.opt.customServer ? `https://${this.opt.server}.darkorbit.com` : "https://darkorbit-22.bpsecure.com";
 
         this.console(`Selected domain: ${this.domain}`);
@@ -27,8 +32,10 @@ class ResourceDownload {
     resolveInFolder(file) {
         let root = path.resolve(this.opt.folder);
         let target = path.resolve(root, file);
+        let relative = path.relative(root, target);
 
-        if (target !== root && !target.startsWith(root + path.sep)) {
+        // path.relative also works when the folder is a drive root such as "/" or "C:\\".
+        if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
             throw new Error(`Path outside of the download folder: ${file}`);
         }
 
@@ -122,6 +129,10 @@ class ResourceDownload {
     }
 
     async downloader(file) {
+        if (this.window.isDestroyed()) {
+            throw new Error("DarkDev window was closed");
+        }
+
         let pathfile = this.resolveInFolder(file.path);
         let url = new URL(file.path, `${this.domain}/`);
 
@@ -158,7 +169,10 @@ class ResourceDownload {
     }
 
     console(text) {
-        this.window.webContents.send("consoleDownload", text);
+        // The DarkDev window may be closed while a download is still running.
+        if (!this.window.isDestroyed()) {
+            this.window.webContents.send("consoleDownload", text);
+        }
     }
 
     md5(path) {

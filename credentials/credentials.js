@@ -4,7 +4,7 @@ const settings = require("electron-settings");
 const Positioner = require('electron-positioner');
 
 const crypt = require("./crypt");
-const { parseUrl, isDarkorbitUrl } = require("../security");
+const { parseUrl, isDarkorbitUrl, isLoginPage } = require("../security");
 
 class Credentials {
     constructor(client) {
@@ -13,7 +13,8 @@ class Credentials {
         this.check = false;
         this.key = null;
         this.editingId = null;
-        this.pendingCheck = null;
+        this.checkQueue = Promise.resolve();
+        this.dosidWindow = null;
         this.ready = false;
 
         this.mb.on("ready", ()=> {
@@ -150,15 +151,15 @@ class Credentials {
 
             let credentials = [account.username, account.password];
 
-            // The window that asked for autologin still shows a DarkOrbit login form.
-            if (this.window && !this.window.isDestroyed() && isDarkorbitUrl(this.window.webContents.getURL())) {
+            // Reuse the window that asked for autologin only while it still shows the login form.
+            if (this.window && !this.window.isDestroyed() && isLoginPage(this.window.webContents.getURL())) {
                 return this.window.webContents.send("login", credentials);
             }
 
             let window = this.client.createWindow("client");
             window.webContents.once('did-finish-load', () => {
-                // Credentials are only ever handed to a DarkOrbit page.
-                if (isDarkorbitUrl(window.webContents.getURL())) {
+                // Credentials are only ever handed to a DarkOrbit login page.
+                if (isLoginPage(window.webContents.getURL())) {
                     window.webContents.send("login", credentials);
                 }
             });
@@ -166,6 +167,18 @@ class Credentials {
 
         onCredentials('close', () => {
             this.load("list")
+        });
+
+        ipcMain.on('dosidSubmit', (event, value) => {
+            if (this.isDosidWindow(event)) {
+                this.submitDosid(String(value));
+            }
+        });
+
+        ipcMain.on('dosidCancel', (event) => {
+            if (this.isDosidWindow(event)) {
+                this.dosidWindow.close();
+            }
         });
     }
 
@@ -280,28 +293,29 @@ class Credentials {
     }
 
     checkMaster(input) {
-        if (this.check === true) {
-            return Promise.resolve(true);
-        }
+        // Attempts run one after another, each with its own password, so a quick retry
+        // is never answered with the result of an earlier attempt.
+        let attempt = this.checkQueue.then(async () => {
+            if (this.check) {
+                return true;
+            }
 
-        // One attempt at a time; a second submit waits for the running one.
-        if (!this.pendingCheck) {
-            this.pendingCheck = this.verifyMaster(input)
-                .catch(error => {
-                    console.error(error);
-                    return false;
-                })
-                .then(check => {
-                    this.pendingCheck = null;
-                    if (check) {
-                        this.check = true;
-                        this.load("list");
-                    }
-                    return this.check;
-                });
-        }
+            let check = false;
+            try {
+                check = await this.verifyMaster(input);
+            } catch (error) {
+                console.error(error);
+            }
 
-        return this.pendingCheck;
+            if (check) {
+                this.check = true;
+                this.load("list");
+            }
+            return check;
+        });
+
+        this.checkQueue = attempt;
+        return attempt;
     }
 
     async verifyMaster(input) {
@@ -370,7 +384,6 @@ class Credentials {
 
         this.check = false;
         this.key = null;
-        this.pendingCheck = null;
 
         this.load("register");
     }
@@ -430,41 +443,55 @@ class Credentials {
     }
 
     loginDosid() {
-        const Alert = require("electron-alert");
-        let alert = new Alert();
+        if (this.dosidWindow) {
+            this.dosidWindow.focus();
+            return;
+        }
 
-        let swalOptions = {
-            imageUrl: 'https://i.imgur.com/tkyZuOn.png',
-            imageHeight: 30,
-            imageAlt: 'Sid Login',
-            input: 'text',
-            inputPlaceholder: 'https://es1.darkorbit.com/?dosid=c21cf6377518dd6e93450c6085a548b1',
-            inputAttributes: {
-                maxlength: 100,
-                autocapitalize: 'off',
-                autocorrect: 'off'
-            },
-            showCancelButton: true,
-            cancelButtonColor: '#d33',
-        };
-
-        alert.fireFrameless(swalOptions, null, true, true).then((dosid) => {
-            if (dosid.value) {
-                let sid = dosid.value.match(/[?&](dosid|sid)=([^&#]+)/);
-
-                if (sid === null || !isDarkorbitUrl(dosid.value)) {
-                    dialog.showErrorBox("Login with Dosid", "Only https DarkOrbit urls with a dosid parameter can be used.");
-                    return;
-                }
-
-                let baseUrl = parseUrl(dosid.value).origin;
-                const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
-                // Client windows share the default session, so the cookie is set before the window loads.
-                session.defaultSession.cookies.set(cookie)
-                    .catch(error => console.error(error))
-                    .then(() => this.client.createWindow("client", `${baseUrl}/indexInternal.es?action=internalStart`));
+        this.dosidWindow = new BrowserWindow({
+            'width': 520,
+            'height': 340,
+            'resizable': false,
+            'minimizable': false,
+            'maximizable': false,
+            'title': "Login with Dosid",
+            'webPreferences': {
+                'preload': `${__dirname}/html/dosid.js`,
+                'sandbox': true,
+                'contextIsolation': true,
+                'nodeIntegration': false,
+                'enableRemoteModule': false,
+                'devTools': this.client.arg.dev
             }
         });
+
+        this.dosidWindow.setMenuBarVisibility(false);
+        this.dosidWindow.loadFile("./credentials/html/dosid.html");
+        this.dosidWindow.on("closed", () => {
+            this.dosidWindow = null;
+        });
+    }
+
+    isDosidWindow(event) {
+        return Boolean(this.dosidWindow) && event.sender === this.dosidWindow.webContents;
+    }
+
+    submitDosid(value) {
+        let sid = value.match(/[?&](dosid|sid)=([^&#]+)/);
+
+        if (sid === null || !isDarkorbitUrl(value)) {
+            dialog.showErrorBox("Login with Dosid", "Only https DarkOrbit urls with a dosid parameter can be used.");
+            return;
+        }
+
+        this.dosidWindow.close();
+
+        let baseUrl = parseUrl(value).origin;
+        const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+        // Client windows share the default session, so the cookie is set before the window loads.
+        session.defaultSession.cookies.set(cookie)
+            .catch(error => console.error(error))
+            .then(() => this.client.createWindow("client", `${baseUrl}/indexInternal.es?action=internalStart`));
     }
 }
 

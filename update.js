@@ -1,6 +1,7 @@
 const { dialog } = require('electron');
 
 let progressBar;
+let downloading = false;
 let autoUpdater = null;
 
 // electron-updater is loaded on first use so it does not slow down startup.
@@ -19,8 +20,20 @@ function init() {
         "repo": "darkorbit-client-secure"
     });
 
+    // Failed background checks (offline, no release published yet) are only logged;
+    // the user is only interrupted when an update they accepted fails.
     autoUpdater.on('error', (error) => {
         console.error(error);
+
+        if (!downloading) {
+            return;
+        }
+
+        downloading = false;
+        if (progressBar) {
+            progressBar.close();
+            progressBar = null;
+        }
         dialog.showErrorBox('Update error', error == null ? "unknown" : (error.message || String(error)));
     });
 
@@ -34,7 +47,8 @@ function init() {
         });
 
         if (check === 0) {
-            autoUpdater.downloadUpdate();
+            downloading = true;
+            autoUpdater.downloadUpdate().catch(error => console.error(error));
 
             progressBar = new ProgressBar({
                 indeterminate: false,
