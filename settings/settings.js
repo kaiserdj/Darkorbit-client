@@ -1,5 +1,6 @@
 const { BrowserWindow, MenuItem, ipcMain } = require('electron');
 const settings = require("electron-settings");
+const defaultSettings = require("../defaultSettings.json");
 const { openExternalSafe } = require("../security");
 
 class Settings {
@@ -19,7 +20,10 @@ class Settings {
 
         this.client.rebuildTrayMenu();
 
-        ipcMain.on("LoadSettings", () => {
+        ipcMain.on("LoadSettings", (event) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
             this.window.webContents.send("SendLoadSettings", settings.getSync().Settings)
         })
 
@@ -39,8 +43,32 @@ class Settings {
         });
 
         ipcMain.on('SetOptionConfig', (event, opt, data) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
+
+            // Only known options with the type of their default value are stored.
+            if (!Object.prototype.hasOwnProperty.call(defaultSettings.Settings, opt)) {
+                return;
+            }
+
+            let value;
+            switch (typeof defaultSettings.Settings[opt]) {
+                case "boolean":
+                    value = Boolean(data);
+                    break;
+                case "number":
+                    value = Number(data);
+                    if (!Number.isFinite(value) || value < 0) {
+                        return;
+                    }
+                    break;
+                default:
+                    value = String(data);
+            }
+
             let backup = settings.getSync();
-            backup.Settings[opt] = data;
+            backup.Settings[opt] = value;
             settings.setSync(backup);
         });
     }

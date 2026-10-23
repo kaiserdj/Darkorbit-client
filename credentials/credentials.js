@@ -13,8 +13,8 @@ class Credentials {
         this.mb = menubar(this.config());
         this.window;
         this.check = false;
-        this.hashMaster;
-        this.master;
+        this.key = null;
+        this.editingId = null;
 
         this.mb.on("ready", ()=> {
             if(settings.getSync().master) {
@@ -23,11 +23,36 @@ class Credentials {
             }
         });
 
-        ipcMain.on('registerMaster', (event, pass) => {
-            this.registerMaster(pass);
+        // Messages from the credentials window itself.
+        const onCredentials = (channel, handler) => {
+            ipcMain.on(channel, (event, ...args) => {
+                if (this.mb.window && event.sender === this.mb.window.webContents) {
+                    handler(event, ...args);
+                }
+            });
+        };
+
+        // Messages that need an unlocked master password.
+        const onUnlocked = (channel, handler) => {
+            onCredentials(channel, (event, ...args) => {
+                if (this.check) {
+                    handler(event, ...args);
+                }
+            });
+        };
+
+        onCredentials('registerMaster', (event, pass) => {
+            if (!settings.getSync().master) {
+                this.registerMaster(pass);
+            }
         });
 
+        // Sent by the AUTOLOGIN button injected into the DarkOrbit login page.
         ipcMain.on('autoLogin', (event) => {
+            if (!isDarkorbitUrl(event.sender.getURL())) {
+                return;
+            }
+
             this.window = BrowserWindow.fromWebContents(event.sender);
 
             if (this.check) {
@@ -45,7 +70,6 @@ class Credentials {
 
                     dialog.showMessageBox(message)
                         .then(() => {
-                            backup.salt = true;
                             delete backup.master;
                             delete backup.accounts;
                             settings.setSync(backup);
@@ -56,103 +80,94 @@ class Credentials {
                     return;
                 }
 
-                this.load("login");
+                this.load(backup.master ? "login" : "register");
             }
         });
 
-        ipcMain.on('checkMaster', (event, pass) => {
+        onCredentials('checkMaster', (event, pass) => {
             this.checkMaster(pass);
             if (!this.check) {
                 this.mb.window.webContents.send("checkMasterRet", this.check);
             }
         });
 
-        ipcMain.on('hideMasterRegister', (event, data) => {
+        onCredentials('hideMasterRegister', (event, data) => {
             let backup = settings.getSync();
 
-            backup.hideMasterRegister = data;
+            backup.hideMasterRegister = Boolean(data);
 
             settings.setSync(backup);
 
             this.mb.window.hide();
         });
 
-        ipcMain.on('resetMaster', () => {
+        onCredentials('resetMaster', () => {
             this.resetMaster();
         });
 
-        ipcMain.on('loadList', () => {
-            let backup = settings.getSync();
-
-            if ("accounts" in backup) {
-                backup.accounts = crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts });
-            } else {
-                backup.accounts = [];
-            }
-
-            this.mb.window.webContents.send("sendList", backup.accounts);
+        onUnlocked('loadList', () => {
+            this.mb.window.webContents.send("sendList", JSON.stringify(this.readAccounts()));
         });
 
-        ipcMain.on('userRegister', () => {
+        onUnlocked('userRegister', () => {
             this.load("userRegister");
         });
 
-        ipcMain.on('registerUser', (event, data) => {
+        onUnlocked('registerUser', (event, data) => {
             this.registerAccount(data);
-
-            this.load("list");
         });
 
-        ipcMain.on('editUser', (event, id) => {
-            let backup = settings.getSync();
-
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
-
-            let account = backup.accounts.find(o => o.id == id);
-
+        onUnlocked('editUser', (event, id) => {
+            this.editingId = id;
             this.load("editUser");
-
-            ipcMain.on('getEditUser', () => {
-                this.mb.window.webContents.send("sendEditUser", [account.id, account.username]);
-            });
         });
 
-        ipcMain.on('changeUser', (event, data) => {
+        onUnlocked('getEditUser', () => {
+            let account = this.readAccounts().find(o => o.id == this.editingId);
+
+            if (account) {
+                this.mb.window.webContents.send("sendEditUser", [account.id, account.username]);
+            }
+        });
+
+        onUnlocked('changeUser', (event, data) => {
             this.editAccount(data);
             this.load("list");
         });
 
-        ipcMain.on('deleteUser', (event, data) => {
+        onUnlocked('deleteUser', (event, data) => {
             this.deleteAccount(data);
             this.load("list");
         });
 
-        ipcMain.on('loginUser', (event, data) => {
+        onUnlocked('loginUser', (event, data) => {
             this.mb.hideWindow();
 
-            let backup = settings.getSync();
+            let account = this.readAccounts().find(o => o.id == data);
 
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+            if (!account) {
+                return;
+            }
 
-            let account = backup.accounts.find(o => o.id == data);
+            let credentials = [account.username, account.password];
 
-            if (this.window) {
-                try {
-                    if (new URL(this.window.webContents.getURL()).origin === "https://www.darkorbit.com") {
-                        return this.window.webContents.send("login", [account.username, account.password]);
-                    }
-                } catch (e) {
-
+            if (this.window && !this.window.isDestroyed()) {
+                let current = parseUrl(this.window.webContents.getURL());
+                if (current !== null && current.origin === "https://www.darkorbit.com") {
+                    return this.window.webContents.send("login", credentials);
                 }
             }
 
             let window = this.client.createWindow("client");
-            window.webContents.on('did-finish-load', () => {
-                window.webContents.send("login", [account.username, account.password])
+            window.webContents.once('did-finish-load', () => {
+                // Credentials are only ever handed to a DarkOrbit page.
+                if (isDarkorbitUrl(window.webContents.getURL())) {
+                    window.webContents.send("login", credentials);
+                }
             });
         });
 
-        ipcMain.on('close', () => {
+        onCredentials('close', () => {
             this.load("list")
         });
     }
@@ -187,7 +202,6 @@ class Credentials {
                     'preload': `${__dirname}/html/master.js`,
                     'contextIsolation': true,
                     'nodeIntegration': true,
-                    'plugins': true,
                     'devTools': this.client.arg.dev
                 }
             }
@@ -244,14 +258,12 @@ class Credentials {
         let backup = settings.getSync();
 
         backup.salt = crypt.salt();
-
-        this.hashMaster = crypt.hash(input, backup.salt);
-
-        this.master = crypt.encrypt(this.hashMaster);
-
+        this.key = crypt.deriveKey(input, backup.salt);
         this.check = true;
 
-        backup.master = this.master;
+        backup.cryptVersion = crypt.VERSION;
+        backup.master = crypt.createVerifier(this.key);
+        delete backup.accounts;
 
         settings.setSync(backup);
 
@@ -265,15 +277,56 @@ class Credentials {
 
         let backup = settings.getSync();
 
-        let hashMaster = crypt.hash(input, backup.salt);
+        if (backup.cryptVersion === crypt.VERSION) {
+            let key = crypt.deriveKey(input, backup.salt);
 
-        if (crypt.decrypt(backup.master) === hashMaster) {
+            if (crypt.checkVerifier(key, backup.master)) {
+                this.key = key;
+                this.check = true;
+            }
+        } else if (this.migrateLegacy(input, backup)) {
             this.check = true;
-            this.hashMaster = hashMaster;
+        }
+
+        if (this.check) {
             this.load("list");
         }
 
         return this.check;
+    }
+
+    // Re-encrypts settings written with the old embedded key once the user proves the master password.
+    migrateLegacy(input, backup) {
+        let hashMaster;
+
+        try {
+            hashMaster = crypt.legacyHash(input, backup.salt);
+            if (crypt.legacyDecrypt(backup.master) !== hashMaster) {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+
+        let accounts = [];
+        if (typeof backup.accounts === "string") {
+            try {
+                accounts = JSON.parse(crypt.legacyDecrypt({ "iv": hashMaster, "content": backup.accounts }));
+            } catch (e) {
+                console.error("Saved accounts could not be migrated");
+            }
+        }
+
+        backup.salt = crypt.salt();
+        this.key = crypt.deriveKey(input, backup.salt);
+
+        backup.cryptVersion = crypt.VERSION;
+        backup.master = crypt.createVerifier(this.key);
+        backup.accounts = crypt.encryptJson(this.key, accounts);
+
+        settings.setSync(backup);
+
+        return true;
     }
 
     resetMaster() {
@@ -282,74 +335,68 @@ class Credentials {
         delete backup.master;
         delete backup.salt;
         delete backup.accounts;
+        delete backup.cryptVersion;
 
         settings.setSync(backup);
+
+        this.check = false;
+        this.key = null;
 
         this.load("register");
     }
 
-    registerAccount(input) {
+    readAccounts() {
         let backup = settings.getSync();
 
-        if ("accounts" in backup) {
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
-        } else {
-            backup.accounts = [];
+        if (!backup.accounts) {
+            return [];
         }
 
-        let id = new Date().valueOf();
+        return crypt.decryptJson(this.key, backup.accounts);
+    }
 
-        let account = {
-            id,
-            username: input[0],
-            password: input[1]
-        }
+    writeAccounts(accounts) {
+        let backup = settings.getSync();
 
-        backup.accounts.push(account);
-
-        backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
+        backup.accounts = crypt.encryptJson(this.key, accounts);
 
         settings.setSync(backup);
+    }
+
+    registerAccount(input) {
+        let accounts = this.readAccounts();
+
+        accounts.push({
+            id: new Date().valueOf(),
+            username: String(input[0]),
+            password: String(input[1])
+        });
+
+        this.writeAccounts(accounts);
 
         this.load("list");
     }
 
     editAccount(input) {
-        let backup = settings.getSync();
+        let accounts = this.readAccounts();
 
-        backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+        let accountIndex = accounts.findIndex(x => x.id == input[0]);
 
-        let accountIndex = backup.accounts.findIndex(x => x.id == input[0]);
+        if (accountIndex === -1) {
+            return;
+        }
 
-        backup.accounts[accountIndex] = {
-            id: input[0],
-            username: input[1],
-            password: input[2]
+        accounts[accountIndex] = {
+            id: accounts[accountIndex].id,
+            username: String(input[1]),
+            password: String(input[2])
         };
 
-        backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
-
-        settings.setSync(backup);
+        this.writeAccounts(accounts);
     }
 
     deleteAccount(id) {
-        let backup = settings.getSync();
-
-        backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
-
-        let newAccounts = [];
-
-        for (let elem of backup.accounts) {
-            if (elem.id !== id) {
-                newAccounts.push(elem);
-            }
-        }
-
-        backup.accounts = newAccounts;
-
-        backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
-
-        settings.setSync(backup);
+        this.writeAccounts(this.readAccounts().filter(elem => elem.id != id));
     }
 
     loginDosid() {

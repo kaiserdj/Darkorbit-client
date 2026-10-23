@@ -30,11 +30,14 @@ class DarkDev {
 
         this.client.rebuildTrayMenu();
 
-        this.customLoad = new CustomLoad(this.client, this.window);
-        this.customJs = new CustomJs(this.client, this.window);
-        this.customCss = new CustomCss(this.client, this.window);
+        this.customLoad = new CustomLoad(this.client, this);
+        this.customJs = new CustomJs(this.client, this);
+        this.customCss = new CustomCss(this.client, this);
 
-        ipcMain.on("LoadConfigDarkDev", () => {
+        ipcMain.on("LoadConfigDarkDev", (event) => {
+            if (!this.isDarkDevWindow(event)) {
+                return;
+            }
             this.window.webContents.send("SendLoadConfigDarkDev", settings.getSync().DarkDev);
         })
 

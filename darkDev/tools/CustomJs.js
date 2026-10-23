@@ -2,27 +2,39 @@ const { ipcMain } = require("electron");
 const settings = require("electron-settings");
 
 class CustomJs {
-    constructor(client, window) {
+    constructor(client, darkDev) {
         this.client = client;
-        this.window = window;
+        this.darkDev = darkDev;
         this.enable;
         this.list;
 
         this.loadSettings();
 
         ipcMain.on('SetEnableCustomJs', (event, opt) => {
+            if (!this.darkDev.isDarkDevWindow(event)) {
+                return;
+            }
             this.setEnable(opt);
         });
 
         ipcMain.on('NewCustomJs', (event, data) => {
+            if (!this.darkDev.isDarkDevWindow(event)) {
+                return;
+            }
             this.newCustomJs(data);
         });
 
         ipcMain.on('enableCustomJsItem', (event, data) => {
+            if (!this.darkDev.isDarkDevWindow(event)) {
+                return;
+            }
             this.setEnableCustomJsItem(data);
         });
 
         ipcMain.on('removeCustomJsItem', (event, data) => {
+            if (!this.darkDev.isDarkDevWindow(event)) {
+                return;
+            }
             this.removeCustomJsItem(data);
         });
     }

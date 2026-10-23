@@ -2,6 +2,7 @@ const { ipcRenderer } = require("electron");
 const path = require("path");
 const fs = require('fs');
 const api = require("./api");
+const { parseUrl, isDarkorbitUrl } = require("../security");
 const nprogress = require("../libs/nprogress/nprogress");
 const nprogressCss = require("../libs/nprogress/nprogressCss.js");
 
@@ -24,13 +25,27 @@ window.addEventListener("beforeunload", () => {
     nprogress.start();
 });
 
+function isLoginPage(href) {
+    if (!isDarkorbitUrl(href)) {
+        return false;
+    }
+
+    let url = parseUrl(href);
+
+    return url.hostname === "www.darkorbit.com" ||
+        (url.pathname === "/" && href.includes("?")) ||
+        (/^\/index\.[^./]*$/.test(url.pathname) && url.search.startsWith("?action=externalHome&loginError="));
+}
+
 async function run() {
     let url = this.location.href;
 
+    if (!isDarkorbitUrl(url)) {
+        return;
+    }
+
     switch (true) {
-        case /https:\/\/www\.darkorbit\.[^./]*\//.test(url):
-        case /https:\/\/.*\.darkorbit\.com\/\?/.test(url):
-        case /https:\/\/.*\.darkorbit\.com\/index\.[^.\/]*\?action=externalHome&loginError=.{0,3}/.test(url):
+        case isLoginPage(url):
             require("./login");
             break;
         case /.*\?action=internalMapRevolution.*/.test(url):
