@@ -1,18 +1,12 @@
-const { BrowserWindow, MenuItem, ipcMain } = require('electron');
+const { BrowserWindow, MenuItem, ipcMain, dialog } = require('electron');
 const settings = require("electron-settings");
 
-const CustomLoad = require("./tools/CustomLoad");
-const CustomJs = require("./tools/CustomJs");
-const CustomCss = require("./tools/CustomCss");
+const CustomList = require("./tools/CustomList");
 const ResourceDownload = require("./tools/ResourceDownload");
 
 class DarkDev {
     constructor(client) {
         this.client = client;
-        this.customLoad;
-        this.customJs;
-        this.customCss;
-        this.window;
 
         if (!this.client.arg.dev) {
             return;
@@ -30,17 +24,38 @@ class DarkDev {
 
         this.client.rebuildTrayMenu();
 
-        this.customLoad = new CustomLoad(this.client, this.window);
-        this.customJs = new CustomJs(this.client, this.window);
-        this.customCss = new CustomCss(this.client, this.window);
+        this.customLoad = new CustomList(this, "CustomLoad", true, () => this.client.setCustomLoad());
+        this.customJs = new CustomList(this, "CustomJs", false, () => this.client.setCustomJs());
+        this.customCss = new CustomList(this, "CustomCss", false, () => this.client.setCustomCss());
 
-        ipcMain.on("LoadConfigDarkDev", () => {
+        ipcMain.on("LoadConfigDarkDev", (event) => {
+            if (!this.isDarkDevWindow(event)) {
+                return;
+            }
             this.window.webContents.send("SendLoadConfigDarkDev", settings.getSync().DarkDev);
         })
 
         ipcMain.on('ResourceDownload', (event, opt) => {
+            if (!this.isDarkDevWindow(event)) {
+                return;
+            }
             this.resourceDownload(opt);
         });
+
+        ipcMain.handle("selectDirectory", async (event, title) => {
+            if (!this.isDarkDevWindow(event)) {
+                return null;
+            }
+            let result = await dialog.showOpenDialog(this.window, {
+                properties: ["openDirectory"],
+                title: String(title)
+            });
+            return result.canceled ? null : result.filePaths[0] || null;
+        });
+    }
+
+    isDarkDevWindow(event) {
+        return Boolean(this.window) && event.sender === this.window.webContents;
     }
 
     async open() {
@@ -54,10 +69,7 @@ class DarkDev {
                 'preload': `${__dirname}/master.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'nodeIntegrationInWorker': true,
-                'enableRemoteModule': true,
-                'webSecurity': false,
-                'plugins': true,
+                'enableRemoteModule': false,
                 'devTools': this.client.arg.dev
             }
         };

@@ -7,14 +7,39 @@ class ResourceDownload {
     constructor(window, opt) {
         this.window = window;
         this.opt = opt;
-        this.domain = this.opt.customServer ? `https://${this.opt.server}.darkorbit.com` : "https://darkorbit-22.bpsecure.com";
         this.listFiles = { files: [] };
 
         this.console(`Defined settings: ${JSON.stringify(this.opt)}`);
 
+        if (this.opt.customServer && !/^[a-z0-9-]+$/i.test(String(this.opt.server))) {
+            this.console(`Invalid server name: ${this.opt.server}`);
+            return;
+        }
+
+        // URL origins are lower case, so compare against a lower case server name.
+        if (this.opt.customServer) {
+            this.opt.server = String(this.opt.server).toLowerCase();
+        }
+
+        this.domain = this.opt.customServer ? `https://${this.opt.server}.darkorbit.com` : "https://darkorbit-22.bpsecure.com";
+
         this.console(`Selected domain: ${this.domain}`);
 
-        this.run();
+        this.run().catch(error => this.console(`Error: ${error}`));
+    }
+
+    // Resolves a server supplied path and refuses anything that escapes the selected folder.
+    resolveInFolder(file) {
+        let root = path.resolve(this.opt.folder);
+        let target = path.resolve(root, file);
+        let relative = path.relative(root, target);
+
+        // path.relative also works when the folder is a drive root such as "/" or "C:\\".
+        if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+            throw new Error(`Path outside of the download folder: ${file}`);
+        }
+
+        return target;
     }
 
     async run() {
@@ -29,7 +54,7 @@ class ResourceDownload {
             await this.downloader(file);
         }
 
-        fs.writeFileSync(path.join(this.opt.folder, "listExtraFiles.json").normalize(), JSON.stringify(this.listFiles, null, 2), 'utf-8');
+        fs.writeFileSync(this.resolveInFolder("listExtraFiles.json"), JSON.stringify(this.listFiles, null, 2), 'utf-8');
 
         this.console(" ");
         this.console("Work done :D");
@@ -47,11 +72,11 @@ class ResourceDownload {
             await this.readFileColection(xml);
         }
 
-        fs.writeFileSync(path.join(this.opt.folder, "listXmlColectionsFiles.json"), JSON.stringify(this.listFiles, null, 2), 'utf-8');
+        fs.writeFileSync(this.resolveInFolder("listXmlColectionsFiles.json"), JSON.stringify(this.listFiles, null, 2), 'utf-8');
     }
 
     async readFileColection(xml) {
-        let dataXml = await fs.readFileSync(path.join(this.opt.folder, xml)).toString();
+        let dataXml = fs.readFileSync(this.resolveInFolder(xml)).toString();
         dataXml = await xml2js.parseStringPromise(dataXml);
         dataXml = dataXml.filecollection;
 
@@ -83,23 +108,39 @@ class ResourceDownload {
 
             file.path = `${file.location}${file.name}.${file.type}`;
 
-            await this.downloader(file);
+            try {
+                await this.downloader(file);
+            } catch (error) {
+                this.console(`Skipped: ${file.path} (${error})`);
+                continue;
+            }
 
             if (this.opt.checkHash && file.hash) {
-                let resultMd5 = await this.md5(path.join(this.opt.folder, file.path).normalize());
+                let pathfile = this.resolveInFolder(file.path);
+                let resultMd5 = await this.md5(pathfile);
                 if (file.hash.substring(0, file.hash.length - 2) === resultMd5.substring(0, resultMd5.length - 2)) {
                     this.console("Hash check: Passed");
                 } else {
-                    this.console("Hash check: Error");
+                    fs.unlinkSync(pathfile);
+                    this.console(`Hash check: Error, file removed: ${file.path}`);
                 }
             }
         }
     }
 
     async downloader(file) {
-        let pathfile = path.join(this.opt.folder, file.path).normalize();
+        if (this.window.isDestroyed()) {
+            throw new Error("DarkDev window was closed");
+        }
 
-        this.window.webContents.downloadURL(`${this.domain}/${file.path}`);
+        let pathfile = this.resolveInFolder(file.path);
+        let url = new URL(file.path, `${this.domain}/`);
+
+        if (url.origin !== this.domain) {
+            throw new Error(`Download outside of ${this.domain}: ${file.path}`);
+        }
+
+        this.window.webContents.downloadURL(url.href);
 
         return new Promise((resolve, reject) => {
             this.window.webContents.session.once('will-download', (event, item, webContents) => {
@@ -128,7 +169,10 @@ class ResourceDownload {
     }
 
     console(text) {
-        this.window.webContents.send("consoleDownload", text);
+        // The DarkDev window may be closed while a download is still running.
+        if (!this.window.isDestroyed()) {
+            this.window.webContents.send("consoleDownload", text);
+        }
     }
 
     md5(path) {

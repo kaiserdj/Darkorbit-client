@@ -1,2 +1,22 @@
-node_modules
-dist
+# Dependencies and build output
+node_modules/
+dist/
+
+# Local agent / workspace files
+.context/
+
+# Editors and OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs and local environment
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# Bundled preload, built by "npm run build:preload"
+inject/dist/

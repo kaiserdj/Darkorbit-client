@@ -1,0 +1,105 @@
+const DARKORBIT_DOMAINS = ["darkorbit.com"];
+const TRUSTED_DOMAINS = ["darkorbit.com", "bpsecure.com"];
+
+function parseUrl(url) {
+    try {
+        return new URL(url);
+    } catch (e) {
+        return null;
+    }
+}
+
+function hostMatches(hostname, domains) {
+    hostname = hostname.toLowerCase();
+    return domains.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
+}
+
+function isHttpsHostIn(url, domains) {
+    let parsed = parseUrl(url);
+    return parsed !== null && parsed.protocol === "https:" && hostMatches(parsed.hostname, domains);
+}
+
+function isTrustedUrl(url) {
+    return isHttpsHostIn(url, TRUSTED_DOMAINS);
+}
+
+function isDarkorbitUrl(url) {
+    return isHttpsHostIn(url, DARKORBIT_DOMAINS);
+}
+
+// DarkOrbit pages that show the login form (start page, server start pages, login errors).
+function isLoginPage(href) {
+    if (!isDarkorbitUrl(href)) {
+        return false;
+    }
+
+    let url = parseUrl(href);
+
+    return url.hostname === "www.darkorbit.com" ||
+        (url.pathname === "/" && href.includes("?")) ||
+        (/^\/index\.[^./]*$/.test(url.pathname) && url.search.startsWith("?action=externalHome&loginError="));
+}
+
+function isLocalFileUrl(url) {
+    let parsed = parseUrl(url);
+    return parsed !== null && parsed.protocol === "file:";
+}
+
+function isWebUrl(url) {
+    let parsed = parseUrl(url);
+    return parsed !== null && (parsed.protocol === "https:" || parsed.protocol === "http:");
+}
+
+function openExternalSafe(url) {
+    if (!isWebUrl(url)) {
+        console.warn(`Blocked opening external url: ${url}`);
+        return false;
+    }
+
+    require("electron").shell.openExternal(url);
+    return true;
+}
+
+function senderIsTrusted(event) {
+    let url = event.sender.getURL();
+    return isTrustedUrl(url) || isLocalFileUrl(url);
+}
+
+// Local tools (python websocket-client and similar) send no Origin or a localhost one; web pages send their own.
+function isLocalWsClient(info) {
+    if (!info.origin) {
+        return true;
+    }
+
+    let parsed = parseUrl(info.origin);
+    return parsed !== null && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
+}
+
+function globToRegExp(match) {
+    let pattern = String(match)
+        .replace(/[.+?^${}()|[\]\\\/]/g, "\\$&")
+        .replace(/\*/g, ".*");
+
+    // Anchored like the DevTools Fetch url patterns: the whole url has to match.
+    return new RegExp(`^${pattern}$`);
+}
+
+function matchesGlob(match, url) {
+    try {
+        return globToRegExp(match).test(url);
+    } catch (e) {
+        return false;
+    }
+}
+
+module.exports = {
+    parseUrl,
+    isTrustedUrl,
+    isDarkorbitUrl,
+    isLoginPage,
+    isLocalFileUrl,
+    openExternalSafe,
+    senderIsTrusted,
+    isLocalWsClient,
+    matchesGlob
+};

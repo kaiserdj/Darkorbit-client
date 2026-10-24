@@ -10,12 +10,14 @@
 </p>
 
 Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
+
+This is a security hardened fork of [kaiserdj/Darkorbit-client](https://github.com/kaiserdj/Darkorbit-client). Version 3.0.0 fixes vulnerabilities of 2.8.0 and earlier that let web pages run code on the computer and let saved passwords be decrypted without the master password; see [SECURITY.md](SECURITY.md).
 <p align="center">
-  <a href="https://github.com/kaiserdj/Darkorbit-client/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg"/>
+  <a href="https://github.com/emrementese/darkorbit-client-secure/blob/main/LICENSE" target="_blank">
+    <img src="https://img.shields.io/badge/License-AGPLv3-blue.svg"/>
   </a>
-  <a href="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client">
-    <img src="https://www.codefactor.io/repository/github/kaiserdj/darkorbit-client/badge" alt="CodeFactor" />
+  <a href="https://github.com/emrementese/darkorbit-client-secure/actions/workflows/ci.yml">
+    <img src="https://github.com/emrementese/darkorbit-client-secure/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </a>
 </p>
 
@@ -38,7 +40,7 @@ Open source client for cross-platform Darkorbit (Windows, Mac and Linux).
 
 Download
 -------
-🔽 The latest release is always available here: https://github.com/kaiserdj/Darkorbit-client/releases/latest
+🔽 The latest release is always available here: https://github.com/emrementese/darkorbit-client-secure/releases/latest
  
 ## Development
 Building Darkorbit client is really simple
@@ -50,14 +52,20 @@ Building Darkorbit client is really simple
 Clone this project
 
 ```bash
-> git clone https://github.com/kaiserdj/Darkorbit-client.git
-> cd Darkorbit-client
+> git clone https://github.com/emrementese/darkorbit-client-secure.git
+> cd darkorbit-client-secure
 ```
 
 Install the dependencies:
 
 ```bash
 > npm install
+```
+
+On Apple Silicon Macs the bundled Flash plugin only runs in the x64 build of Electron (through Rosetta). `npm install` switches Electron to x64 automatically on macOS; if Flash does not load, run:
+
+```bash
+> npm run electron:x64
 ```
 
 ### Usage
@@ -73,15 +81,34 @@ Install the dependencies:
 > npm dev
 ```
 
+The DarkOrbit windows run in a sandboxed renderer, so their preload is bundled into
+`inject/dist/preload.js` by `npm run build:preload`. `npm install`, `npm start`, `npm run dev` and the
+build scripts run it automatically; the preload may only `require("electron")` at runtime
+(Node work such as the packet logger and `--api` lives in the main process).
+
+##### Tests
+
+```bash
+> npm run lint       # ESLint
+> npm test           # unit tests (Electron is mocked, runs anywhere)
+> npm run test:e2e   # end-to-end tests on the real client (opens windows, needs a display)
+```
+
+Unit tests and lint run in CI on every push; builds and releases only start when they pass.
+
+### Releasing
+
+Bump `version` in `package.json` (for example `npm version 3.1.0 --no-git-tag-version`) and push it to `main`. The [Release workflow](.github/workflows/release.yml) tests, builds macOS, Windows and Linux into a draft release and publishes it when every platform succeeded. It can also be started from the Actions tab.
+
 ## Contributing
 
-For bugs, questions, and discussions please use the [Github Issues](https://github.com/kaiserdj/Darkorbit-client/issues)
+For bugs, questions, and discussions please use the [Github Issues](https://github.com/emrementese/darkorbit-client-secure/issues). Please report security issues privately as described in [SECURITY.md](SECURITY.md).
 
 Pull requests are welcome! If you see something you'd like to add, please do. For drastic changes, please open an issue first.
 
 ## Donating
 
-You can support the maintainer of this project through the link below
+You can support the original author of this project through the link below
 
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/kaiserdj/)
 
@@ -105,6 +132,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
       <td align="center" valign="top" width="20%"><a href="https://github.com/EMREREKILLERRZ"><img src="https://avatars.githubusercontent.com/u/90413379?v=4?s=100" width="100px;" alt="EMREREKILLERRZ"/><br /><sub><b>EMREREKILLERRZ</b></sub></a><br /><a href="#financial-EMREREKILLERRZ" title="Financial">💵</a></td>
       <td align="center" valign="top" width="20%"><a href="https://github.com/bogdandudu"><img src="https://avatars.githubusercontent.com/u/20356046?v=4?s=100" width="100px;" alt="bogdandudu"/><br /><sub><b>bogdandudu</b></sub></a><br /><a href="https://github.com/kaiserdj/Darkorbit-client/issues?q=author%3Abogdandudu" title="Bug reports">🐛</a> <a href="https://github.com/kaiserdj/Darkorbit-client/commits?author=bogdandudu" title="Code">💻</a></td>
       <td align="center" valign="top" width="20%"><a href="https://github.com/Frenvius"><img src="https://avatars.githubusercontent.com/u/5433348?v=4?s=100" width="100px;" alt="Felipe Ribeiro"/><br /><sub><b>Felipe Ribeiro</b></sub></a><br /><a href="https://github.com/kaiserdj/Darkorbit-client/issues?q=author%3AFrenvius" title="Bug reports">🐛</a> <a href="https://github.com/kaiserdj/Darkorbit-client/commits?author=Frenvius" title="Code">💻</a></td>
+      <td align="center" valign="top" width="20%"><a href="https://github.com/emrementese"><img src="https://avatars.githubusercontent.com/u/76906642?v=4?s=100" width="100px;" alt="Emre MENTEŞE"/><br /><sub><b>Emre MENTEŞE</b></sub></a><br /><a href="https://github.com/emrementese/darkorbit-client-secure/commits?author=emrementese" title="Code">💻</a> <a href="#security-emrementese" title="Security">🛡️</a> <a href="https://github.com/emrementese/darkorbit-client-secure/commits?author=emrementese" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>

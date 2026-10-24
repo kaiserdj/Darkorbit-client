@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'none'; object-src 'none'; base-uri 'none'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Kaiserdj">
@@ -96,10 +97,6 @@
                                 <label class="form-check-label" for="HardwareAcceleration">Use hardware acceleration when available</label>
                             </div>
                             <div class="form-check form-switch">
-                                <input id="NoSandbox" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="NoSandbox">Disable client's sandbox entirely</label>
-                            </div>
-                            <div class="form-check form-switch">
                                 <input id="PreventCloseGame" class="form-check-input" type="checkbox">
                                 <label class="form-check-label" for="PreventCloseGame">Prevent window from closing on in-game logout</label>
                             </div>
@@ -122,6 +119,10 @@
                                     Milliseconds to wait to execute:&nbsp;
                                     <input type="number" id="PacketTimeout" class="form-control" aria-label="Milliseconds to wait to execute" style="text-align:right;">
                                     <span class="input-group-text">ms</span>
+                                </div>
+                                <div class="input-group input-group-sm">
+                                    Python interpreter (leave empty to use "python" from PATH):&nbsp;
+                                    <input type="text" id="PythonPath" class="form-control" aria-label="Python interpreter path" placeholder="/usr/bin/python3">
                                 </div>
                             </div>
                         </div>
@@ -182,7 +183,7 @@
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <input class="coin-address" onclick="window.open(`https://paypal.me/kaiserdj`)" readonly="readonly" spellcheck="false" type="text" value="https://paypal.me/kaiserdj">
+                                            <input class="coin-address" data-url="https://paypal.me/kaiserdj" readonly="readonly" spellcheck="false" type="text" value="https://paypal.me/kaiserdj">
                                         </label>
                                     </div>
                                 </div>
@@ -207,7 +208,7 @@
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <input class="coin-address" onclick="this.select()" readonly="readonly" spellcheck="false" type="text" value="bc1q2asl6qdg9kphhymt0xn0wrdpqg223pz6plvesy">
+                                            <input class="coin-address" readonly="readonly" spellcheck="false" type="text" value="bc1q2asl6qdg9kphhymt0xn0wrdpqg223pz6plvesy">
                                         </label>
                                     </div>
                                 </div>
@@ -232,7 +233,7 @@
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <input class="coin-address" onclick="this.select()" readonly="readonly" spellcheck="false" type="text" value="0x2C4F9aee2a28A38453E7b0f1d913c0E5E211EAC2">
+                                            <input class="coin-address" readonly="readonly" spellcheck="false" type="text" value="0x2C4F9aee2a28A38453E7b0f1d913c0E5E211EAC2">
                                         </label>
                                     </div>
                                 </div>
@@ -257,7 +258,7 @@
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <input class="coin-address" onclick="this.select()" readonly="readonly" spellcheck="false" type="text" value="LcCZ1bhcvJ3by1xmpeSGVs1oiFZ46GrVL5">
+                                            <input class="coin-address" readonly="readonly" spellcheck="false" type="text" value="LcCZ1bhcvJ3by1xmpeSGVs1oiFZ46GrVL5">
                                         </label>
                                     </div>
                                 </div>
@@ -282,7 +283,7 @@
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <input class="coin-address" onclick="this.select()" readonly="readonly" spellcheck="false" type="text" value="rHVSbc3BuTEURvxaifThJxDNMMb5k4TqsQ">
+                                            <input class="coin-address" readonly="readonly" spellcheck="false" type="text" value="rHVSbc3BuTEURvxaifThJxDNMMb5k4TqsQ">
                                         </label>
                                     </div>
                                 </div>
@@ -297,7 +298,7 @@
                                 This is a project that was created so that darkorbit users could play without any problem on any pc operating system.
                                 <br>The project is free code and anyone can see it and even modify it.
                             </p>
-                            <div id="Github" class="d-flex justify-content-around" style="cursor: pointer"><img src="https://gb-maker.herokuapp.com/makebadge/kaiserdj/Darkorbit-client" alt="Github"></div>
+                            <div id="Github" class="d-flex justify-content-around" style="cursor: pointer"><span class="badge bg-dark">GitHub</span></div>
                             <br>
                             <a class="d-flex justify-content-around" href="https://discord.gg/HzmcNtkKh5" target="_blank"><img src="https://discordapp.com/api/guilds/819695791072608296/widget.png?style=banner2" alt="Discord"></a>
                             <hr>
