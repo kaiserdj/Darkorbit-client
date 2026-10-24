@@ -33,7 +33,7 @@
     "devDependencies": {
         "electron": "11.5.0",
         "electron-builder": "^26.15.3",
-        "esbuild": "^0.24.2",
+        "esbuild": "^0.28.2",
         "eslint": "^10.13.0"
     },
     "dependencies": {
@@ -108,5 +108,10 @@
                 "repo": "darkorbit-client-secure"
             }
         ]
+    },
+    "overrides": {
+        "electron": {
+            "@electron/get": "^2.0.3"
+        }
     }
 }
