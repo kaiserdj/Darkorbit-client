@@ -1,10 +1,9 @@
-const { BrowserWindow, nativeTheme, Tray, Menu } = require("electron");
+const { BrowserWindow, nativeTheme, Tray, Menu, dialog, clipboard } = require("electron");
 const settings = require("electron-settings");
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const contextmenu = require("electron-context-menu");
-const { openProcessManager } = require('electron-process-manager');
-const axios = require("axios");
+const { parseUrl, isDarkorbitUrl } = require("./security");
 
 function commandLine() {
     return yargs(hideBin(process.argv))
@@ -42,7 +41,7 @@ function commandLine() {
             description: 'Run in offscreen mode',
             default: false
         })
-        .epilog('for more information visit https://github.com/kaiserdj/Darkorbit-client')
+        .epilog('for more information visit https://github.com/emrementese/darkorbit-client-secure')
         .argv;
 }
 
@@ -63,11 +62,15 @@ function tray(client) {
         {
             label: "Clear Cache",
             click: async () => {
-                for(let win of BrowserWindow.getAllWindows()) {
-                    await win.webContents.session.clearCache();
-                    await win.webContents.session.clearStorageData();
-                    await win.webContents.session.clearHostResolverCache();
-                    await win.webContents.session.clearAuthCache();
+                // All windows share the default session; clear each session only once.
+                let sessions = new Set(BrowserWindow.getAllWindows().map(win => win.webContents.session));
+                for (let session of sessions) {
+                    await Promise.all([
+                        session.clearCache(),
+                        session.clearStorageData(),
+                        session.clearHostResolverCache(),
+                        session.clearAuthCache()
+                    ]);
                 }
 
                 client.core.app.relaunch();
@@ -79,29 +82,26 @@ function tray(client) {
             click: async () => {
                 let sidNotFound = true;
                 for ( let win of BrowserWindow.getAllWindows() ) {
-                    let hostname = new URL(win.webContents.getURL()).hostname;
-                    if ( hostname.search("darkorbit") != -1 && hostname.search("www\.darkorbit\.com") == -1 ) {
+                    let url = win.webContents.getURL();
+                    if ( !isDarkorbitUrl(url) ) {
+                        continue;
+                    }
+
+                    let hostname = parseUrl(url).hostname;
+                    if ( hostname !== "www.darkorbit.com" ) {
                         let cookie = await  win.webContents.session.cookies.get({name:'dosid', domain: hostname});
 
                         if ( cookie[0] && cookie[0].value ) {
                             let SID = cookie[0].value;
-                            const {clipboard} = require('electron');
                             clipboard.writeText(SID);
-                            win.webContents.executeJavaScript("alert(`SID: " + SID +"\nCopied to clipboard` )")
-                                .catch(error => {
-                                    console.error(error);
-                                });
+                            dialog.showMessageBox(win, { type: "info", title: "Copy SID", message: `SID: ${SID}\nCopied to clipboard` });
                             sidNotFound = false;
                             break;
                         }
                     }
                 }
                 if ( sidNotFound ) {
-                    let win = BrowserWindow.getAllWindows()[0];
-                    win.webContents.executeJavaScript("alert(`SID not detected`)")
-                        .catch(error => {
-                            console.error(error);
-                        });
+                    dialog.showMessageBox({ type: "info", title: "Copy SID", message: "SID not detected" });
                 }
             }
         },
@@ -193,16 +193,13 @@ function contextMenu(dev) {
                 label: 'Inspect Element',
                 icon: `${__dirname}/contextMenu/inspectElement${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: dev,
-                click: () => {
-                    browserWindow.isDevToolsOpened()
-                    browserWindow.inspectElement(params.x, params.y)
-                }
+                click: () => browserWindow.inspectElement(params.x, params.y)
             },
             {
                 label: 'Process Manager',
                 icon: `${__dirname}/contextMenu/processManager${nativeTheme.shouldUseDarkColors ? "" : "_dark"}.png`,
                 visible: dev,
-                click: () => openProcessManager({
+                click: () => require('electron-process-manager').openProcessManager({
                     defaultSorting: {
                         path: 'pid',
                         how: 'ascending'
@@ -246,28 +243,42 @@ function settingsWindow(window, type) {
         settings.setSync(backup);
     });
 
-    window.on('resize', () => {
+    // resize/move fire continuously while dragging; store the final bounds once.
+    let saveBounds = null;
+    const save = () => {
+        clearTimeout(saveBounds);
+        saveBounds = null;
+
+        if (window.isDestroyed() || window.isMaximized() || window.isMinimized() || window.isFullScreen()) {
+            return;
+        }
+
         let backup = settings.getSync();
-        let size = window.getSize();
-        backup[type].width = size[0];
-        backup[type].height = size[1];
+        let bounds = window.getBounds();
+        backup[type].width = bounds.width;
+        backup[type].height = bounds.height;
+        backup[type].x = bounds.x;
+        backup[type].y = bounds.y;
 
         settings.setSync(backup);
-    })
+    };
+    const scheduleSave = () => {
+        clearTimeout(saveBounds);
+        saveBounds = setTimeout(save, 500);
+    };
 
-    window.on('move', (data) => {
-        let backup = settings.getSync();
-        let pos = data.sender.getBounds();
-        backup[type].x = pos.x;
-        backup[type].y = pos.y;
-
-        settings.setSync(backup);
+    window.on('resize', scheduleSave);
+    window.on('move', scheduleSave);
+    window.on('close', () => {
+        if (saveBounds !== null) {
+            save();
+        }
     });
 }
 
 async function get(url) {
     return new Promise((resolve, reject) => {
-        axios.get(url)
+        require("axios").get(url)
             .then(response => resolve(response.data))
             .catch(error => reject(error));
     });
@@ -275,7 +286,7 @@ async function get(url) {
 
 async function getBase64(url) {
     return new Promise((resolve, reject) => {
-        axios.get(url, { responseType: 'arraybuffer' })
+        require("axios").get(url, { responseType: 'arraybuffer' })
             .then(response => resolve(Buffer.from(response.data, 'binary').toString('base64')))
             .catch(error => reject(error));
     });

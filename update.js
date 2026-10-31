@@ -1,74 +1,105 @@
 const { dialog } = require('electron');
-const { autoUpdater } = require('electron-updater');
-const ProgressBar = require('electron-progressbar');
 
-autoUpdater.autoDownload = false;
-autoUpdater.setFeedURL({
-    "provider": 'github',
-    "owner": "kaiserdj",
-    "repo": "Darkorbit-client"
-});
-
-let updater = false;
 let progressBar;
+let downloading = false;
+let autoUpdater = null;
 
-autoUpdater.on('error', (error) => {
-    dialog.showErrorBox('Error: ', error == null ? "unknown" : (error.stack || error).toString());
-});
+// electron-updater is loaded on first use so it does not slow down startup.
+function init() {
+    if (autoUpdater) {
+        return autoUpdater;
+    }
 
-autoUpdater.on('update-available', async (data) => {
-    let check = await dialog.showMessageBoxSync({
-        type: 'info',
-        title: `Updates found: ${data.version}`,
-        message: 'Updates found, do you want to update now?',
-        detail: data.releaseNotes.replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
-        buttons: ['Yes', 'No']
+    autoUpdater = require('electron-updater').autoUpdater;
+    const ProgressBar = require('electron-progressbar');
+
+    autoUpdater.autoDownload = false;
+    autoUpdater.setFeedURL({
+        "provider": 'github',
+        "owner": "emrementese",
+        "repo": "darkorbit-client-secure"
     });
 
-    if (check === 0) {
-        updater = true;
-        autoUpdater.downloadUpdate();
+    // Failed background checks (offline, no release published yet) are only logged;
+    // the user is only interrupted when an update they accepted fails.
+    autoUpdater.on('error', (error) => {
+        console.error(error);
 
-        progressBar = new ProgressBar({
-            indeterminate: false,
-            title: 'Update in progress',
-            text: 'Preparing to download updates.',
-            detail: 'Downloading ...'
+        if (!downloading) {
+            return;
+        }
+
+        downloading = false;
+        if (progressBar) {
+            progressBar.close();
+            progressBar = null;
+        }
+        dialog.showErrorBox('Update error', error == null ? "unknown" : (error.message || String(error)));
+    });
+
+    autoUpdater.on('update-available', async (data) => {
+        let check = await dialog.showMessageBoxSync({
+            type: 'info',
+            title: `Updates found: ${data.version}`,
+            message: 'Updates found, do you want to update now?',
+            detail: String(data.releaseNotes || "").replace(/<a.*>.*?<\/a>/ig, '').replace(/<p>/ig, '').replace(/<\/p>/ig, '').replace(/<br \/>/ig, ''),
+            buttons: ['Yes', 'No']
         });
 
-        progressBar
-            .on('progress', (value) => {
-                progressBar.text = 'Downloading updates.';
-                progressBar.detail = `Downloading ... ${value}%`;
-            })
-            .on('completed', () => {
-                progressBar.detail = 'Download complete.';
+        if (check === 0) {
+            downloading = true;
+            autoUpdater.downloadUpdate().catch(error => console.error(error));
+
+            progressBar = new ProgressBar({
+                indeterminate: false,
+                title: 'Update in progress',
+                text: 'Preparing to download updates.',
+                detail: 'Downloading ...'
             });
-    }
-});
 
-autoUpdater.on('download-progress', (progressObj) => {
-    progressBar.value = parseInt(progressObj.percent);
-});
-
-autoUpdater.on('update-not-available', () => {
-    console.log("No update");
-});
-
-autoUpdater.on('update-downloaded', async () => {
-    progressBar.close();
-    await dialog.showMessageBoxSync({
-        title: 'Install updates',
-        message: 'Downloaded updates, the application will close to update ...'
+            progressBar
+                .on('progress', (value) => {
+                    progressBar.text = 'Downloading updates.';
+                    progressBar.detail = `Downloading ... ${value}%`;
+                })
+                .on('completed', () => {
+                    progressBar.detail = 'Download complete.';
+                });
+        }
     });
 
-    autoUpdater.quitAndInstall();
-});
+    autoUpdater.on('download-progress', (progressObj) => {
+        if (progressBar) {
+            progressBar.value = parseInt(progressObj.percent);
+        }
+    });
+
+    autoUpdater.on('update-not-available', () => {
+        console.log("No update");
+    });
+
+    autoUpdater.on('update-downloaded', async () => {
+        if (progressBar) {
+            progressBar.close();
+        }
+        await dialog.showMessageBoxSync({
+            title: 'Install updates',
+            message: 'Downloaded updates, the application will close to update ...'
+        });
+
+        autoUpdater.quitAndInstall();
+    });
+
+    return autoUpdater;
+}
 
 async function checkForUpdates() {
-    await autoUpdater.checkForUpdates();
-
-    return updater;
+    try {
+        await init().checkForUpdates();
+    } catch (error) {
+        // The 'error' event already reported it.
+        console.error(error);
+    }
 }
 
 module.exports = checkForUpdates;

@@ -3,5 +3,5 @@ const Client = require("./client");
 
 (async () => {
     let core = await new Core();
-    let client = await new Client(core);
+    await new Client(core);
 })();

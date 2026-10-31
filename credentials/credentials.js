@@ -1,33 +1,60 @@
-const { dialog, ipcMain, BrowserWindow, MenuItem } = require('electron');
+const { dialog, ipcMain, BrowserWindow, MenuItem, session } = require('electron');
 const { menubar } = require('menubar');
 const settings = require("electron-settings");
-const Alert = require("electron-alert");
 const Positioner = require('electron-positioner');
 
 const crypt = require("./crypt");
+const { parseUrl, isDarkorbitUrl, isLoginPage } = require("../security");
 
 class Credentials {
     constructor(client) {
         this.client = client;
         this.mb = menubar(this.config());
-        this.window;
         this.check = false;
-        this.hashMaster;
-        this.master;
+        this.key = null;
+        this.editingId = null;
+        this.checkQueue = Promise.resolve();
+        this.dosidWindow = null;
+        this.ready = false;
 
         this.mb.on("ready", ()=> {
+            this.ready = true;
             if(settings.getSync().master) {
-                this.checkMaster("");
-                this.mb.hideWindow();
+                this.checkMaster("").then(() => this.mb.hideWindow());
             }
         });
 
-        ipcMain.on('registerMaster', (event, pass) => {
-            this.registerMaster(pass);
+        // Messages from the credentials window itself.
+        const onCredentials = (channel, handler) => {
+            ipcMain.on(channel, (event, ...args) => {
+                if (this.mb.window && event.sender === this.mb.window.webContents) {
+                    handler(event, ...args);
+                }
+            });
+        };
+
+        // Messages that need an unlocked master password.
+        const onUnlocked = (channel, handler) => {
+            onCredentials(channel, (event, ...args) => {
+                if (this.check) {
+                    handler(event, ...args);
+                }
+            });
+        };
+
+        onCredentials('registerMaster', (event, pass) => {
+            if (!settings.getSync().master) {
+                this.registerMaster(pass).catch(error => console.error(error));
+            }
         });
 
-        ipcMain.on('autoLogin', (event, id) => {
-            this.window = BrowserWindow.fromId(id);
+        // Sent by the AUTOLOGIN button injected into the DarkOrbit login page.
+        ipcMain.on('autoLogin', (event) => {
+            if (!isDarkorbitUrl(event.sender.getURL())) {
+                return;
+            }
+
+            this.window = BrowserWindow.fromWebContents(event.sender);
 
             if (this.check) {
                 this.load("list");
@@ -44,7 +71,6 @@ class Credentials {
 
                     dialog.showMessageBox(message)
                         .then(() => {
-                            backup.salt = true;
                             delete backup.master;
                             delete backup.accounts;
                             settings.setSync(backup);
@@ -55,104 +81,104 @@ class Credentials {
                     return;
                 }
 
-                this.load("login");
+                this.load(backup.master ? "login" : "register");
             }
         });
 
-        ipcMain.on('checkMaster', (event, pass) => {
-            this.checkMaster(pass);
-            if (!this.check) {
-                this.mb.window.webContents.send("checkMasterRet", this.check);
+        onCredentials('checkMaster', async (event, pass) => {
+            if (!await this.checkMaster(pass)) {
+                this.mb.window.webContents.send("checkMasterRet", false);
             }
         });
 
-        ipcMain.on('hideMasterRegister', (event, data) => {
+        onCredentials('hideMasterRegister', (event, data) => {
             let backup = settings.getSync();
 
-            backup.hideMasterRegister = data;
+            backup.hideMasterRegister = Boolean(data);
 
             settings.setSync(backup);
 
             this.mb.window.hide();
         });
 
-        ipcMain.on('resetMaster', () => {
+        onCredentials('resetMaster', () => {
             this.resetMaster();
         });
 
-        ipcMain.on('loadList', () => {
-            let backup = settings.getSync();
-
-            if ("accounts" in backup) {
-                backup.accounts = crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts });
-            } else {
-                backup.accounts = [];
-            }
-
-            this.mb.window.webContents.send("sendList", backup.accounts);
+        onUnlocked('loadList', () => {
+            this.mb.window.webContents.send("sendList", JSON.stringify(this.readAccounts()));
         });
 
-        ipcMain.on('userRegister', () => {
+        onUnlocked('userRegister', () => {
             this.load("userRegister");
         });
 
-        ipcMain.on('registerUser', (event, data) => {
+        onUnlocked('registerUser', (event, data) => {
             this.registerAccount(data);
-
-            this.load("list");
         });
 
-        ipcMain.on('editUser', (event, id) => {
-            let backup = settings.getSync();
-
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
-
-            let account = backup.accounts.find(o => o.id == id);
-
+        onUnlocked('editUser', (event, id) => {
+            this.editingId = id;
             this.load("editUser");
-
-            ipcMain.on('getEditUser', () => {
-                this.mb.window.webContents.send("sendEditUser", [account.id, account.username]);
-            });
         });
 
-        ipcMain.on('changeUser', (event, data) => {
+        onUnlocked('getEditUser', () => {
+            let account = this.readAccounts().find(o => o.id == this.editingId);
+
+            if (account) {
+                this.mb.window.webContents.send("sendEditUser", [account.id, account.username]);
+            }
+        });
+
+        onUnlocked('changeUser', (event, data) => {
             this.editAccount(data);
             this.load("list");
         });
 
-        ipcMain.on('deleteUser', (event, data) => {
+        onUnlocked('deleteUser', (event, data) => {
             this.deleteAccount(data);
             this.load("list");
         });
 
-        ipcMain.on('loginUser', (event, data) => {
+        onUnlocked('loginUser', (event, data) => {
             this.mb.hideWindow();
 
-            let backup = settings.getSync();
+            let account = this.readAccounts().find(o => o.id == data);
 
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+            if (!account) {
+                return;
+            }
 
-            let account = backup.accounts.find(o => o.id == data);
+            let credentials = [account.username, account.password];
 
-            if (this.window) {
-                try {
-                    if (new URL(this.window.webContents.getURL()).origin === "https://www.darkorbit.com") {
-                        return this.window.webContents.send("login", [account.username, account.password]);
-                    }
-                } catch (e) {
-
-                }
+            // Reuse the window that asked for autologin only while it still shows the login form.
+            if (this.window && !this.window.isDestroyed() && isLoginPage(this.window.webContents.getURL())) {
+                return this.window.webContents.send("login", credentials);
             }
 
             let window = this.client.createWindow("client");
-            window.webContents.on('did-finish-load', () => {
-                window.webContents.send("login", [account.username, account.password])
+            window.webContents.once('did-finish-load', () => {
+                // Credentials are only ever handed to a DarkOrbit login page.
+                if (isLoginPage(window.webContents.getURL())) {
+                    window.webContents.send("login", credentials);
+                }
             });
         });
 
-        ipcMain.on('close', () => {
+        onCredentials('close', () => {
             this.load("list")
+        });
+
+        ipcMain.on('dosidSubmit', (event, value) => {
+            if (this.isDosidWindow(event)) {
+                this.submitDosid(String(value));
+            }
+        });
+
+        ipcMain.on('dosidCancel', (event) => {
+            if (this.isDosidWindow(event)) {
+                this.dosidWindow.close();
+            }
         });
     }
 
@@ -186,7 +212,6 @@ class Credentials {
                     'preload': `${__dirname}/html/master.js`,
                     'contextIsolation': true,
                     'nodeIntegration': true,
-                    'plugins': true,
                     'devTools': this.client.arg.dev
                 }
             }
@@ -201,10 +226,19 @@ class Credentials {
         return config;
     }
 
+    showWhenReady() {
+        if (this.ready) {
+            this.mb.showWindow();
+        } else {
+            this.mb.once("ready", () => this.mb.showWindow());
+        }
+    }
+
     load(type) {
         switch (type) {
             case "login":
-                this.mb.window.loadURL("./credentials/html/masterLogin.html");
+                this.mb.window.setSize(380, 370);
+                this.mb.window.loadFile("./credentials/html/masterLogin.html");
 
                 break;
             case "register":
@@ -239,40 +273,103 @@ class Credentials {
         }
     }
 
-    registerMaster(input) {
+    async registerMaster(input) {
+        let salt = crypt.salt();
+        let key = await crypt.deriveKey(input, salt);
+
+        // Read after the await so concurrent settings writes are not lost.
         let backup = settings.getSync();
-
-        backup.salt = crypt.salt();
-
-        this.hashMaster = crypt.hash(input, backup.salt);
-
-        this.master = crypt.encrypt(this.hashMaster);
-
-        this.check = true;
-
-        backup.master = this.master;
+        backup.salt = salt;
+        backup.cryptVersion = crypt.VERSION;
+        backup.master = crypt.createVerifier(key);
+        delete backup.accounts;
 
         settings.setSync(backup);
+
+        this.key = key;
+        this.check = true;
 
         this.load("list");
     }
 
     checkMaster(input) {
-        if (this.check === true) {
-            return this.check;
-        }
+        // Attempts run one after another, each with its own password, so a quick retry
+        // is never answered with the result of an earlier attempt.
+        let attempt = this.checkQueue.then(async () => {
+            if (this.check) {
+                return true;
+            }
 
+            let check = false;
+            try {
+                check = await this.verifyMaster(input);
+            } catch (error) {
+                console.error(error);
+            }
+
+            if (check) {
+                this.check = true;
+                this.load("list");
+            }
+            return check;
+        });
+
+        this.checkQueue = attempt;
+        return attempt;
+    }
+
+    async verifyMaster(input) {
         let backup = settings.getSync();
 
-        let hashMaster = crypt.hash(input, backup.salt);
-
-        if (crypt.decrypt(backup.master) === hashMaster) {
-            this.check = true;
-            this.hashMaster = hashMaster;
-            this.load("list");
+        if (backup.cryptVersion !== crypt.VERSION) {
+            return this.migrateLegacy(input, backup);
         }
 
-        return this.check;
+        let key = await crypt.deriveKey(input, backup.salt);
+
+        if (!crypt.checkVerifier(key, backup.master)) {
+            return false;
+        }
+
+        this.key = key;
+        return true;
+    }
+
+    // Re-encrypts settings written with the old embedded key once the user proves the master password.
+    async migrateLegacy(input, backup) {
+        let hashMaster;
+
+        try {
+            hashMaster = crypt.legacyHash(input, backup.salt);
+            if (crypt.legacyDecrypt(backup.master) !== hashMaster) {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+
+        let accounts = [];
+        if (typeof backup.accounts === "string") {
+            try {
+                accounts = JSON.parse(crypt.legacyDecrypt({ "iv": hashMaster, "content": backup.accounts }));
+            } catch (e) {
+                console.error("Saved accounts could not be migrated");
+            }
+        }
+
+        let salt = crypt.salt();
+        let key = await crypt.deriveKey(input, salt);
+
+        backup = settings.getSync();
+        backup.salt = salt;
+        backup.cryptVersion = crypt.VERSION;
+        backup.master = crypt.createVerifier(key);
+        backup.accounts = crypt.encryptJson(key, accounts);
+
+        settings.setSync(backup);
+
+        this.key = key;
+        return true;
     }
 
     resetMaster() {
@@ -281,107 +378,123 @@ class Credentials {
         delete backup.master;
         delete backup.salt;
         delete backup.accounts;
+        delete backup.cryptVersion;
 
         settings.setSync(backup);
+
+        this.check = false;
+        this.key = null;
 
         this.load("register");
     }
 
-    registerAccount(input) {
+    readAccounts() {
         let backup = settings.getSync();
 
-        if ("accounts" in backup) {
-            backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
-        } else {
-            backup.accounts = [];
+        if (!backup.accounts) {
+            return [];
         }
 
-        let id = new Date().valueOf();
+        return crypt.decryptJson(this.key, backup.accounts);
+    }
 
-        let account = {
-            id,
-            username: input[0],
-            password: input[1]
-        }
+    writeAccounts(accounts) {
+        let backup = settings.getSync();
 
-        backup.accounts.push(account);
-
-        backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
+        backup.accounts = crypt.encryptJson(this.key, accounts);
 
         settings.setSync(backup);
+    }
+
+    registerAccount(input) {
+        let accounts = this.readAccounts();
+
+        // Ids are timestamps; two accounts saved in the same millisecond must still differ.
+        let id = Math.max(Date.now(), ...accounts.map(account => Number(account.id) + 1));
+
+        accounts.push({
+            id,
+            username: String(input[0]),
+            password: String(input[1])
+        });
+
+        this.writeAccounts(accounts);
 
         this.load("list");
     }
 
     editAccount(input) {
-        let backup = settings.getSync();
+        let accounts = this.readAccounts();
 
-        backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
+        let accountIndex = accounts.findIndex(x => x.id == input[0]);
 
-        let accountIndex = backup.accounts.findIndex(x => x.id == input[0]);
+        if (accountIndex === -1) {
+            return;
+        }
 
-        backup.accounts[accountIndex] = {
-            id: input[0],
-            username: input[1],
-            password: input[2]
+        accounts[accountIndex] = {
+            id: accounts[accountIndex].id,
+            username: String(input[1]),
+            password: String(input[2])
         };
 
-        backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
-
-        settings.setSync(backup);
+        this.writeAccounts(accounts);
     }
 
     deleteAccount(id) {
-        let backup = settings.getSync();
-
-        backup.accounts = JSON.parse(crypt.decrypt({ "iv": this.hashMaster, "content": backup.accounts }));
-
-        let newAccounts = [];
-
-        for (let elem of backup.accounts) {
-            if (elem.id !== id) {
-                newAccounts.push(elem);
-            }
-        }
-
-        backup.accounts = newAccounts;
-
-        backup.accounts = crypt.encrypt(JSON.stringify(backup.accounts), this.hashMaster).content;
-
-        settings.setSync(backup);
+        this.writeAccounts(this.readAccounts().filter(elem => elem.id != id));
     }
 
     loginDosid() {
-        let alert = new Alert();
+        if (this.dosidWindow) {
+            this.dosidWindow.focus();
+            return;
+        }
 
-        let swalOptions = {
-            imageUrl: 'https://i.imgur.com/tkyZuOn.png',
-            imageHeight: 30,
-            imageAlt: 'Sid Login',
-            input: 'text',
-            inputPlaceholder: 'https://es1.darkorbit.com/?dosid=c21cf6377518dd6e93450c6085a548b1',
-            inputAttributes: {
-                maxlength: 100,
-                autocapitalize: 'off',
-                autocorrect: 'off'
-            },
-            showCancelButton: true,
-            cancelButtonColor: '#d33',
-        };
-
-        alert.fireFrameless(swalOptions, null, true, true).then((dosid) => {
-            if (dosid.value) {
-                let sid = dosid.value.match(/[?&](dosid|sid)=([^&]+)/);
-                let baseUrl = new URL(dosid.value).origin;
-
-                if (sid !== null && baseUrl !== null) {
-                    const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
-                    let window = this.client.createWindow("client");
-                    window.webContents.session.cookies.set(cookie);
-                    window.loadURL(`${baseUrl}/indexInternal.es?action=internalStart`, { userAgent: this.useragent });
-                }
+        this.dosidWindow = new BrowserWindow({
+            'width': 520,
+            'height': 340,
+            'resizable': false,
+            'minimizable': false,
+            'maximizable': false,
+            'title': "Login with Dosid",
+            'webPreferences': {
+                'preload': `${__dirname}/html/dosid.js`,
+                'sandbox': true,
+                'contextIsolation': true,
+                'nodeIntegration': false,
+                'enableRemoteModule': false,
+                'devTools': this.client.arg.dev
             }
         });
+
+        this.dosidWindow.setMenuBarVisibility(false);
+        this.dosidWindow.loadFile("./credentials/html/dosid.html");
+        this.dosidWindow.on("closed", () => {
+            this.dosidWindow = null;
+        });
+    }
+
+    isDosidWindow(event) {
+        return Boolean(this.dosidWindow) && event.sender === this.dosidWindow.webContents;
+    }
+
+    submitDosid(value) {
+        let sid = value.match(/[?&](dosid|sid)=([^&#]+)/);
+
+        if (sid === null || !isDarkorbitUrl(value)) {
+            dialog.showErrorBox("Login with Dosid", "Only https DarkOrbit urls with a dosid parameter can be used.");
+            return;
+        }
+
+        this.dosidWindow.close();
+
+        let baseUrl = parseUrl(value).origin;
+        const cookie = { url: baseUrl, name: 'dosid', value: sid[2] };
+        // Client windows share the default session, so the cookie is set before the window loads.
+        session.defaultSession.cookies.set(cookie)
+            .catch(error => console.error(error))
+            .then(() => this.client.createWindow("client", `${baseUrl}/indexInternal.es?action=internalStart`));
     }
 }
 

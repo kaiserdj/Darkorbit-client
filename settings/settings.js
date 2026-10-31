@@ -1,10 +1,11 @@
 const { BrowserWindow, MenuItem, ipcMain } = require('electron');
 const settings = require("electron-settings");
+const defaultSettings = require("../defaultSettings.json");
+const { openExternalSafe } = require("../security");
 
 class Settings {
     constructor(client) {
         this.client = client;
-        this.window;
 
         this.client.menuTray.insert(4, new MenuItem({
             label: "Settings",
@@ -18,15 +19,61 @@ class Settings {
 
         this.client.rebuildTrayMenu();
 
-        ipcMain.on("LoadSettings", () => {
+        ipcMain.on("LoadSettings", (event) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
             this.window.webContents.send("SendLoadSettings", settings.getSync().Settings)
         })
 
+        ipcMain.on("relaunch", (event) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
+            this.client.core.app.relaunch();
+            this.client.core.app.exit(0);
+        });
+
+        ipcMain.on("openExternal", (event, url) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
+            openExternalSafe(url);
+        });
+
         ipcMain.on('SetOptionConfig', (event, opt, data) => {
+            if (!this.isSettingsWindow(event)) {
+                return;
+            }
+
+            // Only known options with the type of their default value are stored.
+            if (!Object.prototype.hasOwnProperty.call(defaultSettings.Settings, opt)) {
+                return;
+            }
+
+            let value;
+            switch (typeof defaultSettings.Settings[opt]) {
+                case "boolean":
+                    value = Boolean(data);
+                    break;
+                case "number":
+                    value = Number(data);
+                    if (!Number.isFinite(value) || value < 0) {
+                        return;
+                    }
+                    break;
+                default:
+                    value = String(data);
+            }
+
             let backup = settings.getSync();
-            backup.Settings[opt] = data;
+            backup.Settings[opt] = value;
             settings.setSync(backup);
         });
+    }
+
+    isSettingsWindow(event) {
+        return Boolean(this.window) && event.sender === this.window.webContents;
     }
 
     open() {
@@ -40,10 +87,7 @@ class Settings {
                 'preload': `${__dirname}/settings_js.js`,
                 'contextIsolation': true,
                 'nodeIntegration': true,
-                'nodeIntegrationInWorker': true,
-                'enableRemoteModule': true,
-                'webSecurity': false,
-                'plugins': true,
+                'enableRemoteModule': false,
                 'devTools': this.client.arg.dev
             }
         };

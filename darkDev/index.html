@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'none'; object-src 'none'; base-uri 'none'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Kaiserdj">
@@ -121,7 +122,7 @@
                                                 <div class="modal-body">
                                                     <div class="mb-3">
                                                         <label for="MatchLoad" class="form-label">Match</label>
-                                                        <input type="text" class="form-control" id="MatchLoad" placeholder="String To Match Allow Regex. Example: *bpsecure*main.swf*" required>
+                                                        <input type="text" class="form-control" id="MatchLoad" placeholder="Wildcard pattern for the whole url (* matches anything). Example: *bpsecure*main.swf*" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="ActionUrlLoad" class="form-label">Action Url</label>
@@ -184,7 +185,7 @@
                                                 <div class="modal-body">
                                                     <div class="mb-3">
                                                         <label for="MatchJs" class="form-label">Match</label>
-                                                        <input type="text" class="form-control" id="MatchJs" placeholder="String To Match Allow Regex. Example: *darkorbit*internalDock*" required>
+                                                        <input type="text" class="form-control" id="MatchJs" placeholder="Wildcard pattern for the whole url (* matches anything). Example: *darkorbit*internalDock*" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="ActionUrlJs" class="form-label">Action Url</label>
@@ -240,7 +241,7 @@
                                                 <div class="modal-body">
                                                     <div class="mb-3">
                                                         <label for="MatchCss" class="form-label">Match</label>
-                                                        <input type="text" class="form-control" id="MatchCss" placeholder="String To Match Allow Regex. Example: *darkorbit*internalDock*" required>
+                                                        <input type="text" class="form-control" id="MatchCss" placeholder="Wildcard pattern for the whole url (* matches anything). Example: *darkorbit*internalDock*" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="ActionUrlCss" class="form-label">Action Url</label>

@@ -7,7 +7,7 @@ import sys
 from datetime import datetime
 
 from websocket import create_connection
-ws = create_connection("ws://localhost:44569")
+ws = create_connection("ws://127.0.0.1:44569")
 
 avm_script ='''
 var patterns = { 
